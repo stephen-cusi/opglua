@@ -107,8 +107,10 @@ typedef struct FuncScope {
 #define FSCOPE_GOLA		0x04	/* Goto or label used in scope. */
 #define FSCOPE_UPVAL		0x08	/* Upvalue in scope. */
 #define FSCOPE_NOCLOSE		0x10	/* Do not close upvalues. */
+#define FSCOPE_CONTINUE		0x20	/* GLua: continue used in scope. */
 
 #define NAME_BREAK		((GCstr *)(uintptr_t)1)
+#define NAME_CONTINUE		((GCstr *)(uintptr_t)2)	/* GLua: 'continue'. */
 
 /* Index into variable stack. */
 typedef uint16_t VarIndex;
@@ -1147,7 +1149,8 @@ static MSize gola_new(LexState *ls, GCstr *name, uint8_t info, BCPos pc)
       lj_lex_error(ls, 0, LJ_ERR_XLIMC, LJ_MAX_VSTACK);
     lj_mem_growvec(ls->L, ls->vstack, ls->sizevstack, LJ_MAX_VSTACK, VarInfo);
   }
-  lua_assert(name == NAME_BREAK || lj_tab_getstr(fs->kt, name) != NULL);
+  lua_assert(name == NAME_BREAK || name == NAME_CONTINUE ||
+	     lj_tab_getstr(fs->kt, name) != NULL);
   /* NOBARRIER: name is anchored in fs->kt and ls->vstack is not a GCobj. */
   setgcref(ls->vstack[vtop].name, obj2gco(name));
   ls->vstack[vtop].startpc = pc;
@@ -1199,7 +1202,8 @@ static void gola_resolve(LexState *ls, FuncScope *bl, MSize idx)
 	GCstr *name = strref(var_get(ls, ls->fs, vg->slot).name);
 	lua_assert((uintptr_t)name >= VARNAME__MAX);
 	ls->linenumber = ls->fs->bcbase[vg->startpc].line;
-	lua_assert(strref(vg->name) != NAME_BREAK);
+	lua_assert(strref(vg->name) != NAME_BREAK &&
+		   strref(vg->name) != NAME_CONTINUE);
 	lj_lex_error(ls, 0, LJ_ERR_XGSCOPE,
 		     strdata(strref(vg->name)), strdata(name));
       }
@@ -1225,8 +1229,13 @@ static void gola_fixup(LexState *ls, FuncScope *bl)
 	    gola_patch(ls, vg, v);
 	  }
       } else if (gola_isgoto(v)) {
-	if (bl->prev) {  /* Propagate goto or break to outer scope. */
-	  bl->prev->flags |= name == NAME_BREAK ? FSCOPE_BREAK : FSCOPE_GOLA;
+	if (bl->prev) {  /* Propagate goto, break or continue to outer scope. */
+	  if (name == NAME_BREAK)
+	    bl->prev->flags |= FSCOPE_BREAK;
+	  else if (name == NAME_CONTINUE)	/* GLua */
+	    bl->prev->flags |= FSCOPE_CONTINUE;
+	  else
+	    bl->prev->flags |= FSCOPE_GOLA;
 	  v->slot = bl->nactvar;
 	  if ((bl->flags & FSCOPE_UPVAL))
 	    gola_close(ls, v);
@@ -1234,6 +1243,8 @@ static void gola_fixup(LexState *ls, FuncScope *bl)
 	  ls->linenumber = ls->fs->bcbase[v->startpc].line;
 	  if (name == NAME_BREAK)
 	    lj_lex_error(ls, 0, LJ_ERR_XBREAK);
+	  else if (name == NAME_CONTINUE)	/* GLua */
+	    lj_lex_error(ls, 0, LJ_ERR_XCONTINUE);
 	  else
 	    lj_lex_error(ls, 0, LJ_ERR_XLUNDEF, strdata(name));
 	}
@@ -1287,7 +1298,7 @@ static void fscope_end(FuncState *fs)
       return;
     }
   }
-  if ((bl->flags & FSCOPE_GOLA)) {
+  if ((bl->flags & (FSCOPE_GOLA|FSCOPE_CONTINUE))) {  /* GLua: + continue */
     gola_fixup(ls, bl);
   }
 }
@@ -2347,6 +2358,32 @@ static void parse_break(LexState *ls)
   gola_new(ls, NAME_BREAK, VSTACK_GOTO, bcemit_jmp(ls->fs));
 }
 
+/* Parse 'continue' statement.  GLua: like break, but it resolves to the
+** loop's continuation point instead of its exit (see the loop parsers).
+*/
+static void parse_continue(LexState *ls)
+{
+  ls->fs->bl->flags |= FSCOPE_CONTINUE;
+  gola_new(ls, NAME_CONTINUE, VSTACK_GOTO, bcemit_jmp(ls->fs));
+}
+
+/* GLua: resolve pending 'continue' jumps for the current loop scope to
+** `target`.  Mirrors the break-list resolution in fscope_end: the label is
+** created at `target`, then dropped, and every pending NAME_CONTINUE goto in
+** the scope is patched to it.  Called by each loop parser before its scope
+** is closed, since only the parser knows the loop's continuation point.
+*/
+static void continue_resolve(LexState *ls, FuncScope *bl, BCPos target)
+{
+  if ((bl->flags & FSCOPE_CONTINUE)) {
+    MSize idx;
+    bl->flags &= ~FSCOPE_CONTINUE;
+    idx = gola_new(ls, NAME_CONTINUE, VSTACK_LABEL, target);
+    ls->vtop = idx;  /* Drop the label immediately. */
+    gola_resolve(ls, bl, idx);
+  }
+}
+
 /* Parse 'goto' statement. */
 static void parse_goto(LexState *ls)
 {
@@ -2418,6 +2455,7 @@ static void parse_while(LexState *ls, BCLine line)
   parse_block(ls);
   jmp_patch(fs, bcemit_jmp(fs), start);
   lex_match(ls, TK_end, TK_while, line);
+  continue_resolve(ls, &bl, start);	/* GLua: continue -> re-eval condition */
   fscope_end(fs);
   jmp_tohere(fs, condexit);
   jmp_patchins(fs, loop, fs->pc);
@@ -2428,7 +2466,7 @@ static void parse_repeat(LexState *ls, BCLine line)
 {
   FuncState *fs = ls->fs;
   BCPos loop = fs->lasttarget = fs->pc;
-  BCPos condexit;
+  BCPos condexit, conttarget;
   FuncScope bl1, bl2;
   fscope_begin(fs, &bl1, FSCOPE_LOOP);  /* Breakable loop scope. */
   fscope_begin(fs, &bl2, 0);  /* Inner scope. */
@@ -2436,6 +2474,7 @@ static void parse_repeat(LexState *ls, BCLine line)
   bcemit_AD(fs, BC_LOOP, fs->nactvar, 0);
   parse_chunk(ls);
   lex_match(ls, TK_until, TK_repeat, line);
+  conttarget = fs->pc;  /* GLua: continue -> re-eval the until condition */
   condexit = expr_cond(ls);  /* Parse condition (still inside inner scope). */
   if (!(bl2.flags & FSCOPE_UPVAL)) {  /* No upvalues? Just end inner scope. */
     fscope_end(fs);
@@ -2447,6 +2486,7 @@ static void parse_repeat(LexState *ls, BCLine line)
   }
   jmp_patch(fs, condexit, loop);  /* Jump backwards if !cond. */
   jmp_patchins(fs, loop, fs->pc);
+  continue_resolve(ls, &bl1, conttarget);	/* GLua: continue -> until cond */
   fscope_end(fs);  /* End loop scope. */
 }
 
@@ -2486,6 +2526,10 @@ static void parse_for_num(LexState *ls, GCstr *varname, BCLine line)
   fs->bcbase[loopend].line = line;  /* Fix line for control ins. */
   jmp_patchins(fs, loopend, loop+1);
   jmp_patchins(fs, loop, fs->pc);
+  /* GLua: resolve on the still-open FSCOPE_LOOP scope from parse_for (the
+  ** pending gotos were propagated here by the inner scopes' fscope_end).
+  */
+  continue_resolve(ls, fs->bl, loopend);	/* GLua: continue -> FORL */
 }
 
 /* Try to predict whether the iterator is next() and specialize the bytecode.
@@ -2555,11 +2599,18 @@ static void parse_for_iter(LexState *ls, GCstr *indexname)
   fscope_end(fs);
   /* Perform loop inversion. Loop control instructions are at the end. */
   jmp_patchins(fs, loop, fs->pc);
-  bcemit_ABC(fs, isnext ? BC_ITERN : BC_ITERC, base, nvars-3+1, 2+1);
-  loopend = bcemit_AJ(fs, BC_ITERL, base, NO_JMP);
-  fs->bcbase[loopend-1].line = line;  /* Fix line for control ins. */
-  fs->bcbase[loopend].line = line;
-  jmp_patchins(fs, loopend, loop+1);
+  /* GLua: 'continue' re-invokes the iterator, so its target is the ITERC /
+  ** ITERN instruction itself (it falls through into the body via ITERL).
+  ** Resolve on the still-open FSCOPE_LOOP scope from parse_for.
+  */
+  {
+    BCPos conttarget = bcemit_ABC(fs, isnext ? BC_ITERN : BC_ITERC, base, nvars-3+1, 2+1);
+    loopend = bcemit_AJ(fs, BC_ITERL, base, NO_JMP);
+    fs->bcbase[loopend-1].line = line;  /* Fix line for control ins. */
+    fs->bcbase[loopend].line = line;
+    jmp_patchins(fs, loopend, loop+1);
+    continue_resolve(ls, fs->bl, conttarget);
+  }
 }
 
 /* Parse 'for' statement. */
@@ -2653,6 +2704,10 @@ static int parse_stmt(LexState *ls)
   case TK_break:
     lj_lex_next(ls);
     parse_break(ls);
+    return !LJ_52;  /* Must be last in Lua 5.1. */
+  case TK_continue:	/* GLua: behaves like 'break' for the block-end rule. */
+    lj_lex_next(ls);
+    parse_continue(ls);
     return !LJ_52;  /* Must be last in Lua 5.1. */
 #if LJ_52
   case ';':

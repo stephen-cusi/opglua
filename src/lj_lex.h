@@ -12,8 +12,11 @@
 #include "lj_err.h"
 
 /* Lua lexer tokens. */
+/* GLua: 'continue' is a reserved word, placed right after 'break' so the
+** token numbers and the reserved-word table line up with the reference.
+*/
 #define TKDEF(_, __) \
-  _(and) _(break) _(do) _(else) _(elseif) _(end) _(false) \
+  _(and) _(break) _(continue) _(do) _(else) _(elseif) _(end) _(false) \
   _(for) _(function) _(goto) _(if) _(in) _(local) _(nil) _(not) _(or) \
   _(repeat) _(return) _(then) _(true) _(until) _(while) \
   __(concat, ..) __(dots, ...) __(eq, ==) __(ge, >=) __(le, <=) __(ne, ~=) \

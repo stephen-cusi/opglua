@@ -707,6 +707,13 @@ LUA_API void lua_createtable(lua_State *L, int narray, int nrec)
   incr_top(L);
 }
 
+/* GLua: MetaID slot for luaL_newmetatable_type.  Plain luaL_newmetatable
+** calls leave it at 0; luaL_newmetatable_type fills it before delegating.
+** The metatable gets tagged with MetaName/MetaID fields (see below), which
+** is how the runtime reports userdata by name (e.g. type(ent) == "Entity").
+*/
+static int glua_metaid_slot = 0;
+
 LUALIB_API int luaL_newmetatable(lua_State *L, const char *tname)
 {
   GCtab *regt = tabV(registry(L));
@@ -716,11 +723,30 @@ LUALIB_API int luaL_newmetatable(lua_State *L, const char *tname)
     settabV(L, tv, mt);
     settabV(L, L->top++, mt);
     lj_gc_anybarriert(L, regt);
+    /* GLua: tag the new metatable with MetaName and MetaID. */
+    setstrV(L, L->top, lj_str_newz(L, tname));
+    incr_top(L);
+    lua_setfield(L, -2, "MetaName");
+    setintV(L->top, glua_metaid_slot);
+    incr_top(L);
+    lua_setfield(L, -2, "MetaID");
     return 1;
   } else {
     copyTV(L, L->top++, tv);
     return 0;
   }
+}
+
+/* GLua: like luaL_newmetatable, but the created metatable carries the given
+** numeric type id in its MetaID field.
+*/
+LUALIB_API int luaL_newmetatable_type(lua_State *L, const char *tname, int typeid)
+{
+  int res;
+  glua_metaid_slot = typeid;
+  res = luaL_newmetatable(L, tname);
+  glua_metaid_slot = 0;
+  return res;
 }
 
 LUA_API int lua_pushthread(lua_State *L)
@@ -1225,6 +1251,15 @@ LUA_API int lua_resume(lua_State *L, int nargs)
   setstrV(L, L->top, lj_err_str(L, LJ_ERR_COSUSP));
   incr_top(L);
   return LUA_ERRRUN;
+}
+
+/* GLua: the reference exposes the plain resume path under this name and
+** layers its own bookkeeping wrapper on top in the game DLLs.  Kept as an
+** alias so the export surface matches.
+*/
+LUA_API int lua_resume_real(lua_State *L, int nargs)
+{
+  return lua_resume(L, nargs);
 }
 
 /* -- GC and memory management -------------------------------------------- */

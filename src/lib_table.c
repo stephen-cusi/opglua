@@ -102,7 +102,9 @@ LJLIB_CF(table_insert)		LJLIB_REC(.)
     copyTV(L, dst, L->top-1);  /* Set new value. */
     lj_gc_barriert(L, t, dst);
   }
-  return 0;
+  /* GLua: returns the inserted position. */
+  setintV(L->top-1, i);
+  return 1;
 }
 
 LJLIB_LUA(table_remove) /*

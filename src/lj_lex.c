@@ -332,6 +332,40 @@ static LexToken lex_scan(LexState *ls, TValue *tv)
       while (!lex_iseol(ls) && ls->c != LEX_EOF)
 	lex_next(ls);
       continue;
+    case '/':
+      lex_next(ls);
+      if (ls->c == '*') {  /* GLua: C-style block comment. */
+	lex_next(ls);
+	for (;;) {
+	  if (ls->c == LEX_EOF) {
+	    lj_lex_error(ls, TK_eof, LJ_ERR_XLCOM);
+	  } else if (ls->c == '*') {
+	    lex_next(ls);
+	    if (ls->c == '/') { lex_next(ls); break; }
+	  } else {
+	    if (lex_iseol(ls)) lex_newline(ls);
+	    else lex_next(ls);
+	  }
+	}
+	continue;
+      }
+      if (ls->c != '/') return '/';
+      /* GLua: C-style "//.*\n" short comment. */
+      while (!lex_iseol(ls) && ls->c != LEX_EOF)
+	lex_next(ls);
+      continue;
+    case '&':
+      lex_next(ls);
+      if (ls->c == '&') { lex_next(ls); return TK_and; }  /* GLua: && */
+      return '&';
+    case '|':
+      lex_next(ls);
+      if (ls->c == '|') { lex_next(ls); return TK_or; }  /* GLua: || */
+      return '|';
+    case '!':
+      lex_next(ls);
+      if (ls->c == '=') { lex_next(ls); return TK_ne; }  /* GLua: != */
+      return TK_not;  /* GLua: ! */
     case '[': {
       int sep = lex_skipeq(ls);
       if (sep >= 0) {
