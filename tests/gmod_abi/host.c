@@ -23,7 +23,7 @@
 extern "C" void *CreateInterface( const char *name, int *pReturnCode );
 extern "C" int GMOD_LoadBinaryModule( lua_State *L, const char *path );
 
-/* Minimal ILuaShared view: same vtable order the VM installs. */
+/* Minimal ILuaShared view: same vtable order the VM installs (18 slots). */
 class ILuaSharedView
 {
 public:
@@ -34,6 +34,17 @@ public:
 	virtual GarrysMod::Lua::ILuaInterface *CreateLuaInterface( unsigned char realm, bool unknown );
 	virtual void CloseLuaInterface( GarrysMod::Lua::ILuaInterface *iface );
 	virtual GarrysMod::Lua::ILuaInterface *GetLuaInterface( unsigned char realm );
+	virtual void *LoadFile( const void *path, const void *pathId, bool a, bool b );
+	virtual void MountLua( const char *pathID );
+	virtual void MountLuaAdd( const char *file, const char *pathID );
+	virtual void UnMountLua( const char *pathID );
+	virtual void SetFileContents( const char *a, const char *b );
+	virtual void SetLuaFindHook( void *hook );
+	virtual void FindScripts( const void *path, const void *pathID, void *out );
+	virtual const char *GetStackTraces();
+	virtual void InvalidateCache( const void *unknown );
+	virtual void EmptyCache();
+	virtual bool ScriptExists( const void *file, const void *path, bool unknown );
 };
 
 static int g_fail = 0;
@@ -65,6 +76,24 @@ int main( int argc, char **argv )
 	check( "CreateInterface returned a non-null interface", sharedRaw != NULL );
 	if ( sharedRaw == NULL ) return 1;
 	shared = (ILuaSharedView *)sharedRaw;
+
+	/* The engine hands its interface factory to Init before creating
+	** interfaces.  A null factory is fine for the standalone path. */
+	shared->Init( NULL, false, NULL, NULL );
+
+	/* Unknown interface names return NULL, like the reference list walk. */
+	{
+		int rc2 = 0;
+		void *nope = CreateInterface( "NOT_A_REAL_INTERFACE", &rc2 );
+		check( "CreateInterface(unknown) returns NULL", nope == NULL && rc2 != 0 );
+	}
+
+	/* ILuaConVars is a separate interface the engine also requests. */
+	{
+		int rc3 = 0;
+		void *cv = CreateInterface( "LUACONVARS001", &rc3 );
+		check( "CreateInterface(LUACONVARS001) returns the convar object", cv != NULL );
+	}
 
 	LUA = shared->CreateLuaInterface( 1 /* SERVER */, true );
 	check( "CreateLuaInterface(SERVER) returned an interface", LUA != NULL );

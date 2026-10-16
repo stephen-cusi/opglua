@@ -2166,21 +2166,34 @@ static void ci_slot_dtor(CLuaInterface *self)
 }
 
 /* ------------------------------------------------------------------------ */
-/* CreateInterface: a minimal ILuaShared-style factory.  The reference       */
-/* matches on the name string; we accept any name and hand back our shared   */
-/* object so a caller can obtain a CLuaInterface.                           */
+/* CreateInterface: the reference interface factory.  The engine does
+** CreateInterface("LUASHARED003") to get the ILuaShared object and
+** CreateInterface("LUACONVARS001") for ILuaConVars.  Unknown names return
+** NULL with the standard return code, like the reference list walk. */
 
 typedef struct CLuaShared {
   const void *vtable;
+  void *factory;                        /* engine interface factory (Init) */
+  bool dedicated;
   CLuaInterface *client;
   CLuaInterface *server;
   CLuaInterface *menu;
 } CLuaShared;
 
 static void cs_dtor(CLuaShared *s) { (void)s; }
+
+/* Init(interfaceFactory, magicBool, context, pGet): the engine hands over
+** its CreateInterface so lua_shared can reach VFileSystem022 /
+** VEngineCvar007 etc.  Stored for later use; nothing is requested yet. */
 static void cs_Init(CLuaShared *s, void *f, bool b, void *ctx, void *get)
-{ (void)s; (void)f; (void)b; (void)ctx; (void)get; }
-static void cs_Shutdown(CLuaShared *s) { (void)s; }
+{ s->factory = f; s->dedicated = b; (void)ctx; (void)get; }
+
+static void cs_Shutdown(CLuaShared *s)
+{
+  if (s->client) { ci_slot_Shutdown(s->client); free(s->client); s->client = NULL; }
+  if (s->server) { ci_slot_Shutdown(s->server); free(s->server); s->server = NULL; }
+  if (s->menu)   { ci_slot_Shutdown(s->menu);   free(s->menu);   s->menu = NULL; }
+}
 static void cs_DumpStats(CLuaShared *s) { (void)s; }
 
 static CLuaInterface *cs_CreateLuaInterface(CLuaShared *s, unsigned char realm, bool unknown)
@@ -2218,26 +2231,105 @@ static CLuaInterface *cs_GetLuaInterface(CLuaShared *s, unsigned char realm)
   }
 }
 
-static const glua_vfn glua_shared_vtable[8] = {
-  (glua_vfn)cs_dtor,
-  (glua_vfn)cs_Init,
-  (glua_vfn)cs_Shutdown,
-  (glua_vfn)cs_DumpStats,
-  (glua_vfn)cs_CreateLuaInterface,
-  (glua_vfn)cs_CloseLuaInterface,
-  (glua_vfn)cs_GetLuaInterface,
-  (glua_vfn)gobj_stub
+/* ILuaShared tail (slots 7..17).  File-mounting and script enumeration go
+** through the engine file system, which the standalone build does not have;
+** they are safe stand-ins.  ScriptExists answers from the host filesystem so
+** Require-style probes still work. */
+static void *cs_LoadFile(CLuaShared *s, const void *path, const void *pathId,
+                         bool fromDatatable, bool fromFile)
+{ (void)s; (void)path; (void)pathId; (void)fromDatatable; (void)fromFile; return NULL; }
+static void cs_MountLua(CLuaShared *s, const char *pathID) { (void)s; (void)pathID; }
+static void cs_MountLuaAdd(CLuaShared *s, const char *file, const char *pathID)
+{ (void)s; (void)file; (void)pathID; }
+static void cs_UnMountLua(CLuaShared *s, const char *pathID) { (void)s; (void)pathID; }
+static void cs_SetFileContents(CLuaShared *s, const char *a, const char *b) { (void)s; (void)a; (void)b; }
+static void cs_SetLuaFindHook(CLuaShared *s, void *hook) { (void)s; (void)hook; }
+static void cs_FindScripts(CLuaShared *s, const void *path, const void *pathID, void *out)
+{ (void)s; (void)path; (void)pathID; (void)out; }
+static const char *cs_GetStackTraces(CLuaShared *s) { (void)s; return ""; }
+static void cs_InvalidateCache(CLuaShared *s, const void *unknown) { (void)s; (void)unknown; }
+static void cs_EmptyCache(CLuaShared *s) { (void)s; }
+static bool cs_ScriptExists(CLuaShared *s, const void *file, const void *path, bool unknown)
+{
+  const char *f = (const char *)file;
+  (void)s; (void)path; (void)unknown;
+  return f != NULL && glua_file_exists(f);
+}
+
+static const glua_vfn glua_shared_vtable[18] = {
+  /*  0 */ (glua_vfn)cs_dtor,
+  /*  1 */ (glua_vfn)cs_Init,
+  /*  2 */ (glua_vfn)cs_Shutdown,
+  /*  3 */ (glua_vfn)cs_DumpStats,
+  /*  4 */ (glua_vfn)cs_CreateLuaInterface,
+  /*  5 */ (glua_vfn)cs_CloseLuaInterface,
+  /*  6 */ (glua_vfn)cs_GetLuaInterface,
+  /*  7 */ (glua_vfn)cs_LoadFile,
+  /*  8 */ (glua_vfn)cs_MountLua,
+  /*  9 */ (glua_vfn)cs_MountLuaAdd,
+  /* 10 */ (glua_vfn)cs_UnMountLua,
+  /* 11 */ (glua_vfn)cs_SetFileContents,
+  /* 12 */ (glua_vfn)cs_SetLuaFindHook,
+  /* 13 */ (glua_vfn)cs_FindScripts,
+  /* 14 */ (glua_vfn)cs_GetStackTraces,
+  /* 15 */ (glua_vfn)cs_InvalidateCache,
+  /* 16 */ (glua_vfn)cs_EmptyCache,
+  /* 17 */ (glua_vfn)cs_ScriptExists
 };
+
+/* ILuaConVars: the engine asks for this too.  CreateConVar/CreateConCommand
+** need the engine cvar system, which is not linked here, so they return NULL
+** (failures are recoverable) rather than crash. */
+typedef struct CLuaConVars {
+  const void *vtable;
+} CLuaConVars;
+
+static void cv_dtor(CLuaConVars *c) { (void)c; }
+static void cv_Init(CLuaConVars *c) { (void)c; }
+static void *cv_CreateConVar(CLuaConVars *c, const char *name, const char *def,
+                             const char *help, int flags)
+{ (void)c; (void)name; (void)def; (void)help; (void)flags; return NULL; }
+static void *cv_CreateConCommand(CLuaConVars *c, const char *name, const char *help,
+                                 int flags, void *cb, void *completion)
+{ (void)c; (void)name; (void)help; (void)flags; (void)cb; (void)completion; return NULL; }
+static void cv_DestroyManaged(CLuaConVars *c) { (void)c; }
+static void cv_Cache(CLuaConVars *c, const char *key, const char *value) { (void)c; (void)key; (void)value; }
+static void cv_ClearCache(CLuaConVars *c) { (void)c; }
+static void cv_SaveManaged(CLuaConVars *c) { (void)c; }
+
+static const glua_vfn glua_convars_vtable[8] = {
+  (glua_vfn)cv_dtor,
+  (glua_vfn)cv_Init,
+  (glua_vfn)cv_CreateConVar,
+  (glua_vfn)cv_CreateConCommand,
+  (glua_vfn)cv_DestroyManaged,
+  (glua_vfn)cv_Cache,
+  (glua_vfn)cv_ClearCache,
+  (glua_vfn)cv_SaveManaged
+};
+
+static int ns_equals(const char *a, const char *b) { return glua_stricmp(a, b) == 0; }
 
 LUALIB_API void *CreateInterface(const char *name, int *pReturnCode)
 {
-  CLuaShared *shared;
-  if (pReturnCode) *pReturnCode = 0;
   if (name == NULL) { if (pReturnCode) *pReturnCode = 1; return NULL; }
-  shared = (CLuaShared *)calloc(1, sizeof(CLuaShared));
-  if (shared == NULL) { if (pReturnCode) *pReturnCode = 2; return NULL; }
-  shared->vtable = (const void *)glua_shared_vtable;
-  return shared;
+  if (ns_equals(name, "LUASHARED003") || ns_equals(name, "LUASHARED")) {
+    CLuaShared *shared = (CLuaShared *)calloc(1, sizeof(CLuaShared));
+    if (shared == NULL) { if (pReturnCode) *pReturnCode = 2; return NULL; }
+    shared->vtable = (const void *)glua_shared_vtable;
+    if (pReturnCode) *pReturnCode = 0;
+    return shared;
+  }
+  if (ns_equals(name, "LUACONVARS001") || ns_equals(name, "LUACONVARS")) {
+    CLuaConVars *cv = (CLuaConVars *)calloc(1, sizeof(CLuaConVars));
+    if (cv == NULL) { if (pReturnCode) *pReturnCode = 2; return NULL; }
+    cv->vtable = (const void *)glua_convars_vtable;
+    if (pReturnCode) *pReturnCode = 0;
+    return cv;
+  }
+  /* Unknown interface: the reference walks its list and returns NULL. */
+  if (pReturnCode) *pReturnCode = 1;
+  return NULL;
 }
 
 /* ------------------------------------------------------------------------ */
