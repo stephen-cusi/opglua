@@ -26,6 +26,12 @@ if errorlevel 1 goto :BAD
 
 copy /y "%BIN%\lua51.dll" "%HERE%lua51.dll" >nul
 
+rem Lay out a game dir so Require can resolve the module by name:
+rem   <gamedir>/lua/bin/gmsv_opglua_reqmod_win64.dll
+if not exist "%HERE%gamedir\lua\bin" mkdir "%HERE%gamedir\lua\bin"
+copy /y "%HERE%testmod.dll" "%HERE%gamedir\lua\bin\gmsv_opglua_reqmod_win64.dll" >nul
+set OPGLUA_GAMEDIR=%HERE%gamedir
+
 echo === running host.exe testmod.dll ===
 "%HERE%host.exe" testmod.dll
 set RC=%errorlevel%

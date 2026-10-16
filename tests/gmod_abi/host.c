@@ -127,6 +127,19 @@ int main( int argc, char **argv )
 		       rt != NULL && strcmp( rt, "hello-from-opglua-testmod:1234.5" ) == 0 );
 	}
 
+	/* Require -> binary module fallback.  OPGLUA_GAMEDIR points at a tree
+	** holding lua/bin/gmsv_<name>_win64.dll.  Clear the module's marker
+	** first so a successful Require is observable. */
+	{
+		LUA->PushNil();
+		LUA->SetField( GarrysMod::Lua::INDEX_GLOBAL, "opglua_test_marker" );
+		LUA->Require( "opglua_reqmod" );
+		const char *m2 = getGlobalString( LUA, "opglua_test_marker" );
+		printf( "[host] Require(\"opglua_reqmod\") marker = %s\n", m2 ? m2 : "(nil)" );
+		check( "Require(name) loaded the binary module",
+		       m2 != NULL && strcmp( m2, "hello-from-opglua-testmod" ) == 0 );
+	}
+
 	/* Negative paths: the loader return-code contract. */
 	{
 		int r1 = GMOD_LoadBinaryModule( state, "no_such_module_xyz.dll" );

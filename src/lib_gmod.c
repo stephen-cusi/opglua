@@ -1924,10 +1924,105 @@ static int ci_slot_CallFunctionProtected(CLuaInterface *self, int args, int rets
   return 1;
 }
 
+/* Binary module naming.  The realm prefix follows IsClient (the reference:
+** gmcl_ when the realm is Client, gmsv_ otherwise -- the menu realm uses the
+** sv prefix too).  The suffix and extension are compile-time properties of
+** this build, exactly as the reference hardcodes them. */
+static const char *glua_module_prefix(CLuaInterface *self)
+{ return self->realm == GLUA_REALM_CLIENT ? "gmcl_" : "gmsv_"; }
+
+static const char *glua_module_suffix(void)
+{
+#if defined(_WIN64)
+  return "win64";
+#elif defined(_WIN32)
+  return "win32";
+#elif defined(__ANDROID__)
+  return "android64";
+#elif defined(__aarch64__) || defined(__x86_64__)
+  return "linux64";
+#elif defined(__APPLE__)
+  return "osx64";
+#else
+  return "linux";
+#endif
+}
+
+static const char *glua_module_ext(void)
+{
+#ifdef _WIN32
+  return ".dll";
+#else
+  return ".so";
+#endif
+}
+
+/* Game directory used to resolve module paths.  The reference resolves via
+** the engine file system; a standalone host sets this registry value (or the
+** OPGLUA_GAMEDIR environment variable). */
+static const char *glua_game_dir(lua_State *L)
+{
+  const char *dir = NULL;
+  lua_getfield(L, LUA_REGISTRYINDEX, "OPGLUA_GAMEDIR");
+  if (lua_type(L, -1) == GT_STRING) dir = lua_tostring(L, -1);
+  lua_pop(L, 1);
+  if (dir == NULL || dir[0] == '\0') {
+    dir = getenv("OPGLUA_GAMEDIR");
+  }
+  return dir ? dir : "";
+}
+
+/* Load a binary module file and call its gmod13_open (mirrors the reference
+** path builder in the Require slot).  Returns 1 on success. */
+static int glua_load_binary_module(CLuaInterface *self, const char *fullpath, const char *entry)
+{
+  lua_State *L = self->state;
+#ifdef _WIN32
+  HMODULE h;
+#else
+  void *h;
+#endif
+  GLuaCFunc openfn;
+#ifdef _WIN32
+  h = LoadLibraryExA(fullpath, NULL, 0);
+  if (h == NULL) {
+    lua_pushfstring(L, "Couldn't load module library! (%s)", fullpath);
+    return 0;
+  }
+  openfn = (GLuaCFunc)(void *)GetProcAddress(h, "gmod13_open");
+#else
+  h = dlopen(fullpath, RTLD_NOW);
+  if (h == NULL) {
+    lua_pushfstring(L, "Couldn't load module library! (%s)", fullpath);
+    return 0;
+  }
+  openfn = (GLuaCFunc)dlsym(h, "gmod13_open");
+#endif
+  if (openfn == NULL) {
+    lua_pushfstring(L, "Couldn't find function in library! (%s)", fullpath);
+    return 0;
+  }
+  lua_pushcclosure(L, (lua_CFunction)(void *)openfn, 0);
+  lua_pushstring(L, entry);
+  if (lua_pcall(L, 1, 0, 0) != 0) return 0;
+  return 1;
+}
+
+static int glua_file_exists(const char *path)
+{
+  FILE *f = fopen(path, "rb");
+  if (f == NULL) return 0;
+  fclose(f);
+  return 1;
+}
+
+/* Require: try the Lua module file, then fall back to the binary module, the
+** same order the reference uses inside this slot. */
 static void ci_slot_Require(CLuaInterface *self, const char *name)
 {
   lua_State *L = self->state;
-  char path[512];
+  const char *dir;
+  char path[1024];
   lua_getglobal(L, "_MODULES");
   if (lua_type(L, -1) != GT_TABLE) {
     lua_pop(L, 1);
@@ -1936,18 +2031,33 @@ static void ci_slot_Require(CLuaInterface *self, const char *name)
     lua_setglobal(L, "_MODULES");
   }
   lua_getfield(L, -1, name);
-  if (!lua_toboolean(L, -1)) {
-    lua_pop(L, 1);
-    snprintf(path, sizeof(path), "lua/includes/modules/%s.lua", name);
-    lua_pop(L, 1);                    /* drop _MODULES */
-    ci_slot_FindAndRunScript(self, path, true, true, NULL, false);
-    lua_getglobal(L, "_MODULES");
-    lua_pushboolean(L, 1);
-    lua_setfield(L, -2, name);
-    lua_pop(L, 1);
+  if (lua_toboolean(L, -1)) {           /* already loaded */
+    lua_pop(L, 2);
     return;
   }
-  lua_pop(L, 2);
+  lua_pop(L, 2);                        /* cached value + _MODULES */
+
+  dir = glua_game_dir(L);
+  snprintf(path, sizeof(path), "%s/lua/includes/modules/%s.lua",
+           dir, name);
+  if (!glua_file_exists(path)) {
+    /* The prefix helpers already carry the leading "gm" ("gmcl_"/"gmsv_"). */
+    snprintf(path, sizeof(path), "%s/lua/bin/%s%s_%s%s",
+             dir, glua_module_prefix(self), name,
+             glua_module_suffix(), glua_module_ext());
+    if (!glua_file_exists(path)) {
+      ci_slot_ErrorNoHalt(self, "Module not found! (%s)\n", name);
+      return;
+    }
+    glua_load_binary_module(self, path, name);
+  } else {
+    ci_slot_FindAndRunScript(self, path, true, true, NULL, false);
+  }
+
+  lua_getglobal(L, "_MODULES");
+  lua_pushboolean(L, 1);
+  lua_setfield(L, -2, name);
+  lua_pop(L, 1);
 }
 
 static const char *ci_slot_GetActualTypeName(CLuaInterface *self, int type)
