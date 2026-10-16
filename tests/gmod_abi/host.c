@@ -99,6 +99,10 @@ int main( int argc, char **argv )
 	check( "CreateLuaInterface(SERVER) returned an interface", LUA != NULL );
 	if ( LUA == NULL ) return 1;
 
+	/* The reference creates the interface first and only builds the lua_State
+	** on the follow-up Init(callback) call.  Mirror that order here. */
+	check( "interface Init(callback) succeeded", LUA->Init( NULL, false ) );
+
 	state = LUA->GetState();
 	check( "interface GetState() is non-null", state != NULL );
 	check( "state->luabase points back at the interface", state->luabase == LUA );

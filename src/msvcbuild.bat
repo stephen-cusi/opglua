@@ -15,6 +15,8 @@
 
 @setlocal
 @set LJCOMPILE=cl /nologo /c /O2 /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_STDIO_INLINE=__declspec(dllexport)__inline /DLUAJIT_DISABLE_FFI
+@set CXX=cl
+@if "%SRCENG%"=="" set SRCENG=D:\project\source-engine
 @set LJLINK=link /nologo
 @set LJMT=mt /nologo
 @set LJLIB=lib /nologo /nodefaultlib
@@ -77,9 +79,21 @@ buildvm -m folddef -o lj_folddef.h lj_opt_fold.c
 :NODEBUG
 @if "%1"=="amalg" goto :AMALGDLL
 @if "%1"=="static" goto :STATIC
-%LJCOMPILE% /Zi /MT /DLUA_BUILD_AS_DLL lj_*.c lib_*.c
+%LJCOMPILE% /Zi /MT /DOPGLUA_LOG /DLUA_BUILD_AS_DLL lj_*.c lib_*.c
 @if errorlevel 1 goto :BAD
-%LJLINK% /DLL /MAP /DEBUG /PDB:%LJDLLNAME%.pdb /out:%LJDLLNAME% lj_*.obj lib_*.obj
+rem C++ bridge for the engine ConVar/ConCommand implementation (see lib_convar.cpp).
+%CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
+   /I "%SRCENG%\public" /I "%SRCENG%\public\tier1" /I "%SRCENG%\public\tier0" /I "%SRCENG%" ^
+   /I "..\..\gmodcommon\include" ^
+   /Fo:lib_convar.obj lib_convar.cpp
+@if errorlevel 1 goto :BAD
+%CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
+   /I "%SRCENG%\public" /I "%SRCENG%\public\tier1" /I "%SRCENG%\public\tier0" /I "%SRCENG%" ^
+   /I "..\..\gmodcommon\include" ^
+   /Fo:lib_luashared.obj lib_luashared.cpp
+@if errorlevel 1 goto :BAD
+%LJLINK% /DLL /MAP /DEBUG /PDB:%LJDLLNAME%.pdb /out:%LJDLLNAME% lj_*.obj lib_*.obj ^
+   "%SRCENG%\build\tier1\tier1.lib" "%SRCENG%\build\tier0\tier0.lib"
 @if errorlevel 1 goto :BAD
 @goto :MTDLL
 :STATIC
@@ -89,7 +103,7 @@ buildvm -m folddef -o lj_folddef.h lj_opt_fold.c
 @if errorlevel 1 goto :BAD
 @goto :MTDLL
 :AMALGDLL
-%LJCOMPILE% /MT /DLUA_BUILD_AS_DLL ljamalg.c
+%LJCOMPILE% /MT /DOPGLUA_LOG /DLUA_BUILD_AS_DLL ljamalg.c
 @if errorlevel 1 goto :BAD
 %LJLINK% /DLL /out:%LJDLLNAME% ljamalg.obj lj_vm.obj
 @if errorlevel 1 goto :BAD

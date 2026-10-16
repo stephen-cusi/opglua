@@ -121,7 +121,7 @@ typedef struct CLuaInterface {
   GLuaGameCallback callback;            /* borrowed default callback */
   void *gameCallback;                   /* engine ILuaGameCallback from Init */
   char pathID[32];                      /* +0x18 path id string */
-  char path[512];                       /* current include path */
+  char pathStack[16][260];              /* include dir stack (GetPath/PushPath) */
   int pushedPaths;                      /* path stack depth */
 
   GLuaReturn returns;                   /* GetReturn slots */
@@ -386,6 +386,75 @@ static void glua_log(const char *fmt, ...)
 #define glua_log(...) ((void)0)
 #endif
 
+/* ILuaObject instances belong to the HOST.  The engine's ILuaGameCallback
+** creates them and the reference operates on them ONLY through the object's
+** virtual methods (never by reading fields).  These helpers call those
+** methods by the reference object-vtable ABI byte offsets:
+**   +0x08 SetFromStack(int)   +0x10 UnReference()
+**   +0x108 Push()             +0x118 isTable()
+*/
+#define GLUA_OBJ_VT(o)          (*(void ***)(o))
+#define GLUA_OBJ_SETSTACK(o,i)  ((void (*)(void *,int))GLUA_OBJ_VT(o)[0x08/8])((o),(int)(i))
+#define GLUA_OBJ_UNREF(o)       ((void (*)(void*))GLUA_OBJ_VT(o)[0x10/8])(o)
+#define GLUA_OBJ_PUSH(o)        ((void (*)(void*))GLUA_OBJ_VT(o)[0x108/8])(o)
+#define GLUA_OBJ_ISTABLE(o)     (((char (*)(void*))GLUA_OBJ_VT(o)[0x118/8])(o) != 0)
+
+/* An object is OURS only when its vtable is our object vtable.  Any other
+** object was handed to us by the host (the engine's game callback) and may
+** only be driven through its virtual methods -- reading our fields on it, or
+** freeing it, would corrupt the host heap. */
+#define GLUA_OBJ_IS_OURS(o) \
+  ((o) != NULL && *(const void **)(o) == (const void *)glua_object_vtable)
+
+static void gobj_push(GLuaObject *obj);
+static void gobj_UnReference(GLuaObject *obj);
+static int gobj_GetType(GLuaObject *obj);
+
+/* The engine's ILuaGameCallback (stored by Init slot 55): object factory. */
+static void *gobj_create(CLuaInterface *self)
+{
+  if (self->gameCallback == NULL) return glua_object_alloc(self);
+  return ((void *(*)(void*))GLUA_OBJ_VT(self->gameCallback)[0])(self->gameCallback);
+}
+static void gobj_destroy(CLuaInterface *self, void *obj)
+{
+  if (obj == NULL) return;
+  if (self->gameCallback == NULL) { gobj_UnReference((GLuaObject *)obj); free(obj); return; }
+  ((void (*)(void*,void*))GLUA_OBJ_VT(self->gameCallback)[1])(self->gameCallback, obj);
+}
+static void gobj_push_obj(CLuaInterface *self, void *obj)
+{
+  if (obj == NULL) { lua_pushnil(self->state); return; }
+  if (GLUA_OBJ_IS_OURS(obj)) { gobj_push((GLuaObject *)obj); return; }
+  ((void (*)(void*))GLUA_OBJ_VT(obj)[0x108/8])(obj);
+}
+
+/* Dispatch helpers that work for both our objects and host objects. */
+static void gobj_setstack_any(CLuaInterface *self, void *o, int i)
+{
+  if (o == NULL) return;
+  if (GLUA_OBJ_IS_OURS(o)) gobj_bind_stack(self, (GLuaObject *)o, i);
+  else GLUA_OBJ_SETSTACK(o, i);
+}
+static void gobj_unref_any(CLuaInterface *self, void *o)
+{
+  if (o == NULL) return;
+  if (GLUA_OBJ_IS_OURS(o)) gobj_UnReference((GLuaObject *)o);
+  else GLUA_OBJ_UNREF(o);
+}
+static int gobj_istable_any(void *o)
+{
+  if (o == NULL) return 0;
+  if (GLUA_OBJ_IS_OURS(o)) return gobj_GetType((GLuaObject *)o) == GT_TABLE;
+  return GLUA_OBJ_ISTABLE(o) != 0;
+}
+static int gobj_gettype_any(void *o)
+{
+  if (o == NULL) return GT_NIL;
+  if (GLUA_OBJ_IS_OURS(o)) return gobj_GetType((GLuaObject *)o);
+  return (int)((int (*)(void*))GLUA_OBJ_VT(o)[0x18/8])(o);
+}
+
 static void gobj_push(GLuaObject *obj)
 {
   lua_State *L;
@@ -438,11 +507,11 @@ static void ci_slot_Pop(CLuaInterface *self, int amt)
   lua_settop(L, -(amt) - 1);
 }
 
-static void ci_slot_GetTable(CLuaInterface *self, int i) { glua_log("SLOT:ci_slot_GetTable"); lua_gettable(self->state, i); }
+static void ci_slot_GetTable(CLuaInterface *self, int i) { glua_log("SLOT:GetTable(i=%d top=%d)", i, lua_gettop(self->state)); lua_gettable(self->state, i); }
 static void ci_slot_GetField(CLuaInterface *self, int i, const char *name)
-{ glua_log("SLOT:ci_slot_GetField"); lua_getfield(self->state, i, name); }
+{ glua_log("SLOT:GetField(i=%d name=%s top=%d)", i, name?name:"(null)", lua_gettop(self->state)); lua_getfield(self->state, i, name); }
 static void ci_slot_SetField(CLuaInterface *self, int i, const char *name)
-{ glua_log("SLOT:ci_slot_SetField"); lua_setfield(self->state, i, name); }
+{ glua_log("SLOT:SetField(i=%d name=%s top=%d)", i, name?name:"(null)", lua_gettop(self->state)); lua_setfield(self->state, i, name); }
 static void ci_slot_CreateTable(CLuaInterface *self) { glua_log("SLOT:ci_slot_CreateTable"); lua_createtable(self->state, 0, 0); }
 static void ci_slot_SetTable(CLuaInterface *self, int i) { glua_log("SLOT:ci_slot_SetTable"); lua_settable(self->state, i); }
 static void ci_slot_SetMetaTable(CLuaInterface *self, int i) { glua_log("SLOT:ci_slot_SetMetaTable"); lua_setmetatable(self->state, i); }
@@ -495,10 +564,10 @@ static void ci_slot_PushCFunction(CLuaInterface *self, int (*f)(lua_State *))
 static void ci_slot_PushCClosure(CLuaInterface *self, int (*f)(lua_State *), int n)
 { lua_pushcclosure(self->state, f, n); }
 static void ci_slot_PushUserdata(CLuaInterface *self, void *p) { glua_log("SLOT:ci_slot_PushUserdata"); lua_pushlightuserdata(self->state, p); }
-static int  ci_slot_ReferenceCreate(CLuaInterface *self) { glua_log("SLOT:ci_slot_ReferenceCreate"); return luaL_ref(self->state, LUA_REGISTRYINDEX); }
-static void ci_slot_ReferenceFree(CLuaInterface *self, int i) { glua_log("SLOT:ci_slot_ReferenceFree"); luaL_unref(self->state, LUA_REGISTRYINDEX, i); }
+static int  ci_slot_ReferenceCreate(CLuaInterface *self) { int r = luaL_ref(self->state, LUA_REGISTRYINDEX); glua_log("SLOT:ReferenceCreate -> %d", r); return r; }
+static void ci_slot_ReferenceFree(CLuaInterface *self, int i) { glua_log("SLOT:ReferenceFree(i=%d)", i); luaL_unref(self->state, LUA_REGISTRYINDEX, i); }
 static void ci_slot_ReferencePush(CLuaInterface *self, int i)
-{ glua_log("SLOT:ci_slot_ReferencePush"); lua_rawgeti(self->state, LUA_REGISTRYINDEX, i); }
+{ glua_log("SLOT:ReferencePush(i=%d)", i); lua_rawgeti(self->state, LUA_REGISTRYINDEX, i); }
 static void ci_slot_PushSpecial(CLuaInterface *self, int type)
 { glua_log("SLOT:ci_slot_PushSpecial");
   lua_State *L = self->state;
@@ -529,9 +598,9 @@ static void ci_slot_CreateMetaTableType(CLuaInterface *self, const char *name, i
   if (luaL_newmetatable_type(L, name, type)) {
     if (type >= 0 && type < 255) {
       if (self->metaTables[type] == NULL)
-        self->metaTables[type] = glua_object_alloc(self);
+        self->metaTables[type] = gobj_create(self);
       if (self->metaTables[type] != NULL)
-        gobj_bind_stack(self, self->metaTables[type], -1);
+        gobj_setstack_any(self, self->metaTables[type], -1);
     }
     lua_pop(L, 1);
   } else {
@@ -569,7 +638,7 @@ static void *ci_push_typed(CLuaInterface *self, const void *val, size_t size, in
   ud->data = payload;
   ud->type = (unsigned char)type;
   if (type >= 0 && type < 255 && self->metaTables[type] != NULL) {
-    gobj_push(self->metaTables[type]);  /* value: the type metatable */
+    gobj_push_obj(self, self->metaTables[type]);  /* value: the type metatable */
     lua_setmetatable(L, -2);            /* pops it onto the userdata */
   }
   return ud;
@@ -594,8 +663,8 @@ static int ci_slot_CreateMetaTable(CLuaInterface *self, const char *name)
     lua_pushvalue(L, -1);
     lua_setfield(L, LUA_REGISTRYINDEX, name);
     if (id >= 0 && id < 255) {
-      if (self->metaTables[id] == NULL) self->metaTables[id] = glua_object_alloc(self);
-      if (self->metaTables[id] != NULL) gobj_bind_stack(self, self->metaTables[id], -1);
+      if (self->metaTables[id] == NULL) self->metaTables[id] = gobj_create(self);
+      if (self->metaTables[id] != NULL) gobj_setstack_any(self, self->metaTables[id], -1);
     }
     lua_pop(L, 1);
     return id;
@@ -612,7 +681,7 @@ static int ci_slot_CreateMetaTable(CLuaInterface *self, const char *name)
 static int ci_slot_PushMetaTable(CLuaInterface *self, int type)
 { glua_log("SLOT:ci_slot_PushMetaTable");
   if (type < 0 || type >= 255 || self->metaTables[type] == NULL) return 0;
-  gobj_push(self->metaTables[type]);
+  gobj_push_obj(self, self->metaTables[type]);
   return 1;
 }
 
@@ -623,7 +692,7 @@ static void ci_slot_PushUserType(CLuaInterface *self, void *data, int type)
   ud->data = data;
   ud->type = (unsigned char)type;
   if (type >= 0 && type < 255 && self->metaTables[type] != NULL) {
-    gobj_push(self->metaTables[type]);
+    gobj_push_obj(self, self->metaTables[type]);
     lua_setmetatable(L, -2);
   }
 }
@@ -798,8 +867,8 @@ const glua_vfn glua_interface_vtable[132] = {
   /*  69 */ (glua_vfn)ci_slot_NewGlobalTable,
   /*  70 */ (glua_vfn)ci_slot_NewTemporaryObject,
   /*  71 */ (glua_vfn)ci_slot_isUserData,
-  /*  72 */ (glua_vfn)ci_slot_GetMetaTableObjectName,
-  /*  73 */ (glua_vfn)ci_slot_GetMetaTableObjectIndex,
+  /*  72 */ (glua_vfn)ci_slot_GetMetaTableObjectIndex,
+  /*  73 */ (glua_vfn)ci_slot_GetMetaTableObjectName,
   /*  74 */ (glua_vfn)ci_slot_GetReturn,
   /*  75 */ (glua_vfn)ci_slot_IsServer,
   /*  76 */ (glua_vfn)ci_slot_IsClient,
@@ -1383,16 +1452,12 @@ LUALIB_API int GMOD_LoadBinaryModule(lua_State *L, const char *path)
 }
 
 static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
-{ glua_log("SLOT:ci_slot_Init");
+{
   lua_State *L;
-  glua_log("IFACE::Init(cb=%p dedicated=%d)", cb, (int)dedicated);
+  glua_log("IFACE::Init(cb=%p dedicated=%d state=%p)", cb, (int)dedicated, (void*)self->state);
   (void)dedicated;
-  /* The engine calls Init a second time after CreateLuaInterface, handing us
-  ** its game callback.  Honour that: adopt the callback and report success
-  ** even when the state already exists (the reference stores the callback on
-  ** every call). */
   if (cb != NULL) self->gameCallback = cb;
-  if (self->state != NULL) return false;
+  if (self->state != NULL) return true;
 
   L = luaL_newstate();
   if (L == NULL) {
@@ -1418,15 +1483,26 @@ static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
   /* A small metatable for GLuaColor so PushColor/GetColor round-trip. */
   self->colorMetaID = ci_slot_CreateMetaTable(self, "Color");
 
-  /* Global table object. */
-  self->global = glua_object_alloc(self);
+  /* Global table object: created through the game callback like the
+  ** reference, then pointed at the globals table. */
+  self->global = gobj_create(self);
+  glua_log("IFACE::Init: gameCallback=%p cb_vt0=%p global=%p", self->gameCallback, self->gameCallback?GLUA_OBJ_VT(self->gameCallback)[0]:0, (void*)self->global);
   if (self->global != NULL) {
     lua_pushvalue(L, LUA_GLOBALSINDEX);
-    gobj_bind_stack(self, self->global, -1);
+    GLUA_OBJ_SETSTACK(self->global, -1);
     lua_pop(L, 1);
   }
-  self->callback.vtable = (const void *)glua_callback_vtable;
   self->savedMetas = 1;
+
+  /* Hand the finished interface back to the engine (callback slot 6).  The
+  ** engine's Lua bring-up waits for this. */
+  if (self->gameCallback != NULL) {
+    void (*ifaceCreated)(void *, void *) =
+      (void (*)(void *, void *))GLUA_OBJ_VT(self->gameCallback)[0x30/8];
+    glua_log("IFACE::-> InterfaceCreated(cb=%p)", self->gameCallback);
+    if (ifaceCreated != NULL) ifaceCreated(self->gameCallback, self);
+    glua_log("IFACE::<- InterfaceCreated returned");
+  }
   return true;
 }
 
@@ -1447,22 +1523,17 @@ static void ci_slot_Cycle(CLuaInterface *self)
   self->threadedCount = 0;
 }
 
-static GLuaObject *ci_slot_Global(CLuaInterface *self) { glua_log("SLOT:ci_slot_Global"); return self->global; }
+static GLuaObject *ci_slot_Global(CLuaInterface *self) { if(self->global==NULL) glua_log("Global: NULL!"); return self->global; }
 
 static GLuaObject *ci_slot_GetObject(CLuaInterface *self, int index)
-{ glua_log("SLOT:ci_slot_GetObject");
-  GLuaObject *obj = glua_object_alloc(self);
-  if (obj == NULL) return NULL;
-  gobj_bind_stack(self, obj, index);
+{
+  GLuaObject *obj = ci_slot_NewTemporaryObject(self);
+  if (obj != NULL) gobj_setstack_any(self, obj, index);
   return obj;
 }
 
 static void ci_slot_PushLuaObject(CLuaInterface *self, GLuaObject *obj)
-{ glua_log("SLOT:ci_slot_PushLuaObject");
-  (void)self;
-  if (obj == NULL) { if (self->state) lua_pushnil(self->state); return; }
-  gobj_push(obj);
-}
+{ gobj_push_obj(self, obj); }
 
 static void ci_slot_PushLuaFunction(CLuaInterface *self, int (*f)(lua_State *))
 { lua_pushcclosure(self->state, f, 0); }
@@ -1495,9 +1566,9 @@ static void ci_slot_CallInternal(CLuaInterface *self, int args, int rets)
   for (i = 0; i < 4; i++) self->returns.objs[i] = NULL;
   if (glua_pcall_int(self, args, rets) != 0) return;
   for (i = 0; i < rets; i++) {
-    if (self->returns.objs[i] == NULL) self->returns.objs[i] = glua_object_alloc(self);
+    if (self->returns.objs[i] == NULL) self->returns.objs[i] = gobj_create(self);
     if (self->returns.objs[i] != NULL)
-      gobj_bind_stack(self, self->returns.objs[i], -(rets - i));
+      gobj_setstack_any(self, self->returns.objs[i], -(rets - i));
   }
   lua_pop(self->state, rets);
 }
@@ -1529,7 +1600,7 @@ static int ci_slot_CallInternalGet(CLuaInterface *self, int args, GLuaObject *ob
 { glua_log("SLOT:ci_slot_CallInternalGet");
   if (glua_pcall_int(self, args, 1) != 0) return 0;
   if (obj != NULL) {
-    gobj_bind_stack(self, obj, -1);
+    gobj_setstack_any(self, obj, -1);
     lua_pop(self->state, 1);
     return 1;
   }
@@ -1545,45 +1616,49 @@ static void ci_slot_NewGlobalTable(CLuaInterface *self, const char *name)
 }
 
 static GLuaObject *ci_slot_NewTemporaryObject(CLuaInterface *self)
-{ glua_log("SLOT:ci_slot_NewTemporaryObject");
+{
+  void *obj;
   int idx = ++self->tempIndex;
   if (idx > 31) { idx = 0; self->tempIndex = 0; }
-  if (self->temp[idx] == NULL) self->temp[idx] = glua_object_alloc(self);
-  else if (self->temp[idx]->iface && self->temp[idx]->ref != LUA_NOREF)
-    luaL_unref(self->temp[idx]->iface->state, LUA_REGISTRYINDEX, self->temp[idx]->ref),
-    self->temp[idx]->ref = LUA_NOREF;
-  return self->temp[idx];
+  obj = self->temp[idx];
+  if (obj == NULL) {
+    obj = gobj_create(self);            /* host-owned object */
+    self->temp[idx] = (GLuaObject *)obj;
+  } else {
+    gobj_unref_any(self, obj);          /* recycle: obj->UnReference() */
+  }
+  return (GLuaObject *)obj;
 }
 
 static int ci_slot_isUserData(CLuaInterface *self, int index)
 { glua_log("SLOT:ci_slot_isUserData"); return lua_type(self->state, index) == GT_USERDATA; }
 
 static GLuaObject *ci_slot_GetMetaTableObjectName(CLuaInterface *self, const char *name, int type)
-{ glua_log("SLOT:ci_slot_GetMetaTableObjectName");
+{ glua_log("SLOT:GetMetaTableObjectName(name=%s type=%d)", name?name:"(null)", type);
   lua_State *L = self->state;
   lua_getfield(L, LUA_REGISTRYINDEX, name);
   if (lua_type(L, -1) != GT_TABLE) {
     lua_pop(L, 1);
-    if (type == -1) return NULL;
+    if (type == -1) { glua_log("SLOT:GetMetaTableObjectName -> NULL (not table, type=-1)"); return NULL; }
     ci_slot_CreateMetaTableType(self, name, type);
     /* re-fetch */
     lua_getfield(L, LUA_REGISTRYINDEX, name);
   }
   {
-    GLuaObject *obj = glua_object_alloc(self);
-    if (obj != NULL) gobj_bind_stack(self, obj, -1);
+    GLuaObject *obj = ci_slot_NewTemporaryObject(self);
+    if (obj != NULL) GLUA_OBJ_SETSTACK(obj, -1);
     lua_pop(L, 1);
     return obj;
   }
 }
 
 static GLuaObject *ci_slot_GetMetaTableObjectIndex(CLuaInterface *self, int index)
-{ glua_log("SLOT:ci_slot_GetMetaTableObjectIndex");
+{
   lua_State *L = self->state;
   if (!lua_getmetatable(L, index)) return NULL;
   {
-    GLuaObject *obj = glua_object_alloc(self);
-    if (obj != NULL) gobj_bind_stack(self, obj, -1);
+    GLuaObject *obj = ci_slot_NewTemporaryObject(self);
+    if (obj != NULL) GLUA_OBJ_SETSTACK(obj, -1);
     lua_pop(L, 1);
     return obj;
   }
@@ -1602,82 +1677,88 @@ static int ci_slot_IsMenu(CLuaInterface *self) { glua_log("SLOT:ci_slot_IsMenu")
 static void ci_slot_DestroyObject(CLuaInterface *self, GLuaObject *obj)
 { glua_log("SLOT:ci_slot_DestroyObject");
   if (obj == NULL) return;
-  gobj_UnReference(obj);
-  free(obj);
+  /* Host objects are owned by the engine callback; never free them here. */
+  gobj_destroy(self, obj);
 }
 
-static GLuaObject *ci_slot_CreateObject(CLuaInterface *self) { glua_log("SLOT:ci_slot_CreateObject"); return glua_object_alloc(self); }
+static GLuaObject *ci_slot_CreateObject(CLuaInterface *self) { return gobj_create(self); }
 
+/* SetMember delegates to the object's own virtual methods so it works for
+** host objects too.  The value to store is already on the top of the stack
+** when the reference calls these (the caller pushed it).
+*/
 static void ci_slot_SetMemberStrObj(CLuaInterface *self, GLuaObject *t, const char *k, GLuaObject *v)
-{ glua_log("SLOT:ci_slot_SetMemberStrObj");
-  (void)self;
-  if (gobj_state(t) == NULL) return;
-  gobj_push(t);
-  if (v) gobj_push(v); else lua_pushnil(t->iface->state);
-  lua_setfield(t->iface->state, -2, k);
-  lua_pop(t->iface->state, 1);
+{
+  lua_State *L = self->state;
+  if (t == NULL || !gobj_istable_any(t)) return;
+  gobj_push_obj(self, t);               /* table */
+  lua_pushstring(L, k);                 /* key */
+  if (v) gobj_push_obj(self, v); else lua_pushnil(L);
+  lua_settable(L, -3);
+  lua_pop(L, 1);
 }
 
 static void ci_slot_SetMemberStr(CLuaInterface *self, GLuaObject *t, const char *k)
-{ glua_log("SLOT:SetMemberStr t=%p vt=%p ours=%p k=%s", (void*)t, t?(void*)t->vtable:0, (void*)glua_object_vtable, k?k:"(null)");
-  (void)self;
-  if (gobj_state(t) == NULL) return;
-  gobj_push(t);
-  lua_pushvalue(t->iface->state, -2);
-  lua_setfield(t->iface->state, -2, k);
-  lua_pop(t->iface->state, 2);
+{
+  lua_State *L = self->state;
+  if (t == NULL || !gobj_istable_any(t)) return;
+  gobj_push_obj(self, t);
+  lua_pushstring(L, k);
+  lua_pushvalue(L, -3);                 /* value that was on top */
+  lua_settable(L, -3);
+  lua_pop(L, 2);
 }
 
 static void ci_slot_SetMemberNumObj(CLuaInterface *self, GLuaObject *t, float k, GLuaObject *v)
-{ glua_log("SLOT:ci_slot_SetMemberNumObj");
-  (void)self;
-  if (gobj_state(t) == NULL) return;
-  gobj_push(t);
-  lua_pushnumber(t->iface->state, k);
-  if (v) gobj_push(v); else lua_pushnil(t->iface->state);
-  lua_settable(t->iface->state, -3);
-  lua_pop(t->iface->state, 1);
+{
+  lua_State *L = self->state;
+  if (t == NULL) return;
+  gobj_push_obj(self, t);
+  lua_pushnumber(L, k);
+  if (v) gobj_push_obj(self, v); else lua_pushnil(L);
+  lua_settable(L, -3);
+  lua_pop(L, 1);
 }
 
 static void ci_slot_SetMemberNum(CLuaInterface *self, GLuaObject *t, float k)
-{ glua_log("SLOT:ci_slot_SetMemberNum");
-  (void)self;
-  if (gobj_state(t) == NULL) return;
-  gobj_push(t);
-  lua_pushnumber(t->iface->state, k);
-  lua_pushvalue(t->iface->state, -3);
-  lua_settable(t->iface->state, -3);
-  lua_pop(t->iface->state, 2);
+{
+  lua_State *L = self->state;
+  if (t == NULL) return;
+  gobj_push_obj(self, t);
+  lua_pushnumber(L, k);
+  lua_pushvalue(L, -3);
+  lua_settable(L, -3);
+  lua_pop(L, 2);
 }
 
 static void ci_slot_SetMemberObjObj(CLuaInterface *self, GLuaObject *t, GLuaObject *k, GLuaObject *v)
-{ glua_log("SLOT:ci_slot_SetMemberObjObj");
-  (void)self;
-  if (gobj_state(t) == NULL || k == NULL) return;
-  gobj_push(t);
-  gobj_push(k);
-  if (v) gobj_push(v); else lua_pushnil(t->iface->state);
-  lua_settable(t->iface->state, -3);
-  lua_pop(t->iface->state, 1);
+{
+  lua_State *L = self->state;
+  if (t == NULL || k == NULL) return;
+  gobj_push_obj(self, t);
+  gobj_push_obj(self, k);
+  if (v) gobj_push_obj(self, v); else lua_pushnil(L);
+  lua_settable(L, -3);
+  lua_pop(L, 1);
 }
 
 static GLuaObject *ci_slot_GetNewTable(CLuaInterface *self)
-{ glua_log("SLOT:ci_slot_GetNewTable");
+{
   lua_State *L = self->state;
   GLuaObject *obj;
   lua_createtable(L, 0, 0);
-  obj = glua_object_alloc(self);
-  if (obj != NULL) gobj_bind_stack(self, obj, -1);
+  obj = ci_slot_NewTemporaryObject(self);
+  if (obj != NULL) GLUA_OBJ_SETSTACK(obj, -1);
   lua_pop(L, 1);
   return obj;
 }
 
-static void ci_slot_SetType(CLuaInterface *self, unsigned char realm) { glua_log("SLOT:ci_slot_SetType"); glua_log("IFACE::SetType(%d)", (int)realm); self->realm = realm; }
+static void ci_slot_SetType(CLuaInterface *self, unsigned char realm) { self->realm = realm; }
 static void ci_slot_PushLong(CLuaInterface *self, long num)
-{ glua_log("SLOT:ci_slot_PushLong"); lua_pushnumber(self->state, (double)num); }
+{ lua_pushnumber(self->state, (double)num); }
 
 static int ci_slot_GetFlags(CLuaInterface *self, int index)
-{ glua_log("SLOT:ci_slot_GetFlags"); (void)self; (void)index; return 0; }
+{ (void)self; (void)index; return 0; }
 
 static int ci_slot_FindOnObjectsMetaTable(CLuaInterface *self, int obj, int key)
 { glua_log("SLOT:ci_slot_FindOnObjectsMetaTable");
@@ -1703,7 +1784,7 @@ static void ci_slot_SetMemberFast(CLuaInterface *self, GLuaObject *t, int k, int
 { glua_log("SLOT:ci_slot_SetMemberFast");
   lua_State *L = self->state;
   if (t == NULL) return;
-  gobj_push(t);
+  gobj_push_obj(self, t);
   lua_pushvalue(L, k);
   lua_pushvalue(L, v);
   lua_settable(L, -3);
@@ -1734,18 +1815,56 @@ static int glua_run_ex(CLuaInterface *self, const char *filename, const char *pa
     chunkname = "?";
   }
   base = lua_gettop(L);
+  {
+    /* The reference rewrites the DEFINE_BASECLASS sugar in RunStringEx: the
+    ** token becomes 'local BaseClass = baseclass.Get' so a class file can name
+    ** its base class.  Substitution adds no newlines, so line numbers survive. */
+    const char *needle = "DEFINE_BASECLASS";
+    const char *repl = "local BaseClass = baseclass.Get";
+    const char *hit = strstr(str, needle);
+    if (hit != NULL) {
+      size_t nlen = strlen(needle), rlen = strlen(repl), src = strlen(str);
+      size_t cap = src + 1, count = 0, i;
+      const char *p;
+      char *out, *q;
+      for (p = str; (p = strstr(p, needle)) != NULL; p += nlen) count++;
+      cap += count * (rlen > nlen ? rlen - nlen : 0);
+      out = (char *)malloc(cap);
+      if (out != NULL) {
+        q = out;
+        for (p = str; *p; ) {
+          if (strncmp(p, needle, nlen) == 0) { memcpy(q, repl, rlen); q += rlen; p += nlen; }
+          else *q++ = *p++;
+        }
+        *q = '\0';
+        i = luaL_loadbufferx(L, out, (size_t)(q - out), chunkname, NULL);
+        free(out);
+        if (i != 0) {
+          glua_log("IFACE::RunString COMPILE-ERROR fn=%s: %s", filename?filename:"(null)", lua_tostring(L, -1));
+          if (printErrors) ci_slot_ErrorNoHalt(self, "%s", lua_tostring(L, -1));
+          if (dontPushErrors) lua_pop(L, 1);
+          return 0;
+        }
+        goto loaded;
+      }
+    }
+  }
   if (luaL_loadbufferx(L, str, strlen(str), chunkname, NULL) != 0) {
+    glua_log("IFACE::RunString COMPILE-ERROR fn=%s: %s", filename?filename:"(null)", lua_tostring(L, -1));
     if (printErrors) ci_slot_ErrorNoHalt(self, "%s", lua_tostring(L, -1));
     if (dontPushErrors) lua_pop(L, 1);
     return 0;
   }
+loaded:
   if (!run) return 1;
   if (lua_pcall(L, 0, noReturns ? 0 : LUA_MULTRET, 0) != 0) {
+    glua_log("IFACE::RunString RUNTIME-ERROR fn=%s: %s", filename?filename:"(null)", lua_tostring(L, -1));
     if (printErrors) ci_slot_ErrorNoHalt(self, "%s", lua_tostring(L, -1));
     lua_settop(L, base);
     return 0;
   }
   lua_settop(L, base);
+  glua_log("IFACE::RunString OK fn=%s", filename?filename:"(null)");
   return 1;
 }
 
@@ -1763,9 +1882,9 @@ static int ci_slot_IsEqual(CLuaInterface *self, GLuaObject *a, GLuaObject *b)
   lua_State *L = self->state;
   int r;
   if (a == NULL || b == NULL) return 0;
-  if (gobj_GetType(a) != gobj_GetType(b)) return 0;
-  gobj_push(a);
-  gobj_push(b);
+  if (gobj_gettype_any(a) != gobj_gettype_any(b)) return 0;
+  gobj_push_obj(self, a);
+  gobj_push_obj(self, b);
   r = lua_equal(L, -1, -2);
   lua_pop(L, 2);
   return r;
@@ -1785,31 +1904,148 @@ static const char *ci_slot_GetStringOrError(CLuaInterface *self, int index)
 static int ci_slot_RunLuaModule(CLuaInterface *self, const char *name)
 { glua_log("SLOT:ci_slot_RunLuaModule"); return ci_slot_FindAndRunScript(self, name, true, true, "!MODULE", false); }
 
+/* Resolve the game root from this DLL's own location:
+**   <root>/bin/win64/lua_shared.dll  ->  <root>
+** so script paths can be found relative to the install even when the process
+** working directory is something else. */
+static const char *glua_game_root(void)
+{
+  static char root[512];
+  static int tried = 0;
+  if (!tried) {
+    char mod[512];
+    char *p;
+    tried = 1;
+    root[0] = '\0';
+#ifdef _WIN32
+    {
+      HMODULE self = NULL;
+      if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                             GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                             (LPCSTR)(const void *)&glua_game_root, &self) && self != NULL &&
+          GetModuleFileNameA(self, mod, (DWORD)sizeof(mod)) != 0) {
+        for (p = mod; *p; p++) if (*p == '\\') *p = '/';
+        /* strip "/bin/win64/lua_shared.dll" (or "/bin/lua_shared.dll") */
+        p = strstr(mod, "/bin/");
+        if (p != NULL) { *p = '\0'; snprintf(root, sizeof(root), "%s", mod); }
+      }
+    }
+#endif
+  }
+  return root;
+}
+
+/* Open a script by its engine-relative name.  Like the reference, a relative
+** name first resolves against the current include directory (the path stack
+** top), then against the conventional roots under the install. */
+static FILE *glua_open_script(CLuaInterface *self, const char *fn, char *outPath, size_t outSize)
+{
+  const char *root = glua_game_root();
+  const char *curdir = (self != NULL && self->pushedPaths > 0) ? self->pathStack[self->pushedPaths - 1] : NULL;
+  char cand[1024];
+  const char *roots[5];
+  int i, n = 0;
+  if (curdir != NULL && curdir[0] != '\0') {
+    snprintf(cand, sizeof(cand), "%s%s", curdir, fn);
+    { FILE *f = fopen(cand, "rb"); if (f) { if (outPath) snprintf(outPath, outSize, "%s", cand); return f; } }
+  }
+  if (root[0] != '\0') {
+    /* The engine's file system exposes several search roots; emulate them. */
+    static const char *subroots[] = {
+      "/garrysmod/lua/",
+      "/garrysmod/gamemodes/",
+      "/garrysmod/",
+      "/lua/",
+      "/"
+    };
+    int k;
+    for (k = 0; k < (int)(sizeof(subroots)/sizeof(subroots[0])); k++) {
+      FILE *f;
+      snprintf(cand, sizeof(cand), "%s%s%s", root, subroots[k], fn);
+      f = fopen(cand, "rb");
+      if (f) { if (outPath) snprintf(outPath, outSize, "%s", cand); return f; }
+    }
+  }
+  roots[n++] = "garrysmod/lua/";
+  roots[n++] = "lua/";
+  roots[n++] = "";
+  for (i = 0; i < n; i++) {
+    FILE *f;
+    snprintf(cand, sizeof(cand), "%s%s", roots[i], fn);
+    f = fopen(cand, "rb");
+    if (f) { if (outPath) snprintf(outPath, outSize, "%s", cand); return f; }
+  }
+  return NULL;
+}
+
+/* File-read helper exported for the C++ ILuaShared bridge: resolve a script
+** name against the same roots FindAndRunScript uses and return its bytes in a
+** malloc'd buffer.  Returns the byte length, or 0 when not found. */
+int opglua_read_script(const char *name, char **outData)
+{
+  char full[1024];
+  FILE *f;
+  char *buf;
+  long size;
+  if (outData) *outData = NULL;
+  if (name == NULL) return 0;
+  f = glua_open_script(NULL, name, full, sizeof(full));
+  if (f == NULL) return 0;
+  fseek(f, 0, SEEK_END);
+  size = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  if (size <= 0) { fclose(f); return 0; }
+  buf = (char *)malloc((size_t)size + 1);
+  if (buf == NULL) { fclose(f); return 0; }
+  if (fread(buf, 1, (size_t)size, f) != (size_t)size) { fclose(f); free(buf); return 0; }
+  buf[size] = '\0';
+  fclose(f);
+  if (outData) *outData = buf;
+  else free(buf);
+  return (int)size;
+}
+
+/* Existence probe for ILuaShared::ScriptExists. */
+int opglua_script_exists(const char *name)
+{
+  char full[1024];
+  FILE *f;
+  if (name == NULL) return 0;
+  f = glua_open_script(NULL, name, full, sizeof(full));
+  if (f == NULL) return 0;
+  fclose(f);
+  return 1;
+}
+
 static int ci_slot_FindAndRunScript(CLuaInterface *self, const char *fn, bool run,
                                     bool showErrors, const char *str, bool noReturns)
 { glua_log("SLOT:ci_slot_FindAndRunScript"); glua_log("IFACE::FindAndRunScript(%s)", fn?fn:"(null)");
   lua_State *L = self->state;
-  char full[512];
-  size_t len = strlen(fn);
+  char norm[512];
+  char full[1024];
+  size_t len;
   FILE *f;
   char *buf;
   long size;
   int ok;
+  size_t i;
   (void)str;
-  if (len < 4 || glua_stricmp(fn + len - 4, ".lua") != 0) {
+  if (fn == NULL) return 0;
+  snprintf(norm, sizeof(norm), "%s", fn);
+  for (i = 0; norm[i]; i++) if (norm[i] == '\\') norm[i] = '/';
+  len = strlen(norm);
+  if (len < 4 || glua_stricmp(norm + len - 4, ".lua") != 0) {
     if (showErrors) ci_slot_ErrorNoHalt(self, "Couldn't include file '%s' - Not a .lua file!\n", fn);
     return 0;
   }
-  snprintf(full, sizeof(full), "%s", fn);
-  {
-    size_t i;
-    for (i = 0; full[i]; i++) if (full[i] == '\\') full[i] = '/';
-  }
-  f = fopen(full, "rb");
+  full[0] = '\0';
+  f = glua_open_script(self, norm, full, sizeof(full));
   if (f == NULL) {
+    glua_log("IFACE::FindAndRunScript OPEN-FAIL '%s'", norm);
     if (showErrors) ci_slot_ErrorNoHalt(self, "Couldn't include file '%s' - File not found or is empty\n", fn);
     return 0;
   }
+  glua_log("IFACE::FindAndRunScript resolved '%s'", full);
   fseek(f, 0, SEEK_END);
   size = ftell(f);
   fseek(f, 0, SEEK_SET);
@@ -1823,7 +2059,11 @@ static int ci_slot_FindAndRunScript(CLuaInterface *self, const char *fn, bool ru
   if (fread(buf, 1, (size_t)size, f) != (size_t)size) { fclose(f); free(buf); return 0; }
   buf[size] = '\0';
   fclose(f);
+  /* Push this file's directory so nested include() resolves relative to it,
+  ** then pop after the chunk has run (reference order). */
+  ci_slot_PushPath(self, full);
   ok = glua_run_ex(self, fn, NULL, buf, run, showErrors, false, noReturns);
+  ci_slot_PopPath(self);
   free(buf);
   (void)L;
   return ok;
@@ -1865,13 +2105,37 @@ static void ci_slot_Msg(CLuaInterface *self, const char *fmt, ...)
   va_end(ap);
 }
 
-static void ci_slot_PushPath(CLuaInterface *self, const char *path)
-{ glua_log("SLOT:ci_slot_PushPath");
-  if (path != NULL) {
-    strncpy(self->path, path, sizeof(self->path) - 1);
-    self->path[sizeof(self->path) - 1] = '\0';
+/* PushPath: the reference stores the DIRECTORY derived from the path it is
+** given (it runs the name through the file system to canonicalize, then strips
+** the trailing file component).  GetPath returns that directory; includes
+** resolve against it.  We keep a small stack. */
+static void glua_dirname_of(const char *path, char *out, size_t outSize)
+{
+  size_t n = strlen(path);
+  size_t i;
+  if (outSize == 0) return;
+  out[0] = '\0';
+  for (i = n; i > 0; i--) {
+    if (path[i-1] == '/' || path[i-1] == '\\') {
+      if (i == n) { /* path already ends in a separator: keep as-is */ }
+      if (i < outSize) { memcpy(out, path, i); out[i] = '\0'; }
+      return;
+    }
   }
-  self->pushedPaths++;
+  /* no separator: the directory is the current one */
+  snprintf(out, outSize, "./");
+}
+
+static void ci_slot_PushPath(CLuaInterface *self, const char *path)
+{ glua_log("SLOT:ci_slot_PushPath(%s)", path?path:"(null)");
+  if (self->pushedPaths < 16) {
+    char norm[260];
+    size_t i;
+    snprintf(norm, sizeof(norm), "%s", path ? path : "");
+    for (i = 0; norm[i]; i++) if (norm[i] == '\\') norm[i] = '/';
+    glua_dirname_of(norm, self->pathStack[self->pushedPaths], sizeof(self->pathStack[0]));
+    self->pushedPaths++;
+  }
 }
 
 static void ci_slot_PopPath(CLuaInterface *self)
@@ -1885,7 +2149,9 @@ static void ci_slot_PopPath(CLuaInterface *self)
 }
 
 static const char *ci_slot_GetPath(CLuaInterface *self)
-{ glua_log("SLOT:ci_slot_GetPath"); return self->pushedPaths > 0 ? self->path : NULL; }
+{ glua_log("SLOT:ci_slot_GetPath");
+  return self->pushedPaths > 0 ? self->pathStack[self->pushedPaths - 1] : NULL;
+}
 
 /* GetColor: the reference reads a Color object (a table with r/g/b/a) and
 ** packs it as a little-endian RGBA int; a non-table yields 0xFFFFFFFF. */
@@ -1910,7 +2176,7 @@ static void *ci_slot_PushColor(CLuaInterface *self, GLuaColor color)
   lua_pushnumber(L, color.b); lua_setfield(L, -2, "b");
   lua_pushnumber(L, color.a); lua_setfield(L, -2, "a");
   if (self->metaTables[self->colorMetaID] != NULL) {
-    gobj_push(self->metaTables[self->colorMetaID]);
+    gobj_push_obj(self, self->metaTables[self->colorMetaID]);
     lua_setmetatable(L, -2);
   }
   return NULL;
@@ -2040,11 +2306,20 @@ static const char *glua_module_ext(void)
 static const char *glua_game_dir(lua_State *L)
 {
   const char *dir = NULL;
+  static char fallback[512];
   lua_getfield(L, LUA_REGISTRYINDEX, "OPGLUA_GAMEDIR");
   if (lua_type(L, -1) == GT_STRING) dir = lua_tostring(L, -1);
   lua_pop(L, 1);
   if (dir == NULL || dir[0] == '\0') {
     dir = getenv("OPGLUA_GAMEDIR");
+  }
+  if (dir == NULL || dir[0] == '\0') {
+    /* No host override: derive <install>/garrysmod from this DLL's location. */
+    const char *root = glua_game_root();
+    if (root[0] != '\0') {
+      snprintf(fallback, sizeof(fallback), "%s/garrysmod", root);
+      dir = fallback;
+    }
   }
   return dir ? dir : "";
 }
@@ -2183,20 +2458,26 @@ static void ci_slot_AppendStackTrace(CLuaInterface *self, char *buf, unsigned in
   strncat(buf, "\n", size - strlen(buf) - 1);
 }
 
+/* Implemented in lib_convar.cpp: build the engine ConVar/ConCommand so the
+** returned pointer has the real layout the engine patches and self-registers
+** with ICVar, exactly as the reference does. */
+extern void *glua_convars_create_convar(const char *name, const char *def,
+                                        const char *help, int flags);
+extern void *glua_convars_create_concommand(const char *name, const char *help,
+                                            int flags, void *cb, void *completion);
+
 static void *ci_slot_CreateConVar(CLuaInterface *self, const char *name, const char *def,
                                   const char *help, int flags)
-{ glua_log("SLOT:ci_slot_CreateConVar");
-  (void)self; (void)name; (void)def; (void)help; (void)flags;
-  glua_warn_once("CreateConVar");
-  return NULL;
+{ glua_log("SLOT:ci_slot_CreateConVar(name=%s def=%s flags=%d)", name?name:"(null)", def?def:"(null)", flags);
+  (void)self;
+  return glua_convars_create_convar(name, def, help, flags);
 }
 
 static void *ci_slot_CreateConCommand(CLuaInterface *self, const char *name, const char *help,
                                       int flags, void *cb, void *completion)
-{ glua_log("SLOT:ci_slot_CreateConCommand");
-  (void)self; (void)name; (void)help; (void)flags; (void)cb; (void)completion;
-  glua_warn_once("CreateConCommand");
-  return NULL;
+{ glua_log("SLOT:ci_slot_CreateConCommand(name=%s flags=%d)", name?name:"(null)", flags);
+  (void)self;
+  return glua_convars_create_concommand(name, help, flags, cb, completion);
 }
 
 static const char *ci_slot_CheckStringOpt(CLuaInterface *self, int idx, const char *def)
@@ -2218,7 +2499,7 @@ static int ci_slot_RegisterMetaTable(CLuaInterface *self, const char *name, GLua
   }
   lua_pop(L, 1);
   id = self->metaIDCounter++;
-  if (tbl != NULL) gobj_push(tbl); else lua_newtable(L);
+  if (tbl != NULL) gobj_push_obj(self, tbl); else lua_newtable(L);
   lua_pushnumber(L, (double)id);
   lua_setfield(L, -2, "MetaID");
   lua_pushstring(L, name);
@@ -2226,8 +2507,8 @@ static int ci_slot_RegisterMetaTable(CLuaInterface *self, const char *name, GLua
   lua_pushvalue(L, -1);
   lua_setfield(L, LUA_REGISTRYINDEX, name);
   if (id >= 0 && id < 255) {
-    if (self->metaTables[id] == NULL) self->metaTables[id] = glua_object_alloc(self);
-    if (self->metaTables[id] != NULL) gobj_bind_stack(self, self->metaTables[id], -1);
+    if (self->metaTables[id] == NULL) self->metaTables[id] = gobj_create(self);
+    if (self->metaTables[id] != NULL) gobj_setstack_any(self, self->metaTables[id], -1);
   }
   lua_pop(L, 1);
   return id;
@@ -2262,8 +2543,19 @@ static void cs_dtor(CLuaShared *s) { (void)s; }
 /* Init(interfaceFactory, magicBool, context, pGet): the engine hands over
 ** its CreateInterface so lua_shared can reach VFileSystem022 /
 ** VEngineCvar007 etc.  Stored for later use; nothing is requested yet. */
+extern void opglua_convars_set_cvar(void *cvar);
+
 static void cs_Init(CLuaShared *s, void *f, bool b, void *ctx, void *get)
-{ glua_log("ILuaShared::Init(factory=%p ctx=%p)", f, ctx); s->factory = f; s->dedicated = b; (void)ctx; (void)get; }
+{ glua_log("ILuaShared::Init(factory=%p ctx=%p)", f, ctx); s->factory = f; s->dedicated = b; (void)ctx; (void)get;
+  /* Pull VEngineCvar007 like the reference so the ConVar module's g_pCVar is
+  ** bound to the engine's ICVar.  factory(name, int* out). */
+  if (f != NULL) {
+    void *(*factory)(const char *, int *) = (void *(*)(const char *, int *))f;
+    void *cvar = factory("VEngineCvar007", NULL);
+    glua_log("ILuaShared::Init cvar=%p", cvar);
+    opglua_convars_set_cvar(cvar);
+  }
+}
 
 static void cs_Shutdown(CLuaShared *s)
 { glua_log("ILuaShared::Shutdown");
@@ -2281,16 +2573,13 @@ static CLuaInterface *cs_CreateLuaInterface(CLuaShared *s, unsigned char realm, 
   if (iface == NULL) return NULL;
   iface->vtable = (const void *)glua_interface_vtable;
   iface->realm = realm;
-  /* Create the state here so the interface is usable the moment it is
-  ** returned; a later engine Init(callback) call then only adopts the
-  ** callback. */
-  if (!ci_slot_Init(iface, NULL, true)) { glua_log("CreateLuaInterface: ci_slot_Init FAILED"); free(iface); return NULL; }
+  /* Allocate only.  The engine's follow-up Init(gameCallback) creates the
+  ** state and is what hands the interface back through the callback. */
   switch (realm) {
     case GLUA_REALM_SERVER: s->server = iface; break;
     case GLUA_REALM_MENU:   s->menu = iface; break;
     default:                s->client = iface; break;
   }
-  glua_log("CreateLuaInterface(realm=%d) OK iface=%p state=%p", (int)realm, (void*)iface, (void*)iface->state);
   return iface;
 }
 
@@ -2318,9 +2607,19 @@ static CLuaInterface *cs_GetLuaInterface(CLuaShared *s, unsigned char realm)
 ** through the engine file system, which the standalone build does not have;
 ** they are safe stand-ins.  ScriptExists answers from the host filesystem so
 ** Require-style probes still work. */
+/* Implemented in lib_luashared.cpp: std::string-typed ILuaShared tail slots
+** and the LuaFile the engine's gamemode existence check consumes. */
+extern void *opglua_luashared_loadfile(const void *path, const void *pathId,
+                                       bool fromDatatable, bool fromFile);
+extern bool opglua_luashared_scriptexists(const void *file, const void *path, bool unknown);
+
 static void *cs_LoadFile(CLuaShared *s, const void *path, const void *pathId,
                          bool fromDatatable, bool fromFile)
-{ glua_log("ILuaShared::LoadFile(%s)",(const char*)path); (void)s; (void)path; (void)pathId; (void)fromDatatable; (void)fromFile; return NULL; }
+{ (void)s;
+  void *r = opglua_luashared_loadfile(path, pathId, fromDatatable, fromFile);
+  glua_log("ILuaShared::LoadFile -> %p", r);
+  return r;
+}
 static void cs_MountLua(CLuaShared *s, const char *pathID) { (void)s; glua_log("ILuaShared::MountLua(%s)", pathID); }
 static void cs_MountLuaAdd(CLuaShared *s, const char *file, const char *pathID)
 { (void)s; (void)file; (void)pathID; }
@@ -2333,10 +2632,10 @@ static const char *cs_GetStackTraces(CLuaShared *s) { (void)s; return ""; }
 static void cs_InvalidateCache(CLuaShared *s, const void *unknown) { (void)s; (void)unknown; }
 static void cs_EmptyCache(CLuaShared *s) { (void)s; }
 static bool cs_ScriptExists(CLuaShared *s, const void *file, const void *path, bool unknown)
-{ glua_log("ILuaShared::ScriptExists(%s)",(const char*)file);
-  const char *f = (const char *)file;
-  (void)s; (void)path; (void)unknown;
-  return f != NULL && glua_file_exists(f);
+{ (void)s;
+  bool r = opglua_luashared_scriptexists(file, path, unknown);
+  glua_log("ILuaShared::ScriptExists -> %d", (int)r);
+  return r;
 }
 
 static const glua_vfn glua_shared_vtable[18] = {
