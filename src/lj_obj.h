@@ -660,7 +660,20 @@ struct lua_State {
   GCRef env;		/* Thread environment (table of globals). */
   void *cframe;		/* End of C stack frame chain. */
   MSize stacksize;	/* True stack size (incl. LJ_STACK_EXTRA). */
+  /* GMod binary-module ABI.  The fork appends a 0x20-byte tail to the GC64
+  ** state: 24 bytes of members/padding (content not established), then the
+  ** 8-byte luabase pointer at offset 0x78.  A binary module does
+  ** L->luabase to obtain the ILuaBase, so sizeof must be 0x80 (128) and
+  ** luabase must sit at 0x78.  Verified against the shipped win64 VM.
+  */
+  void *gm_reserved[3];	/* 0x60..0x77 */
+  void *luabase;	/* 0x78: GarrysMod::Lua::ILua* */
 };
+
+#if LJ_GC64
+LJ_STATIC_ASSERT(sizeof(lua_State) == 0x80);
+LJ_STATIC_ASSERT((int)offsetof(lua_State, luabase) == 0x78);
+#endif
 
 #define G(L)			(mref(L->glref, global_State))
 #define registry(L)		(&G(L)->registrytv)
