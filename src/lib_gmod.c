@@ -835,9 +835,14 @@ static int gobj_GetType(GLuaObject *obj)
 
 static const char *gobj_GetString(GLuaObject *obj)
 {
+  const char *s;
   if (!obj->iface) return NULL;
   gobj_push(obj);
-  return lua_tostring(obj->iface->state, -1);
+  s = lua_tostring(obj->iface->state, -1);
+  /* The value stays alive after popping: the object holds a registry
+  ** reference to it. */
+  lua_pop(obj->iface->state, 1);
+  return s;
 }
 
 static float gobj_GetFloat(GLuaObject *obj)
@@ -1149,16 +1154,25 @@ const glua_vfn glua_object_vtable[93] = {
 
 static void glua_warn_once(const char *what)
 {
-  static const char *last = NULL;
-  if (last != what) {
-    last = what;
-    fprintf(stdout, "[opglua] safe stand-in for %s (needs the host game)\n", what);
-    fflush(stdout);
-  }
+  /* Small seen-set so alternating stand-ins each report once. */
+  static const char *seen[16];
+  static int seenCount = 0;
+  int i;
+  for (i = 0; i < seenCount; i++)
+    if (seen[i] == what) return;
+  if (seenCount < 16) seen[seenCount++] = what;
+  fprintf(stdout, "[opglua] safe stand-in for %s (needs the host game)\n", what);
+  fflush(stdout);
 }
 
 /* _LOADLIB holder used by the binary module loader. */
-typedef struct GLuaLoadLib { HMODULE hmod; } GLuaLoadLib;
+typedef struct GLuaLoadLib {
+#ifdef _WIN32
+  HMODULE hmod;
+#else
+  void *hmod;
+#endif
+} GLuaLoadLib;
 
 static int loadlib_close(lua_State *L)
 {
@@ -1213,7 +1227,10 @@ static int glua_open_module(lua_State *L, const char *path, const char *symbol)
 #else
     holder->hmod = dlopen(path, RTLD_NOW);
 #endif
-    if (holder->hmod == NULL) return 1;      /* load failure */
+    if (holder->hmod == NULL) {
+      lua_pushfstring(L, "Couldn't load module library! (%s)", path);
+      return 1;      /* load failure */
+    }
   }
 
   if (symbol[0] == '*') {                    /* load-only request */
@@ -1233,6 +1250,48 @@ static int glua_open_module(lua_State *L, const char *path, const char *symbol)
   }
 #endif
 
+  /* The named entry is absent.  The reference falls back to a luaopen_*
+  ** derivation (strip up to the last '-', '.' becomes '_') resolved against
+  ** the module, then the host process, then the caller's own image, and
+  ** loads the result as a raw bytecode chunk. */
+  {
+    char derived[256];
+    const char *base = strrchr(symbol, '-');
+    const char *p;
+    size_t n = 0;
+    void *fn = NULL;
+    base = (base != NULL) ? base + 1 : symbol;
+    for (p = "luaopen_"; *p != '\0' && n < sizeof(derived) - 1; p++)
+      derived[n++] = *p;
+    for (p = base; *p != '\0' && n < sizeof(derived) - 1; p++)
+      derived[n++] = (*p == '.') ? '_' : *p;
+    derived[n] = '\0';
+#ifdef _WIN32
+    {
+      FARPROC proc = NULL;
+      HMODULE host = NULL;
+      if (holder->hmod != NULL)
+        proc = GetProcAddress(holder->hmod, derived);
+      if (proc == NULL) {
+        host = GetModuleHandleA(NULL);
+        if (host != NULL) proc = GetProcAddress(host, derived);
+      }
+      if (proc == NULL &&
+          GetModuleHandleExA(6, (LPCSTR)(const void *)&glua_open_module, &host))
+        proc = GetProcAddress(host, derived);
+      fn = (void *)proc;
+    }
+#else
+    fn = dlsym(RTLD_DEFAULT, derived);
+#endif
+    if (fn != NULL) {
+      if (luaL_loadbuffer(L, (const char *)fn, 0x7fffff00, symbol) != 0)
+        return 3;
+      return 0;
+    }
+  }
+
+  lua_pushfstring(L, "Couldn't find function in library! (%s)", symbol);
   return 2;                                  /* symbol not found */
 }
 
@@ -1268,6 +1327,10 @@ static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
 
   luaL_openlibs(L);
   lua_atpanic(L, NULL);
+
+  /* Custom metatable ids start after the builtin type range so they can
+  ** never collide with a GarrysMod::Lua::Type value. */
+  self->metaIDCounter = GT_TYPE_COUNT;
 
   /* Register the loader's _LOADLIB metatable (handle cache for modules). */
   luaL_newmetatable(L, "_LOADLIB");
@@ -1577,7 +1640,8 @@ static int glua_run_ex(CLuaInterface *self, const char *filename, const char *pa
                        bool dontPushErrors, bool noReturns)
 {
   lua_State *L = self->state;
-  const char *chunkname = (filename && *filename == '@') ? filename + 1 : filename;
+  char cn[512];
+  const char *chunkname;
   int base;
   (void)path; (void)dontPushErrors;
   if (str == NULL || str[0] == '\0') return 0;
@@ -1585,8 +1649,15 @@ static int glua_run_ex(CLuaInterface *self, const char *filename, const char *pa
     if (printErrors) ci_slot_ErrorNoHalt(self, "Cannot run byte code!");
     return 0;
   }
+  /* Chunk names are prefixed with '@', like the reference. */
+  if (filename != NULL && filename[0] != '\0') {
+    snprintf(cn, sizeof(cn), "@%s", filename);
+    chunkname = cn;
+  } else {
+    chunkname = "?";
+  }
   base = lua_gettop(L);
-  if (luaL_loadbufferx(L, str, strlen(str), chunkname ? chunkname : "", NULL) != 0) {
+  if (luaL_loadbufferx(L, str, strlen(str), chunkname, NULL) != 0) {
     if (printErrors) ci_slot_ErrorNoHalt(self, "%s", lua_tostring(L, -1));
     if (dontPushErrors) lua_pop(L, 1);
     return 0;
@@ -1665,7 +1736,11 @@ static int ci_slot_FindAndRunScript(CLuaInterface *self, const char *fn, bool ru
   fseek(f, 0, SEEK_END);
   size = ftell(f);
   fseek(f, 0, SEEK_SET);
-  if (size <= 0) { fclose(f); return 0; }
+  if (size <= 0) {
+    fclose(f);
+    if (showErrors) ci_slot_ErrorNoHalt(self, "Not running script %s - it's too short.\n", fn);
+    return 0;
+  }
   buf = (char *)malloc((size_t)size + 1);
   if (buf == NULL) { fclose(f); return 0; }
   if (fread(buf, 1, (size_t)size, f) != (size_t)size) { fclose(f); free(buf); return 0; }
@@ -1759,8 +1834,7 @@ static void *ci_slot_PushColor(CLuaInterface *self, GLuaColor color)
   lua_pushnumber(L, color.a); lua_setfield(L, -2, "a");
   if (self->metaTables[self->colorMetaID] != NULL) {
     gobj_push(self->metaTables[self->colorMetaID]);
-    if (lua_getmetatable(L, -1)) lua_setmetatable(L, -3);
-    lua_pop(L, 1);
+    lua_setmetatable(L, -2);
   }
   return NULL;
 }
