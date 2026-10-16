@@ -146,7 +146,33 @@ typedef int (*GLuaCFunc)(lua_State *L);
 
 #define GLUA_IFACE(self)   ((self)->state)
 
+/* Crash forensics: append a line to a trace file.  Used while bringing the
+** VM up inside a real engine, where a bad object pointer otherwise turns
+** into a silent access violation.  Enabled only when OPGLUA_TRACE is defined;
+** it writes to a fixed path and is a bring-up aid, not a shipping feature. */
+#if defined(_WIN32) && defined(OPGLUA_TRACE)
+static void glua_tracef(const char *tag, void *a, void *b, void *c)
+{
+  static FILE *f = NULL;
+  static int tried = 0;
+  if (!tried) {
+    tried = 1;
+    f = fopen("D:\\tmp\\glua\\opglua_trace.txt", "a");
+  }
+  if (f != NULL) {
+    fprintf(f, "%s a=%p b=%p c=%p\n", tag, a, b, c);
+    fflush(f);
+  }
+}
+#else
+#define glua_tracef(t,a,b,c) ((void)0)
+#endif
+
 static const char *glua_type_name(int type);
+
+/* The interface vtable, defined near the end; referenced by gobj_push for the
+** foreign-object guard. */
+extern const glua_vfn glua_interface_vtable[132];
 
 /* GetType semantics: stock Lua types pass through, typed userdata report
 ** their stored type byte when it is a GMod type (>= 9). */
@@ -331,15 +357,72 @@ static void gobj_bind_stack(CLuaInterface *self, GLuaObject *obj, int stackIndex
 
 static void gobj_push(GLuaObject *obj)
 {
+#ifdef _WIN32
+  /* Bringing the VM up inside the real engine showed the engine handing the
+  ** object slots a pointer whose interface back-pointer is not one of ours.
+  ** Trace it and refuse to dereference, rather than fault. */
+  {
+    lua_State *L = NULL;
+    void *iface = NULL;
+    int ref = 0;
+    __try {
+      if (obj != NULL) {
+        iface = obj->iface;
+        ref = obj->ref;
+        if (iface != NULL && *(void **)iface == (void *)glua_interface_vtable)
+          L = (lua_State *)((CLuaInterface *)iface)->state;
+      }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+      glua_tracef("gobj_push: AV while reading object", obj, NULL, NULL);
+      return;
+    }
+    if (iface != NULL && L == NULL)
+      glua_tracef("gobj_push: foreign/unknown object", obj, iface, (void *)(intptr_t)ref);
+    if (L != NULL && ref != LUA_NOREF && ref != LUA_REFNIL) {
+      lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+      return;
+    }
+    if (L != NULL) { lua_pushnil(L); return; }
+    return;
+  }
+#else
   if (obj == NULL || obj->iface == NULL || obj->ref == LUA_NOREF) {
     if (obj != NULL && obj->iface != NULL) lua_pushnil(obj->iface->state);
     return;
   }
   lua_rawgeti(obj->iface->state, LUA_REGISTRYINDEX, obj->ref);
+#endif
+}
+
+/* Resolve an object's lua_State only when the object really is one of ours
+** (its iface points at our interface vtable).  Foreign or corrupt objects
+** yield NULL, so callers can no-op instead of dereferencing garbage.  The
+** reference ILuaObject is a pure interface reached only through its own
+** virtual methods, so a caller-supplied object is not guaranteed to share our
+** field layout.
+*/
+static lua_State *gobj_state(GLuaObject *obj)
+{
+#ifdef _WIN32
+  lua_State *L = NULL;
+  __try {
+    if (obj != NULL && obj->iface != NULL &&
+        *(void **)obj->iface == (void *)glua_interface_vtable)
+      L = (lua_State *)((CLuaInterface *)obj->iface)->state;
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+    L = NULL;
+  }
+  return L;
+#else
+  if (obj == NULL || obj->iface == NULL) return NULL;
+  if (*(void **)obj->iface != (void *)glua_interface_vtable) return NULL;
+  return (lua_State *)((CLuaInterface *)obj->iface)->state;
+#endif
 }
 
 /* The vtable body for ILuaObject is defined further below. */
 extern const glua_vfn glua_object_vtable[93];
+extern const glua_vfn glua_interface_vtable[132];
 
 static GLuaObject *glua_object_alloc(CLuaInterface *self)
 {
@@ -799,7 +882,7 @@ static intptr_t gobj_stub(void) { return 0; }
 
 static void gobj_Set(GLuaObject *obj, GLuaObject *other)
 {
-  if (obj->iface && obj->ref != LUA_NOREF && obj->ref != LUA_REFNIL)
+  if (gobj_state(obj) != NULL && obj->ref != LUA_NOREF && obj->ref != LUA_REFNIL)
     luaL_unref(obj->iface->state, LUA_REGISTRYINDEX, obj->ref);
   obj->ref = LUA_NOREF;
   if (other == NULL || other->iface == NULL || other->ref == LUA_NOREF) {
@@ -813,12 +896,12 @@ static void gobj_Set(GLuaObject *obj, GLuaObject *other)
 
 static void gobj_SetFromStack(GLuaObject *obj, int i)
 {
-  if (obj->iface) gobj_bind_stack(obj->iface, obj, i);
+  if (gobj_state(obj) != NULL) gobj_bind_stack(obj->iface, obj, i);
 }
 
 static void gobj_UnReference(GLuaObject *obj)
 {
-  if (obj->iface && obj->ref != LUA_NOREF && obj->ref != LUA_REFNIL)
+  if (gobj_state(obj) != NULL && obj->ref != LUA_NOREF && obj->ref != LUA_REFNIL)
     luaL_unref(obj->iface->state, LUA_REGISTRYINDEX, obj->ref);
   obj->ref = LUA_NOREF;
 }
@@ -826,7 +909,7 @@ static void gobj_UnReference(GLuaObject *obj)
 static int gobj_GetType(GLuaObject *obj)
 {
   int t;
-  if (!obj->iface) return GT_NIL;
+  if (gobj_state(obj) == NULL) return GT_NIL;
   gobj_push(obj);
   t = glua_gettype(obj->iface->state, -1);
   lua_pop(obj->iface->state, 1);
@@ -836,7 +919,7 @@ static int gobj_GetType(GLuaObject *obj)
 static const char *gobj_GetString(GLuaObject *obj)
 {
   const char *s;
-  if (!obj->iface) return NULL;
+  if (gobj_state(obj) == NULL) return NULL;
   gobj_push(obj);
   s = lua_tostring(obj->iface->state, -1);
   /* The value stays alive after popping: the object holds a registry
@@ -848,7 +931,7 @@ static const char *gobj_GetString(GLuaObject *obj)
 static float gobj_GetFloat(GLuaObject *obj)
 {
   double d;
-  if (!obj->iface) return 0.0f;
+  if (gobj_state(obj) == NULL) return 0.0f;
   gobj_push(obj);
   d = lua_tonumber(obj->iface->state, -1);
   lua_pop(obj->iface->state, 1);
@@ -859,7 +942,7 @@ static int gobj_GetInt(GLuaObject *obj) { return (int)gobj_GetFloat(obj); }
 static void *gobj_GetUserData(GLuaObject *obj)
 {
   void *p;
-  if (!obj->iface) return NULL;
+  if (gobj_state(obj) == NULL) return NULL;
   gobj_push(obj);
   p = lua_touserdata(obj->iface->state, -1);
   lua_pop(obj->iface->state, 1);
@@ -877,7 +960,7 @@ static int gobj_isUserData(GLuaObject *obj) { return gobj_GetType(obj) == GT_USE
 
 static void gobj_SetMemberStr(GLuaObject *obj, const char *name)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   lua_pushvalue(obj->iface->state, -2);
   lua_setfield(obj->iface->state, -2, name);
@@ -886,7 +969,7 @@ static void gobj_SetMemberStr(GLuaObject *obj, const char *name)
 
 static void gobj_SetMemberStrObj(GLuaObject *obj, const char *name, GLuaObject *val)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   if (val) gobj_push(val); else lua_pushnil(obj->iface->state);
   lua_setfield(obj->iface->state, -2, name);
@@ -895,7 +978,7 @@ static void gobj_SetMemberStrObj(GLuaObject *obj, const char *name, GLuaObject *
 
 static void gobj_SetMemberStrNum(GLuaObject *obj, const char *name, float val)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   lua_pushnumber(obj->iface->state, val);
   lua_setfield(obj->iface->state, -2, name);
@@ -904,7 +987,7 @@ static void gobj_SetMemberStrNum(GLuaObject *obj, const char *name, float val)
 
 static void gobj_SetMemberStrBool(GLuaObject *obj, const char *name, int val)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   lua_pushboolean(obj->iface->state, val);
   lua_setfield(obj->iface->state, -2, name);
@@ -913,7 +996,7 @@ static void gobj_SetMemberStrBool(GLuaObject *obj, const char *name, int val)
 
 static void gobj_SetMemberStrStr(GLuaObject *obj, const char *name, const char *val)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   lua_pushstring(obj->iface->state, val);
   lua_setfield(obj->iface->state, -2, name);
@@ -922,7 +1005,7 @@ static void gobj_SetMemberStrStr(GLuaObject *obj, const char *name, const char *
 
 static void gobj_SetMemberStrFn(GLuaObject *obj, const char *name, int (*f)(lua_State *))
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   lua_pushcclosure(obj->iface->state, f, 0);
   lua_setfield(obj->iface->state, -2, name);
@@ -932,7 +1015,7 @@ static void gobj_SetMemberStrFn(GLuaObject *obj, const char *name, int (*f)(lua_
 static int gobj_GetMemberBool(GLuaObject *obj, const char *name, int def)
 {
   int r = def;
-  if (!obj->iface) return def;
+  if (gobj_state(obj) == NULL) return def;
   gobj_push(obj);
   lua_getfield(obj->iface->state, -1, name);
   if (lua_type(obj->iface->state, -1) == GT_BOOL) r = lua_toboolean(obj->iface->state, -1);
@@ -943,7 +1026,7 @@ static int gobj_GetMemberBool(GLuaObject *obj, const char *name, int def)
 static int gobj_GetMemberInt(GLuaObject *obj, const char *name, int def)
 {
   int r = def;
-  if (!obj->iface) return def;
+  if (gobj_state(obj) == NULL) return def;
   gobj_push(obj);
   lua_getfield(obj->iface->state, -1, name);
   if (lua_type(obj->iface->state, -1) == GT_NUMBER) r = (int)lua_tonumber(obj->iface->state, -1);
@@ -954,7 +1037,7 @@ static int gobj_GetMemberInt(GLuaObject *obj, const char *name, int def)
 static float gobj_GetMemberFloat(GLuaObject *obj, const char *name, float def)
 {
   float r = def;
-  if (!obj->iface) return def;
+  if (gobj_state(obj) == NULL) return def;
   gobj_push(obj);
   lua_getfield(obj->iface->state, -1, name);
   if (lua_type(obj->iface->state, -1) == GT_NUMBER) r = (float)lua_tonumber(obj->iface->state, -1);
@@ -965,7 +1048,7 @@ static float gobj_GetMemberFloat(GLuaObject *obj, const char *name, float def)
 static const char *gobj_GetMemberStr(GLuaObject *obj, const char *name, const char *def)
 {
   const char *r = def;
-  if (!obj->iface) return def;
+  if (gobj_state(obj) == NULL) return def;
   gobj_push(obj);
   lua_getfield(obj->iface->state, -1, name);
   if (lua_type(obj->iface->state, -1) == GT_STRING) r = lua_tostring(obj->iface->state, -1);
@@ -975,7 +1058,7 @@ static const char *gobj_GetMemberStr(GLuaObject *obj, const char *name, const ch
 
 static void gobj_SetMemberNum(GLuaObject *obj, float key)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   lua_pushvalue(obj->iface->state, -2);
   lua_pushnumber(obj->iface->state, key);
@@ -985,7 +1068,7 @@ static void gobj_SetMemberNum(GLuaObject *obj, float key)
 
 static void gobj_SetMemberNumVal(GLuaObject *obj, float key, float val)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   lua_pushnumber(obj->iface->state, key);
   lua_pushnumber(obj->iface->state, val);
@@ -995,7 +1078,7 @@ static void gobj_SetMemberNumVal(GLuaObject *obj, float key, float val)
 
 static void gobj_SetMemberNumObj(GLuaObject *obj, float key, GLuaObject *val)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   lua_pushnumber(obj->iface->state, key);
   if (val) gobj_push(val); else lua_pushnil(obj->iface->state);
@@ -1005,7 +1088,7 @@ static void gobj_SetMemberNumObj(GLuaObject *obj, float key, GLuaObject *val)
 
 static void gobj_SetMemberObjObj(GLuaObject *obj, GLuaObject *k, GLuaObject *v)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   gobj_push(obj);
   if (k) gobj_push(k); else lua_pushnil(obj->iface->state);
   if (v) gobj_push(v); else lua_pushnil(obj->iface->state);
@@ -1020,7 +1103,7 @@ static void gobj_SetReference(GLuaObject *obj, int i)
 
 static void gobj_SetFromGlobal(GLuaObject *obj, const char *name)
 {
-  if (!obj->iface) return;
+  if (gobj_state(obj) == NULL) return;
   lua_getglobal(obj->iface->state, name);
   gobj_bind_stack(obj->iface, obj, -1);
   lua_pop(obj->iface->state, 1);
@@ -1028,7 +1111,7 @@ static void gobj_SetFromGlobal(GLuaObject *obj, const char *name)
 
 static int gobj_Init(GLuaObject *obj)
 {
-  if (obj->iface && obj->ref != LUA_NOREF && obj->ref != LUA_REFNIL)
+  if (gobj_state(obj) != NULL && obj->ref != LUA_NOREF && obj->ref != LUA_REFNIL)
     luaL_unref(obj->iface->state, LUA_REGISTRYINDEX, obj->ref);
   obj->ref = LUA_NOREF;
   return 0;
@@ -1534,7 +1617,7 @@ static GLuaObject *ci_slot_CreateObject(CLuaInterface *self) { return glua_objec
 static void ci_slot_SetMemberStrObj(CLuaInterface *self, GLuaObject *t, const char *k, GLuaObject *v)
 {
   (void)self;
-  if (t == NULL || t->iface == NULL) return;
+  if (gobj_state(t) == NULL) return;
   gobj_push(t);
   if (v) gobj_push(v); else lua_pushnil(t->iface->state);
   lua_setfield(t->iface->state, -2, k);
@@ -1544,7 +1627,7 @@ static void ci_slot_SetMemberStrObj(CLuaInterface *self, GLuaObject *t, const ch
 static void ci_slot_SetMemberStr(CLuaInterface *self, GLuaObject *t, const char *k)
 {
   (void)self;
-  if (t == NULL || t->iface == NULL) return;
+  if (gobj_state(t) == NULL) return;
   gobj_push(t);
   lua_pushvalue(t->iface->state, -2);
   lua_setfield(t->iface->state, -2, k);
@@ -1554,7 +1637,7 @@ static void ci_slot_SetMemberStr(CLuaInterface *self, GLuaObject *t, const char 
 static void ci_slot_SetMemberNumObj(CLuaInterface *self, GLuaObject *t, float k, GLuaObject *v)
 {
   (void)self;
-  if (t == NULL || t->iface == NULL) return;
+  if (gobj_state(t) == NULL) return;
   gobj_push(t);
   lua_pushnumber(t->iface->state, k);
   if (v) gobj_push(v); else lua_pushnil(t->iface->state);
@@ -1565,7 +1648,7 @@ static void ci_slot_SetMemberNumObj(CLuaInterface *self, GLuaObject *t, float k,
 static void ci_slot_SetMemberNum(CLuaInterface *self, GLuaObject *t, float k)
 {
   (void)self;
-  if (t == NULL || t->iface == NULL) return;
+  if (gobj_state(t) == NULL) return;
   gobj_push(t);
   lua_pushnumber(t->iface->state, k);
   lua_pushvalue(t->iface->state, -3);
@@ -1576,7 +1659,7 @@ static void ci_slot_SetMemberNum(CLuaInterface *self, GLuaObject *t, float k)
 static void ci_slot_SetMemberObjObj(CLuaInterface *self, GLuaObject *t, GLuaObject *k, GLuaObject *v)
 {
   (void)self;
-  if (t == NULL || t->iface == NULL || k == NULL) return;
+  if (gobj_state(t) == NULL || k == NULL) return;
   gobj_push(t);
   gobj_push(k);
   if (v) gobj_push(v); else lua_pushnil(t->iface->state);
