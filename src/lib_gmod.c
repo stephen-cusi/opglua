@@ -3,7 +3,7 @@
 ** module loader.
 **
 ** This file gives the stock LuaJIT VM the object layout and the virtual
-** tables the reference engine (lua_shared.dll) exposes to binary modules.
+** tables the reference engine exposes to binary modules.
 ** A module does  L->luabase  to reach its ILuaBase, casts it to
 ** GarrysMod::Lua::ILuaBase* and calls fixed vtable slots.  The slot order is
 ** the ABI, so every method below is emitted in the shipping order even when
