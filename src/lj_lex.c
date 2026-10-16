@@ -338,7 +338,10 @@ static LexToken lex_scan(LexState *ls, TValue *tv)
 	lex_next(ls);
 	for (;;) {
 	  if (ls->c == LEX_EOF) {
-	    lj_lex_error(ls, TK_eof, LJ_ERR_XLCOM);
+	    /* GLua: an unclosed block comment just runs into EOF; the
+	       parser reports the syntax error at <eof>.  Only the Lua
+	       long-comment path reports "unfinished long comment". */
+	    return TK_eof;
 	  } else if (ls->c == '*') {
 	    lex_next(ls);
 	    if (ls->c == '/') { lex_next(ls); break; }
@@ -365,7 +368,8 @@ static LexToken lex_scan(LexState *ls, TValue *tv)
     case '!':
       lex_next(ls);
       if (ls->c == '=') { lex_next(ls); return TK_ne; }  /* GLua: != */
-      return TK_not;  /* GLua: ! */
+      return '!';  /* GLua: single ! is the raw char token; the parser
+		      consumes it as a unary not (see expr_unop). */
     case '[': {
       int sep = lex_skipeq(ls);
       if (sep >= 0) {

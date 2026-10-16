@@ -2078,7 +2078,9 @@ static BinOpr expr_binop(LexState *ls, ExpDesc *v, uint32_t limit);
 static void expr_unop(LexState *ls, ExpDesc *v)
 {
   BCOp op;
-  if (ls->tok == TK_not) {
+  /* GLua: a single '!' reaches the parser as the raw char token, not as
+     TK_not; both spellings parse as a unary not. */
+  if (ls->tok == TK_not || ls->tok == '!') {
     op = BC_NOT;
   } else if (ls->tok == '-') {
     op = BC_UNM;

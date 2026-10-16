@@ -93,5 +93,33 @@ ok( "continue outside loop raises a syntax error", f == nil )
 local g = loadstring( "local continue = 1" )
 ok( "continue is reserved (no identifier clash)", g == nil )
 
+
+-- 12) a lone '!' parses as a unary not via the raw char token path
+ok( "double ! (!!true)", ( !!true ) == true )
+ok( "! with != inside", ( !( 1 != 1 ) ) == true )
+ok( "unary ! precedence (!!0 is true, !0 is false)", ( !!0 ) == true and ( !0 ) == false )
+
+-- 13) a lone '!' in a bad spot renders as near '!' (raw char token), not 'not'
+local e1 = select( 2, loadstring( "local x = 1 ! 2" ) )
+ok( "illegal ! renders near '!'", e1 ~= nil and e1:find( "near '!'", 1, true ) ~= nil )
+ok( "illegal ! does not render as 'not'", e1 == nil or e1:find( "near 'not'", 1, true ) == nil )
+
+-- 14) unclosed /* block comment runs to EOF silently: the parser only sees
+--     <eof>.  (Only the --[[ long-comment path reports "unfinished long
+--     comment".)  Reference behavior: a complete statement before the comment
+--     still compiles; an EOF mid-expression errors "near '<eof>'".
+ok( "unclosed /* after a full statement compiles",
+	loadstring( "local x = 1 /* oops" ) ~= nil )
+local e2 = select( 2, loadstring( "local x = 1 + /* oops" ) )
+ok( "unclosed /* mid-expression is a syntax error", e2 ~= nil )
+ok( "unclosed /* says <eof>, not unfinished",
+	e2:find( "<eof>", 1, true ) ~= nil and e2:find( "unfinished", 1, true ) == nil )
+
+-- 15) a closed /* */ block comment still works and does not nest
+local y = 1 /* closed */ + 1
+ok( "closed /* */ comment", y == 2 )
+local e3 = select( 2, loadstring( "/* /* still one comment */ */" ) )
+ok( "/* */ does not nest (trailing */ errors)", e3 ~= nil )
+
 print( fails == 0 and "ALL CLEAN" or ( fails .. " FAILED" ) )
 os.exit( fails == 0 and 0 or 1 )

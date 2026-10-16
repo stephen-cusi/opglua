@@ -17,6 +17,7 @@
 #include "lj_gc.h"
 #include "lj_err.h"
 #include "lj_buf.h"
+#include "lj_state.h"
 #include "lj_tab.h"
 #include "lj_ff.h"
 #include "lj_lib.h"
@@ -102,8 +103,10 @@ LJLIB_CF(table_insert)		LJLIB_REC(.)
     copyTV(L, dst, L->top-1);  /* Set new value. */
     lj_gc_barriert(L, t, dst);
   }
-  /* GLua: returns the inserted position. */
-  setintV(L->top-1, i);
+  /* GLua: returns the inserted position by pushing it on top of the
+     stack, leaving the caller's arguments untouched below it. */
+  setnumV(L->top, (lua_Number)i);
+  incr_top(L);
   return 1;
 }
 

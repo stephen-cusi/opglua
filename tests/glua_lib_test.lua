@@ -30,7 +30,18 @@ for i = 1, 10000 do
 end
 ok( "table.insert under JIT (want 10000)", acc == 10000 )
 
--- 3) metatable tagging: luaL_newmetatable writes MetaName + MetaID
+-- 3) table.insert pushes its return value: the position comes back as a
+--    number for both argument forms and the stored arguments stay intact
+local t3 = { "a", "b", "c" }
+local r2 = table.insert( t3, 1, "front" )
+ok( "table.insert(t,1,v) returns numeric 1", type( r2 ) == "number" and r2 == 1 )
+ok( "table.insert(t,1,v) content intact", t3[1] == "front" and t3[2] == "a" and #t3 == 4 )
+local r3 = table.insert( t3, "tail" )
+ok( "table.insert(t,v) returns numeric 5", type( r3 ) == "number" and r3 == 5 )
+ok( "table.insert(t,v) content intact", t3[5] == "tail" and #t3 == 5 )
+
+
+-- 4) metatable tagging: luaL_newmetatable writes MetaName + MetaID
 local mt = {}
 local created = false
 for k in pairs( getmetatable( assert( loadstring( "" ) ) ) or {} ) do created = created or k end
@@ -47,7 +58,7 @@ local okTag = select( 2, pcall( function()
 end ) )
 ok( "userdata metatable fields settable", okTag )
 
--- 4) type() override, exactly as util.lua defines it
+-- 5) type() override, exactly as util.lua defines it
 local C_type = type
 local getmetatable_ = getmetatable
 function type( v )
@@ -58,7 +69,7 @@ function type( v )
 	return C_type( metaName ) == "string" and metaName or "UserData"
 end
 
--- 5) TypeID, exactly as util.lua defines it
+-- 6) TypeID, exactly as util.lua defines it
 local STORED_TYPE_IDS = {
 	["nil"] = 0, ["boolean"] = 1, ["number"] = 2,
 	["string"] = 3, ["table"] = 5, ["function"] = 6, ["thread"] = 8,
@@ -70,7 +81,7 @@ function TypeID( v )
 	return vMeta and vMeta.MetaID or 9
 end
 
--- 6) behaviour checks
+-- 7) behaviour checks
 ok( "type(nil)", type( nil ) == "nil" )
 ok( "type(1)", type( 1 ) == "number" )
 ok( "type('s')", type( "s" ) == "string" )
@@ -86,7 +97,7 @@ ok( "TypeID() returns MetaID", TypeID( u ) == 42 )
 local bare = newproxy()
 ok( "type() bare userdata = UserData", type( bare ) == "UserData" )
 
--- 7) module + package.seeall (stock LuaJIT carries it; verify the real usage)
+-- 8) module + package.seeall (stock LuaJIT carries it; verify the real usage)
 ok( "package.seeall exists", package.seeall ~= nil )
 ok( "module(name, package.seeall)", pcall( function()
 	module( "glua_seeall_probe", package.seeall )
@@ -96,7 +107,7 @@ ok( "module(name, package.seeall)", pcall( function()
 end ) )
 ok( "module registered", _G.glua_seeall_probe ~= nil )
 
--- 8) lua_resume_real / luaL_newmetatable_type are exported by the DLL
+-- 9) lua_resume_real / luaL_newmetatable_type are exported by the DLL
 -- (checked via the DLL export table outside this script)
 
 print( fails == 0 and "ALL CLEAN" or ( fails .. " FAILED" ) )
