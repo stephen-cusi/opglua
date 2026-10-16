@@ -1,6 +1,6 @@
  lua51
 
- Timestamp is 6ad249c0 (Fri Oct 16 23:58:56 2026)
+ Timestamp is 6ad25182 (Sat Oct 17 00:32:02 2026)
 
  Preferred load address is 0000000180000000
 
@@ -4462,9 +4462,14 @@
  0002:00000b18       __xt_z                     0000000180147b18     LIBCMT:initializers.obj
  0002:00000c40       ??_C@_08EJHDDIMG@MetaName@ 0000000180147c40     lj_api.obj
  0002:00000c4c       ??_C@_06HLOAEAPG@MetaID@   0000000180147c4c     lj_api.obj
+ 0002:00000e90       ??_C@_0N@DGJJJODO@gmod13_close@ 0000000180147e90     lib_gmod.obj
+ 0002:00000ec0       ??_C@_09KBIFPMBA@?$DMnowhere?$DO@ 0000000180147ec0     lib_gmod.obj
+ 0002:00000ed8       ??_C@_0BG@BCEEJIBC@?5?5?5Lua?5State?5?$DN?5NULL?6?6@ 0000000180147ed8     lib_gmod.obj
  0002:00000f00       __xmm@ffff0000ffff0000ffff0000ffff0000 0000000180147f00     lj_asm.obj
  0002:00000f20       lj_bc_mode                 0000000180147f20     lj_bc.obj
  0002:00001060       lj_bc_ofs                  0000000180148060     lj_bc.obj
+ 0002:00001198       ??_C@_0M@JKPDPNBF@LOADLIB?3?5?$CFs@ 0000000180148198     lib_gmod.obj
+ 0002:000011d0       ??_C@_0M@IKMILBJB@gmod13_open@ 00000001801481d0     lib_gmod.obj
  0002:00001218       ??_C@_08OEMDPBOO@?$CIbinary?$CJ@ 0000000180148218     lj_bcread.obj
  0002:00001224       ??_C@_06DJHOIPC@?$CFs?3?5?$CFs@ 0000000180148224     lj_bcread.obj
  0002:00001230       __xmm@0c0d0e0f08090a0b0405060700010203 0000000180148230     lj_bcread.obj
@@ -4475,6 +4480,7 @@
  0002:000012d0       __xmm@0000007a0000007a0000007a0000007a 00000001801482d0     lj_buf.obj
  0002:000012f0       __xmm@000000ff000000ff000000ff000000ff 00000001801482f0     lj_buf.obj
  0002:00001310       lj_char_bits               0000000180148310     lj_char.obj
+ 0002:00001418       ??_C@_0DC@KOOOHFNO@CallFunctionProtected?5was?5passe@ 0000000180148418     lib_gmod.obj
  0002:00001450       ??_C@_0EO@CPLCJBBN@?$CIfor?5index?$CJ?$AA?$CIfor?5limit?$CJ?$AA?$CIfor?5st@ 0000000180148450     lj_debug.obj
  0002:000014b0       ??_C@_09DKIONLLI@?$CI?$CKvararg?$CJ@ 00000001801484b0     lj_debug.obj
  0002:000014c0       ??_C@_0N@NCKPGBEC@?$CI?$CKtemporary?$CJ@ 00000001801484c0     lj_debug.obj
@@ -4513,6 +4519,13 @@
  0002:00001624       ??_C@_06NDFPNBCO@?5at?5?$CFp@ 0000000180148624     lj_debug.obj
  0002:00001630       ??_C@_0BF@IDFBHDGL@?5in?5function?5?$DM?$CFs?3?$CFd?$DO@ 0000000180148630     lj_debug.obj
  0002:00001650       ??_C@_0MAM@NNIPKJOB@not?5enough?5memory?$AAerror?5in?5erro@ 0000000180148650     lj_err.obj
+ 0002:00002260       ??_C@_0BG@LHMDDMCA@Cannot?5run?5byte?5code?$CB@ 0000000180149260     lib_gmod.obj
+ 0002:000022b0       ??_C@_0N@CGGMDBL@CreateConVar@ 00000001801492b0     lib_gmod.obj
+ 0002:000022c8       ??_C@_0BF@KFFGJDO@?$CFs?1lua?1bin?1?$CFs?$CFs_?$CFs?$CFs@ 00000001801492c8     lib_gmod.obj
+ 0002:00002308       ??_C@_09FCOELODM@LUASHARED@ 0000000180149308     lib_gmod.obj
+ 0002:00002320       ??_C@_0L@JEKIMFIL@LUACONVARS@ 0000000180149320     lib_gmod.obj
+ 0002:000023b0       ??_C@_0CG@GFCKJLLO@CLuaInterface?3?3PopPath?5?9?5Overpo@ 00000001801493b0     lib_gmod.obj
+ 0002:000023d8       ??_C@_0BI@KDGDPDNG@Module?5not?5found?$CB?5?$CI?$CFs?$CJ?6@ 00000001801493d8     lib_gmod.obj
  0002:000024c4       ??_C@_01OGPIMHDM@?$DP@     00000001801494c4     lj_err.obj
  0002:00002840       lj_ir_mode                 0000000180149840     lj_ir.obj
  0002:000028a8       lj_ir_type_size            00000001801498a8     lj_ir.obj
@@ -5015,60 +5028,44 @@
  0002:00007770       ??_C@_06KBCHOIMA@Entity@   000000018014e770     lib_gmod.obj
  0002:00007780       glua_interface_vtable      000000018014e780     lib_gmod.obj
  0002:00007be0       glua_object_vtable         000000018014ebe0     lib_gmod.obj
- 0002:00007fa0       ??_C@_0CG@GFCKJLLO@CLuaInterface?3?3PopPath?5?9?5Overpo@ 000000018014efa0     lib_gmod.obj
+ 0002:00008098       ??_C@_0BN@IJPFDKDK@GetCurrentFile?$CIstd?3?3string?$CG?$CJ@ 000000018014f098     lib_gmod.obj
  0002:00008140       ??_C@_04CGFJFPFD@none@     000000018014f140     lib_gmod.obj
  0002:00008158       ??_C@_0BH@MMHONNMD@Lua?5stack?5over?9popped?$CB@ 000000018014f158     lib_gmod.obj
  0002:00008178       ??_C@_0DF@FFMAFKFH@?$FLopglua?$FN?5safe?5stand?9in?5for?5?$CFs?5?$CI@ 000000018014f178     lib_gmod.obj
- 0002:000081b0       ??_C@_0CI@MLJCFHBL@Couldn?8t?5find?5function?5in?5libra@ 000000018014f1b0     lib_gmod.obj
- 0002:000081d8       ??_C@_0DI@PIEOGCNI@Unable?5to?5create?5new?5Lua?5State?$CB@ 000000018014f1d8     lib_gmod.obj
+ 0002:000081b0       ??_C@_0DI@PIEOGCNI@Unable?5to?5create?5new?5Lua?5State?$CB@ 000000018014f1b0     lib_gmod.obj
+ 0002:000081e8       ??_C@_0N@HMOODCAC@?$CFs?5?$CIline?5?$CFd?$CJ@ 000000018014f1e8     lib_gmod.obj
+ 0002:000081f8       ??_C@_0BP@BBEGGCEB@CompileString?$CIBootil?3?3Buffer?$CG?$CJ@ 000000018014f1f8     lib_gmod.obj
  0002:00008218       ??_C@_08BJDCLMIE@luaopen_@ 000000018014f218     lib_gmod.obj
  0002:00008238       ??_C@_0BB@DGBNANMA@?$CFs?5?$CI?$CFs?$CJ?5line?5?$CFd?6@ 000000018014f238     lib_gmod.obj
- 0002:00008258       ??_C@_0M@IKMILBJB@gmod13_open@ 000000018014f258     lib_gmod.obj
- 0002:00008268       ??_C@_0CB@KLNFBBBD@Lua?5tried?5to?5call?5a?5non?9functio@ 000000018014f268     lib_gmod.obj
- 0002:00008290       ??_C@_0N@NAHLMBPA@LUASHARED003@ 000000018014f290     lib_gmod.obj
+ 0002:00008258       ??_C@_0CB@KLNFBBBD@Lua?5tried?5to?5call?5a?5non?9functio@ 000000018014f258     lib_gmod.obj
  0002:000082ac       ??_C@_04BDLIKKMN@__gc@     000000018014f2ac     lib_gmod.obj
  0002:000082b4       ??_C@_05PDOBBJNA@Color@    000000018014f2b4     lib_gmod.obj
- 0002:000082d0       ??_C@_0BB@CMOFIJKC@too?5many?5returns@ 000000018014f2d0     lib_gmod.obj
- 0002:000082e8       ??_C@_0CE@KHHJCDPJ@Tried?5to?5get?5return?5higher?5than@ 000000018014f2e8     lib_gmod.obj
- 0002:00008310       ??_C@_07NBPNCAKD@?$CBMODULE@ 000000018014f310     lib_gmod.obj
- 0002:00008318       ??_C@_0CJ@EFJBBIMH@Not?5running?5script?5?$CFs?5?9?5it?8s?5to@ 000000018014f318     lib_gmod.obj
+ 0002:000082e0       ??_C@_0BP@CEPPLPPK@?$CFs?1lua?1includes?1modules?1?$CFs?4lua@ 000000018014f2e0     lib_gmod.obj
  0002:0000835c       ??_C@_04BIAACBGB@?4lua@    000000018014f35c     lib_gmod.obj
- 0002:00008368       ??_C@_0CP@NOKMGGDJ@Couldn?8t?5include?5file?5?8?$CFs?8?5?9?5No@ 000000018014f368     lib_gmod.obj
- 0002:000083a0       ??_C@_0DJ@IOEBBNNG@Couldn?8t?5include?5file?5?8?$CFs?8?5?9?5Fi@ 000000018014f3a0     lib_gmod.obj
- 0002:00008400       ??_C@_08OGPJBJKC@_MODULES@ 000000018014f400     lib_gmod.obj
- 0002:00008428       ??_C@_0BN@IJPFDKDK@GetCurrentFile?$CIstd?3?3string?$CG?$CJ@ 000000018014f428     lib_gmod.obj
+ 0002:00008380       ??_C@_0P@LAPIEMPJ@OPGLUA_GAMEDIR@ 000000018014f380     lib_gmod.obj
+ 0002:00008398       ??_C@_0CJ@EFJBBIMH@Not?5running?5script?5?$CFs?5?9?5it?8s?5to@ 000000018014f398     lib_gmod.obj
+ 0002:000083c8       ??_C@_0CK@LCONMEHP@selftest?3?5GMOD_LoadBinaryModule@ 000000018014f3c8     lib_gmod.obj
+ 0002:00008420       ??_C@_08OGPJBJKC@_MODULES@ 000000018014f420     lib_gmod.obj
  0002:00008454       ??_C@_01JEJKBAGA@g@        000000018014f454     lib_gmod.obj
  0002:00008458       ??_C@_01OJONOECF@b@        000000018014f458     lib_gmod.obj
  0002:0000845c       ??_C@_01MCMALHOG@a@        000000018014f45c     lib_gmod.obj
  0002:0000846c       ??_C@_02KHAMJCKP@Sl@       000000018014f46c     lib_gmod.obj
- 0002:00008470       ??_C@_0BF@KFFGJDO@?$CFs?1lua?1bin?1?$CFs?$CFs_?$CFs?$CFs@ 000000018014f470     lib_gmod.obj
- 0002:000084a8       ??_C@_0BP@BBEGGCEB@CompileString?$CIBootil?3?3Buffer?$CG?$CJ@ 000000018014f4a8     lib_gmod.obj
  0002:0000850c       ??_C@_05GPBDPJHA@gmcl_@    000000018014f50c     lib_gmod.obj
  0002:00008514       ??_C@_05COLLIIEJ@gmsv_@    000000018014f514     lib_gmod.obj
  0002:0000851c       ??_C@_05IMANJMPM@win64@    000000018014f51c     lib_gmod.obj
  0002:00008524       ??_C@_04HLONOPDM@?4dll@    000000018014f524     lib_gmod.obj
- 0002:00008530       ??_C@_0P@LAPIEMPJ@OPGLUA_GAMEDIR@ 000000018014f530     lib_gmod.obj
- 0002:00008540       ??_C@_0N@CGGMDBL@CreateConVar@ 000000018014f540     lib_gmod.obj
- 0002:00008558       ??_C@_0BP@CEPPLPPK@?$CFs?1lua?1includes?1modules?1?$CFs?4lua@ 000000018014f558     lib_gmod.obj
- 0002:00008578       ??_C@_0BJ@ENNHILBK@selftest?3?5marker?5?$DN?5?8?$CFs?8?6@ 000000018014f578     lib_gmod.obj
- 0002:000085a0       ??_C@_0BI@KDGDPDNG@Module?5not?5found?$CB?5?$CI?$CFs?$CJ?6@ 000000018014f5a0     lib_gmod.obj
- 0002:000085c0       ??_C@_0BG@BCEEJIBC@?5?5?5Lua?5State?5?$DN?5NULL?6?6@ 000000018014f5c0     lib_gmod.obj
  0002:000085dc       ??_C@_04CHJPJONL@Slnu@     000000018014f5dc     lib_gmod.obj
- 0002:000085e8       ??_C@_09FCOELODM@LUASHARED@ 000000018014f5e8     lib_gmod.obj
  0002:000085fc       ??_C@_02KNHHEEKP@?5?5@     000000018014f5fc     lib_gmod.obj
- 0002:00008610       ??_C@_0BB@POFMMKMF@CreateConCommand@ 000000018014f610     lib_gmod.obj
- 0002:00008628       ??_C@_0L@JEKIMFIL@LUACONVARS@ 000000018014f628     lib_gmod.obj
- 0002:00008648       ??_C@_0O@JBPNOGKH@LUACONVARS001@ 000000018014f648     lib_gmod.obj
- 0002:00008698       ??_C@_0CI@JCAKIDKD@selftest?3?5luabase?5back?5pointer?5@ 000000018014f698     lib_gmod.obj
- 0002:00008700       ??_C@_0BD@CMHKNOAN@opglua_test_marker@ 000000018014f700     lib_gmod.obj
- 0002:00008738       ??_C@_0CE@COKEEHPD@selftest?3?5marker?5missing?5?$CItype?5@ 000000018014f738     lib_gmod.obj
+ 0002:00008638       ??_C@_0O@JBPNOGKH@LUACONVARS001@ 000000018014f638     lib_gmod.obj
+ 0002:00008670       ??_C@_0BD@CMHKNOAN@opglua_test_marker@ 000000018014f670     lib_gmod.obj
+ 0002:00008688       ??_C@_0CI@JCAKIDKD@selftest?3?5luabase?5back?5pointer?5@ 000000018014f688     lib_gmod.obj
  0002:00008830       ??_C@_08HNNNOMMJ@_LOADLIB@ 000000018014f830     lib_gmod.obj
  0002:00008858       ??_C@_07KNEGBPNO@package@  000000018014f858     lib_init.obj
  0002:00008864       ??_C@_02KFNNKBCK@io@       000000018014f864     lib_init.obj
  0002:00008868       ??_C@_02EHCHIAMF@os@       000000018014f868     lib_init.obj
  0002:0000886c       ??_C@_04CFDJAKFL@math@     000000018014f86c     lib_init.obj
  0002:00008874       ??_C@_03IGHFHLNJ@jit@      000000018014f874     lib_init.obj
- 0002:000089d0       ??_C@_0BG@LHMDDMCA@Cannot?5run?5byte?5code?$CB@ 000000018014f9d0     lib_gmod.obj
+ 0002:000089d0       ??_C@_07NBPNCAKD@?$CBMODULE@ 000000018014f9d0     lib_gmod.obj
  0002:00008a0c       ??_C@_05KCHOJJD@FILE?$CK@  000000018014fa0c     lib_io.obj
  0002:00008a18       ??_C@_0BL@PEFGCPAG@cannot?5close?5standard?5file@ 000000018014fa18     lib_io.obj
  0002:00008a38       ??_C@_03DLDNIBIK@?$CFlf@   000000018014fa38     lib_io.obj
@@ -5082,9 +5079,8 @@
  0002:00008ab0       ??_C@_05MHOFLBOO@stdin@    000000018014fab0     lib_io.obj
  0002:00008ab8       ??_C@_06DJDOIFHB@stdout@   000000018014fab8     lib_io.obj
  0002:00008ac0       ??_C@_06FJGNEBG@stderr@    000000018014fac0     lib_io.obj
- 0002:00008d00       ??_C@_0N@HMOODCAC@?$CFs?5?$CIline?5?$CFd?$CJ@ 000000018014fd00     lib_gmod.obj
  0002:00008d10       ??_C@_0CF@DHABNFHL@selftest?3?5interface?5creation?5fa@ 000000018014fd10     lib_gmod.obj
- 0002:00008d38       ??_C@_0CK@LCONMEHP@selftest?3?5GMOD_LoadBinaryModule@ 000000018014fd38     lib_gmod.obj
+ 0002:00008d38       ??_C@_0BJ@ENNHILBK@selftest?3?5marker?5?$DN?5?8?$CFs?8?6@ 000000018014fd38     lib_gmod.obj
  0002:00008d70       ??_C@_04NBFCGMPH@root@     000000018014fd70     lib_jit.obj
  0002:00008d78       ??_C@_04GKOOIABA@loop@     000000018014fd78     lib_jit.obj
  0002:00008d80       ??_C@_0P@FONHJDJF@tail?9recursion@ 000000018014fd80     lib_jit.obj
@@ -5109,16 +5105,17 @@
  0002:00008ebc       ??_C@_05IPMPAMGF@nexit@    000000018014febc     lib_jit.obj
  0002:00008ec8       ??_C@_08IDKBLEPL@linktype@ 000000018014fec8     lib_jit.obj
  0002:00008ee0       ??_C@_0IP@MHNKICBG@?$AImaxtrace?7maxrecord?6maxirconst?$AH@ 000000018014fee0     lib_jit.obj
- 0002:00008f70       ??_C@_0M@JKPDPNBF@LOADLIB?3?5?$CFs@ 000000018014ff70     lib_gmod.obj
+ 0002:00008f70       ??_C@_0BB@POFMMKMF@CreateConCommand@ 000000018014ff70     lib_gmod.obj
  0002:00008f90       ??_C@_07LDLFNPGN@Windows@  000000018014ff90     lib_jit.obj
  0002:00008f9c       ??_C@_03OLPMMCEF@x64@      000000018014ff9c     lib_jit.obj
  0002:00008fa0       ??_C@_0BD@DNOKJOFG@LuaJIT?52?41?40?9beta3@ 000000018014ffa0     lib_jit.obj
  0002:00008fb8       ??_C@_0M@PPFJBDEI@jit?4profile@ 000000018014ffb8     lib_jit.obj
  0002:00008fc8       ??_C@_08GBLPEHPF@jit?4util@ 000000018014ffc8     lib_jit.obj
  0002:00008fd8       ??_C@_07FHHNHIJG@jit?4opt@ 000000018014ffd8     lib_jit.obj
- 0002:00009118       ??_C@_0CD@KEFGPAFF@Couldn?8t?5load?5module?5library?$CB?5?$CI@ 0000000180150118     lib_gmod.obj
+ 0002:00009130       ??_C@_0N@NAHLMBPA@LUASHARED003@ 0000000180150130     lib_gmod.obj
  0002:00009150       __real@4005bf0a8b145769    0000000180150150     lib_math.obj
  0002:00009160       __real@400921fb54442d18    0000000180150160     lib_math.obj
+ 0002:00009228       ??_C@_0BB@CMOFIJKC@too?5many?5returns@ 0000000180150228     lib_gmod.obj
  0002:00009244       ??_C@_02HODHFJCJ@?$CKt@    0000000180150244     lib_os.obj
  0002:00009248       ??_C@_03KHPNBODO@sec@      0000000180150248     lib_os.obj
  0002:0000924c       ??_C@_03KLIPLJLL@min@      000000018015024c     lib_os.obj
@@ -5176,10 +5173,7 @@
  0002:000096d0       ??_C@_0L@GKIMPOMK@?2?6?$DL?6?$DP?6?$CB?6?9?6@ 00000001801506d0     lib_package.obj
  0002:000096e0       ??_C@_06HEJKKHEK@config@   00000001801506e0     lib_package.obj
  0002:000096e8       ??_C@_06IILMCCFO@loaded@   00000001801506e8     lib_package.obj
- 0002:000097d8       ??_C@_0N@DGJJJODO@gmod13_close@ 00000001801507d8     lib_gmod.obj
  0002:00009808       ??_C@_0BC@IMEAEJPD@too?5many?5captures@ 0000000180150808     lib_string.obj
- 0002:00009a38       ??_C@_09KBIFPMBA@?$DMnowhere?$DO@ 0000000180150a38     lib_gmod.obj
- 0002:00009a48       ??_C@_0DC@KOOOHFNO@CallFunctionProtected?5was?5passe@ 0000000180150a48     lib_gmod.obj
  0002:00009aa0       ??_C@_03CLCAEGCJ@new@      0000000180150aa0     lib_table.obj
  0002:00009aa4       ??_C@_05MEHLAELG@clear@    0000000180150aa4     lib_table.obj
  0002:00009ab0       ??_C@_09KFEEMPJN@table?4new@ 0000000180150ab0     lib_table.obj
@@ -5408,6 +5402,12 @@
  0002:0000b7c8       _d_max                     00000001801527c8     libucrt:ldexp.obj
  0002:0000b7d8       _d_min                     00000001801527d8     libucrt:ldexp.obj
  0002:0000b7e8       _d_mzero                   00000001801527e8     libucrt:ldexp.obj
+ 0002:0000c0c8       ??_C@_0CD@KEFGPAFF@Couldn?8t?5load?5module?5library?$CB?5?$CI@ 00000001801530c8     lib_gmod.obj
+ 0002:0000c0f0       ??_C@_0CI@MLJCFHBL@Couldn?8t?5find?5function?5in?5libra@ 00000001801530f0     lib_gmod.obj
+ 0002:0000c118       ??_C@_0CE@KHHJCDPJ@Tried?5to?5get?5return?5higher?5than@ 0000000180153118     lib_gmod.obj
+ 0002:0000c140       ??_C@_0CP@NOKMGGDJ@Couldn?8t?5include?5file?5?8?$CFs?8?5?9?5No@ 0000000180153140     lib_gmod.obj
+ 0002:0000c8f8       ??_C@_0DJ@IOEBBNNG@Couldn?8t?5include?5file?5?8?$CFs?8?5?9?5Fi@ 00000001801538f8     lib_gmod.obj
+ 0002:0000c938       ??_C@_0CE@COKEEHPD@selftest?3?5marker?5missing?5?$CItype?5@ 0000000180153938     lib_gmod.obj
  0002:0000cb00       __real@3c91a62633145c07    0000000180153b00     libucrt:atan2.obj
  0002:0000cb10       __real@3e45798ee2308c3a    0000000180153b10     libucrt:atan2.obj
  0002:0000cb20       __real@3e6110b4611a6263    0000000180153b20     libucrt:atan2.obj
@@ -11171,6 +11171,7 @@
  0000:ffe67004       __guard_fids__             0000000180000004     libucrt:stdio_initializer.obj
  0000:0000000c       _volmd                     000000018000000c     libucrt:new_mode.obj
  0001:00012da0       CALL_MMAP                  0000000180013da0 f   lj_alloc.obj
+ 0001:00012df0       glua_module_suffix         0000000180013df0 f   lib_gmod.obj
  0001:00012e10       CALL_MUNMAP                0000000180013e10 f   lj_alloc.obj
  0001:00012ef0       add_segment                0000000180013ef0 f   lj_alloc.obj
  0001:00013250       alloc_sys                  0000000180014250 f   lj_alloc.obj
@@ -11181,6 +11182,7 @@
  0001:00013850       init_bins                  0000000180014850 f   lj_alloc.obj
  0001:00013aa0       init_top                   0000000180014aa0 f   lj_alloc.obj
  0001:00014000       lj_alloc_free              0000000180015000 f   lj_alloc.obj
+ 0001:00014520       gobj_Set                   0000000180015520 f   lib_gmod.obj
  0001:00014660       lj_alloc_malloc            0000000180015660 f   lj_alloc.obj
  0001:00014a00       lj_alloc_realloc           0000000180015a00 f   lj_alloc.obj
  0001:00014c00       lj_ffs                     0000000180015c00 f   lj_alloc.obj
@@ -11217,9 +11219,11 @@
  0001:00019f30       asm_aref                   000000018001af30 f   lj_asm.obj
  0001:0001a050       asm_baseslot               000000018001b050 f   lj_asm.obj
  0001:0001a0b0       asm_bitshift               000000018001b0b0 f   lj_asm.obj
+ 0001:0001a5d0       gobj_SetMemberNumObj       000000018001b5d0 f   lib_gmod.obj
  0001:0001a720       asm_bswap                  000000018001b720 f   lj_asm.obj
  0001:0001a7e0       asm_bufhdr                 000000018001b7e0 f   lj_asm.obj
  0001:0001aa20       asm_bufput                 000000018001ba20 f   lj_asm.obj
+ 0001:0001ab90       gobj_Push                  000000018001bb90 f   lib_gmod.obj
  0001:0001abf0       asm_bufstr                 000000018001bbf0 f   lj_asm.obj
  0001:0001ac40       asm_call                   000000018001bc40 f   lj_asm.obj
  0001:0001ad70       asm_callid                 000000018001bd70 f   lj_asm.obj
@@ -11228,7 +11232,11 @@
  0001:0001b0d0       asm_callx_func             000000018001c0d0 f   lj_asm.obj
  0001:0001b120       asm_collectargs            000000018001c120 f   lj_asm.obj
  0001:0001b1d0       asm_comp                   000000018001c1d0 f   lj_asm.obj
+ 0001:0001b7e0       ci_slot_SetMemberStrObj    000000018001c7e0 f   lib_gmod.obj
+ 0001:0001b900       ci_slot_GetStack           000000018001c900 f   lib_gmod.obj
+ 0001:0001b940       cv_CreateConVar            000000018001c940 f   lib_gmod.obj
  0001:0001b960       asm_conv                   000000018001c960 f   lj_asm.obj
+ 0001:0001be40       ci_slot_SetMemberStr       000000018001ce40 f   lib_gmod.obj
  0001:0001bf80       asm_count_call_slots       000000018001cf80 f   lj_asm.obj
  0001:0001bf90       asm_div                    000000018001cf90 f   lj_asm.obj
  0001:0001bfa0       asm_exitstub_gen           000000018001cfa0 f   lj_asm.obj
@@ -11243,6 +11251,7 @@
  0001:0001c970       asm_fuseahuref             000000018001d970 f   lj_asm.obj
  0001:0001cb20       asm_fusearef               000000018001db20 f   lj_asm.obj
  0001:0001ccf0       asm_fusefref               000000018001dcf0 f   lj_asm.obj
+ 0001:0001cdf0       cs_Init                    000000018001ddf0 f   lib_gmod.obj
  0001:0001ce30       asm_fuseload               000000018001de30 f   lj_asm.obj
  0001:0001d3c0       asm_fuseloadk64            000000018001e3c0 f   lj_asm.obj
  0001:0001d570       asm_fuseloadm              000000018001e570 f   lj_asm.obj
@@ -11264,10 +11273,13 @@
  0001:0001f330       asm_href                   0000000180020330 f   lj_asm.obj
  0001:00020000       asm_hrefk                  0000000180021000 f   lj_asm.obj
  0001:000202e0       asm_intarith               00000001800212e0 f   lj_asm.obj
+ 0001:000205d0       gobj_GetStringLen          00000001800215d0 f   lib_gmod.obj
  0001:00020690       asm_intmin_max             0000000180021690 f   lj_asm.obj
  0001:00020850       asm_ir                     0000000180021850 f   lj_asm.obj
  0001:00021cc0       $LN385                     0000000180022cc0     lj_asm.obj
  0001:00021dc0       $LN384                     0000000180022dc0     lj_asm.obj
+ 0001:00021e30       gobj_SetMemberObjObj       0000000180022e30 f   lib_gmod.obj
+ 0001:00021fa0       ci_slot_FindAndRunScript   0000000180022fa0 f   lib_gmod.obj
  0001:000223a0       asm_isk32                  00000001800233a0 f   lj_asm.obj
  0001:00022410       asm_ldexp                  0000000180023410 f   lj_asm.obj
  0001:00022510       asm_lea                    0000000180023510 f   lj_asm.obj
@@ -12023,6 +12035,7 @@
  0001:0005ed00       $LN414                     000000018005fd00     lj_record.obj
  0001:0005ed18       $LN413                     000000018005fd18     lj_record.obj
  0001:0005ede0       $LN412                     000000018005fde0     lj_record.obj
+ 0001:0005ee50       glua_open_module           000000018005fe50 f   lib_gmod.obj
  0001:00060588       $LN45                      0000000180061588     lj_record.obj
  0001:000605a4       $LN44                      00000001800615a4     lj_record.obj
  0001:00060940       nommstr                    0000000180061940 f   lj_record.obj
@@ -12305,121 +12318,62 @@
  0001:000779c0       gc_MsgColour               00000001800789c0 f   lib_gmod.obj
  0001:00077a10       gc_LuaError                0000000180078a10 f   lib_gmod.obj
  0001:00077a20       gc_InterfaceCreated        0000000180078a20 f   lib_gmod.obj
- 0001:00077a30       ci_slot_Top                0000000180078a30 f   lib_gmod.obj
- 0001:00077a40       ci_slot_Push               0000000180078a40 f   lib_gmod.obj
- 0001:00077a50       ci_slot_Pop                0000000180078a50 f   lib_gmod.obj
- 0001:00077ab0       ci_slot_GetTable           0000000180078ab0 f   lib_gmod.obj
- 0001:00077ac0       ci_slot_GetField           0000000180078ac0 f   lib_gmod.obj
- 0001:00077ad0       ci_slot_SetField           0000000180078ad0 f   lib_gmod.obj
- 0001:00077ae0       ci_slot_CreateTable        0000000180078ae0 f   lib_gmod.obj
- 0001:00077b00       ci_slot_SetTable           0000000180078b00 f   lib_gmod.obj
- 0001:00077b10       ci_slot_SetMetaTable       0000000180078b10 f   lib_gmod.obj
- 0001:00077b20       ci_slot_GetMetaTable       0000000180078b20 f   lib_gmod.obj
- 0001:00077b50       ci_slot_Call               0000000180078b50 f   lib_gmod.obj
- 0001:00077b60       ci_slot_PCall              0000000180078b60 f   lib_gmod.obj
- 0001:00077b70       ci_slot_Equal              0000000180078b70 f   lib_gmod.obj
- 0001:00077b80       ci_slot_RawEqual           0000000180078b80 f   lib_gmod.obj
- 0001:00077b90       ci_slot_Insert             0000000180078b90 f   lib_gmod.obj
- 0001:00077ba0       ci_slot_Remove             0000000180078ba0 f   lib_gmod.obj
- 0001:00077bb0       ci_slot_Next               0000000180078bb0 f   lib_gmod.obj
- 0001:00077bc0       ci_slot_NewUserdata        0000000180078bc0 f   lib_gmod.obj
- 0001:00077bd0       ci_slot_ThrowError         0000000180078bd0 f   lib_gmod.obj
+ 0001:00077a30       ci_slot_SetMemberObjObj    0000000180078a30 f   lib_gmod.obj
+ 0001:00077ba0       ci_slot_Error              0000000180078ba0 f   lib_gmod.obj
  0001:00077c00       ci_slot_CheckType          0000000180078c00 f   lib_gmod.obj
- 0001:00077cc0       ci_slot_ArgError           0000000180078cc0 f   lib_gmod.obj
- 0001:00077ce0       ci_slot_RawGet             0000000180078ce0 f   lib_gmod.obj
- 0001:00077cf0       ci_slot_RawSet             0000000180078cf0 f   lib_gmod.obj
- 0001:00077d00       ci_slot_GetString          0000000180078d00 f   lib_gmod.obj
- 0001:00077d40       ci_slot_GetNumber          0000000180078d40 f   lib_gmod.obj
- 0001:00077d50       ci_slot_GetBool            0000000180078d50 f   lib_gmod.obj
- 0001:00077d80       ci_slot_GetCFunction       0000000180078d80 f   lib_gmod.obj
- 0001:00077d90       ci_slot_GetUserdata        0000000180078d90 f   lib_gmod.obj
- 0001:00077da0       ci_slot_PushNil            0000000180078da0 f   lib_gmod.obj
- 0001:00077db0       ci_slot_PushString         0000000180078db0 f   lib_gmod.obj
- 0001:00077dd0       ci_slot_PushNumber         0000000180078dd0 f   lib_gmod.obj
- 0001:00077de0       ci_slot_PushBool           0000000180078de0 f   lib_gmod.obj
+ 0001:00077cb0       ci_slot_IsEqual            0000000180078cb0 f   lib_gmod.obj
  0001:00077df0       ci_slot_PushCFunction      0000000180078df0 f   lib_gmod.obj
  0001:00077e00       ci_slot_PushCClosure       0000000180078e00 f   lib_gmod.obj
- 0001:00077e10       ci_slot_PushUserdata       0000000180078e10 f   lib_gmod.obj
- 0001:00077e20       ci_slot_ReferenceCreate    0000000180078e20 f   lib_gmod.obj
- 0001:00077e40       ci_slot_ReferenceFree      0000000180078e40 f   lib_gmod.obj
- 0001:00077e60       ci_slot_ReferencePush      0000000180078e60 f   lib_gmod.obj
- 0001:00077e80       ci_slot_PushSpecial        0000000180078e80 f   lib_gmod.obj
+ 0001:00077e10       ci_slot_ReferenceCreate    0000000180078e10 f   lib_gmod.obj
+ 0001:00077e40       ci_slot_ReferencePush      0000000180078e40 f   lib_gmod.obj
+ 0001:00077e80       ci_slot_Cycle              0000000180078e80 f   lib_gmod.obj
  0001:00077ed0       ci_slot_IsType             0000000180078ed0 f   lib_gmod.obj
  0001:00077f60       ci_slot_GetType            0000000180078f60 f   lib_gmod.obj
- 0001:00077fc0       ci_slot_GetTypeName        0000000180078fc0 f   lib_gmod.obj
+ 0001:00077fc0       ci_slot_CheckString        0000000180078fc0 f   lib_gmod.obj
  0001:00078000       ci_slot_CreateMetaTableType 0000000180079000 f   lib_gmod.obj
- 0001:000780b0       ci_slot_CheckString        00000001800790b0 f   lib_gmod.obj
- 0001:000780c0       ci_slot_CheckNumber        00000001800790c0 f   lib_gmod.obj
- 0001:000780d0       ci_slot_ObjLen             00000001800790d0 f   lib_gmod.obj
- 0001:000780e0       ci_slot_GetAngle           00000001800790e0 f   lib_gmod.obj
+ 0001:000780a0       ci_slot_CheckNumber        00000001800790a0 f   lib_gmod.obj
+ 0001:000780d0       ci_slot_SetType            00000001800790d0 f   lib_gmod.obj
  0001:00078130       ci_slot_GetVector          0000000180079130 f   lib_gmod.obj
- 0001:000781c0       ci_slot_SetState           00000001800791c0 f   lib_gmod.obj
  0001:000781d0       ci_slot_CreateMetaTable    00000001800791d0 f   lib_gmod.obj
- 0001:00078370       ci_slot_PushMetaTable      0000000180079370 f   lib_gmod.obj
+ 0001:00078330       ci_slot_PushMetaTable      0000000180079330 f   lib_gmod.obj
  0001:000783f0       ci_slot_PushUserType       00000001800793f0 f   lib_gmod.obj
- 0001:000784c0       ci_slot_SetUserType        00000001800794c0 f   lib_gmod.obj
+ 0001:000784c0       ci_slot_AddThreadedCall    00000001800794c0 f   lib_gmod.obj
  0001:000784f0       ci_slot_Init               00000001800794f0 f   lib_gmod.obj
- 0001:00078820       ci_slot_Shutdown           0000000180079820 f   lib_gmod.obj
- 0001:00078850       ci_slot_Cycle              0000000180079850 f   lib_gmod.obj
- 0001:00078890       ci_slot_Global             0000000180079890 f   lib_gmod.obj
  0001:000788a0       ci_slot_GetObject          00000001800798a0 f   lib_gmod.obj
- 0001:00078930       ci_slot_PushLuaObject      0000000180079930 f   lib_gmod.obj
+ 0001:00078920       ci_slot_LuaError           0000000180079920 f   lib_gmod.obj
  0001:00078990       ci_slot_PushLuaFunction    0000000180079990 f   lib_gmod.obj
- 0001:000789a0       ci_slot_LuaError           00000001800799a0 f   lib_gmod.obj
- 0001:000789d0       ci_slot_TypeError          00000001800799d0 f   lib_gmod.obj
+ 0001:000789a0       ci_slot_TypeError          00000001800799a0 f   lib_gmod.obj
  0001:000789f0       ci_slot_CallInternal       00000001800799f0 f   lib_gmod.obj
- 0001:00078bd0       ci_slot_CallInternalNoReturns 0000000180079bd0 f   lib_gmod.obj
- 0001:00078be0       ci_slot_CallInternalGetBool 0000000180079be0 f   lib_gmod.obj
  0001:00078c40       ci_slot_CallInternalGetString 0000000180079c40 f   lib_gmod.obj
  0001:00078cc0       ci_slot_CallInternalGet    0000000180079cc0 f   lib_gmod.obj
  0001:00078d50       ci_slot_NewGlobalTable     0000000180079d50 f   lib_gmod.obj
  0001:00078da0       ci_slot_NewTemporaryObject 0000000180079da0 f   lib_gmod.obj
- 0001:00078ea0       ci_slot_isUserData         0000000180079ea0 f   lib_gmod.obj
+ 0001:00078e80       ci_slot_isUserData         0000000180079e80 f   lib_gmod.obj
  0001:00078ed0       ci_slot_GetMetaTableObjectName 0000000180079ed0 f   lib_gmod.obj
  0001:00079060       ci_slot_GetMetaTableObjectIndex 000000018007a060 f   lib_gmod.obj
  0001:00079110       ci_slot_GetReturn          000000018007a110 f   lib_gmod.obj
- 0001:00079170       ci_slot_IsServer           000000018007a170 f   lib_gmod.obj
- 0001:00079180       ci_slot_IsClient           000000018007a180 f   lib_gmod.obj
- 0001:00079190       ci_slot_IsMenu             000000018007a190 f   lib_gmod.obj
- 0001:000791a0       ci_slot_DestroyObject      000000018007a1a0 f   lib_gmod.obj
+ 0001:00079160       ci_slot_PushPooledString   000000018007a160 f   lib_gmod.obj
+ 0001:000791c0       ci_slot_GetPooledString    000000018007a1c0 f   lib_gmod.obj
  0001:00079200       ci_slot_CreateObject       000000018007a200 f   lib_gmod.obj
- 0001:00079250       ci_slot_SetMemberStrObj    000000018007a250 f   lib_gmod.obj
+ 0001:00079250       ci_slot_GetStringOrError   000000018007a250 f   lib_gmod.obj
  0001:000792d0       gobj_GetInt                000000018007a2d0 f   lib_gmod.obj
- 0001:00079340       ci_slot_SetMemberStr       000000018007a340 f   lib_gmod.obj
- 0001:000793f0       ci_slot_SetMemberNumObj    000000018007a3f0 f   lib_gmod.obj
  0001:00079500       ci_slot_SetMemberNum       000000018007a500 f   lib_gmod.obj
- 0001:000795c0       ci_slot_SetMemberObjObj    000000018007a5c0 f   lib_gmod.obj
+ 0001:000795c0       ci_slot_GetDataString      000000018007a5c0 f   lib_gmod.obj
  0001:00079650       glua_warn_once             000000018007a650 f   lib_gmod.obj
  0001:00079700       ci_slot_GetNewTable        000000018007a700 f   lib_gmod.obj
- 0001:000797f0       ci_slot_SetType            000000018007a7f0 f   lib_gmod.obj
- 0001:00079800       ci_slot_PushLong           000000018007a800 f   lib_gmod.obj
- 0001:00079820       ci_slot_GetFlags           000000018007a820 f   lib_gmod.obj
+ 0001:000797d0       ci_slot_PushLong           000000018007a7d0 f   lib_gmod.obj
  0001:00079830       ci_slot_FindOnObjectsMetaTable 000000018007a830 f   lib_gmod.obj
  0001:000798d0       ci_slot_FindObjectOnTable  000000018007a8d0 f   lib_gmod.obj
- 0001:00079950       ci_slot_SetMemberFast      000000018007a950 f   lib_gmod.obj
  0001:00079a10       ci_slot_RunString          000000018007aa10 f   lib_gmod.obj
- 0001:00079a50       ci_slot_IsEqual            000000018007aa50 f   lib_gmod.obj
- 0001:00079ae0       gobj_SetMemberObjObj       000000018007aae0 f   lib_gmod.obj
- 0001:00079b80       ci_slot_Error              000000018007ab80 f   lib_gmod.obj
- 0001:00079bb0       ci_slot_GetStringOrError   000000018007abb0 f   lib_gmod.obj
- 0001:00079c10       ci_slot_RunLuaModule       000000018007ac10 f   lib_gmod.obj
- 0001:00079c40       ci_slot_FindAndRunScript   000000018007ac40 f   lib_gmod.obj
+ 0001:00079c40       glua_type_name             000000018007ac40 f   lib_gmod.obj
  0001:00079e50       loadlib_close              000000018007ae50 f   lib_gmod.obj
- 0001:00079ed0       ci_slot_SetPathID          000000018007aed0 f   lib_gmod.obj
- 0001:00079f10       ci_slot_GetPathID          000000018007af10 f   lib_gmod.obj
  0001:00079f20       ci_slot_ErrorNoHalt        000000018007af20 f   lib_gmod.obj
  0001:0007a000       ci_slot_Msg                000000018007b000 f   lib_gmod.obj
  0001:0007a0e0       ci_slot_PushPath           000000018007b0e0 f   lib_gmod.obj
  0001:0007a130       ci_slot_PopPath            000000018007b130 f   lib_gmod.obj
- 0001:0007a180       ci_slot_GetPath            000000018007b180 f   lib_gmod.obj
  0001:0007a1a0       ci_slot_GetColor           000000018007b1a0 f   lib_gmod.obj
  0001:0007a320       ci_slot_PushColor          000000018007b320 f   lib_gmod.obj
- 0001:0007a4a0       ci_slot_GetStack           000000018007b4a0 f   lib_gmod.obj
- 0001:0007a4b0       ci_slot_GetInfo            000000018007b4b0 f   lib_gmod.obj
- 0001:0007a4c0       ci_slot_GetLocal           000000018007b4c0 f   lib_gmod.obj
- 0001:0007a4d0       ci_slot_GetUpvalue         000000018007b4d0 f   lib_gmod.obj
- 0001:0007a4e0       ci_slot_RunStringEx        000000018007b4e0 f   lib_gmod.obj
- 0001:0007a520       ci_slot_GetDataString      000000018007b520 f   lib_gmod.obj
+ 0001:0007a480       ci_slot_GetLocal           000000018007b480 f   lib_gmod.obj
  0001:0007a580       ci_slot_ErrorFromLua       000000018007b580 f   lib_gmod.obj
  0001:0007a660       ci_slot_GetCurrentLocation 000000018007b660 f   lib_gmod.obj
  0001:0007a760       ci_slot_MsgColour          000000018007b760 f   lib_gmod.obj
@@ -12427,27 +12381,18 @@
  0001:0007a8d0       ci_slot_CompileString      000000018007b8d0 f   lib_gmod.obj
  0001:0007a970       ci_slot_CallFunctionProtected 000000018007b970 f   lib_gmod.obj
  0001:0007aa70       ci_slot_Require            000000018007ba70 f   lib_gmod.obj
- 0001:0007ae50       ci_slot_GetActualTypeName  000000018007be50 f   lib_gmod.obj
- 0001:0007ae60       ci_slot_PreCreateTable     000000018007be60 f   lib_gmod.obj
- 0001:0007ae70       ci_slot_PushPooledString   000000018007be70 f   lib_gmod.obj
- 0001:0007aea0       ci_slot_GetPooledString    000000018007bea0 f   lib_gmod.obj
- 0001:0007aec0       ci_slot_AddThreadedCall    000000018007bec0 f   lib_gmod.obj
  0001:0007aed0       ci_slot_AppendStackTrace   000000018007bed0 f   lib_gmod.obj
+ 0001:0007b090       ci_slot_CheckNumberOpt     000000018007c090 f   lib_gmod.obj
  0001:0007b100       ci_slot_CreateConVar       000000018007c100 f   lib_gmod.obj
  0001:0007b1a0       ci_slot_CreateConCommand   000000018007c1a0 f   lib_gmod.obj
- 0001:0007b240       ci_slot_CheckStringOpt     000000018007c240 f   lib_gmod.obj
- 0001:0007b250       ci_slot_CheckNumberOpt     000000018007c250 f   lib_gmod.obj
  0001:0007b260       ci_slot_RegisterMetaTable  000000018007c260 f   lib_gmod.obj
  0001:0007b470       ci_slot_dtor               000000018007c470 f   lib_gmod.obj
  0001:0007b4b0       gobj_stub                  000000018007c4b0 f   lib_gmod.obj
- 0001:0007b4c0       gobj_Set                   000000018007c4c0 f   lib_gmod.obj
  0001:0007b560       ns_equals                  000000018007c560 f   lib_gmod.obj
- 0001:0007b5e0       gobj_UnReference           000000018007c5e0 f   lib_gmod.obj
  0001:0007b630       gobj_GetType               000000018007c630 f   lib_gmod.obj
  0001:0007b700       gobj_GetString             000000018007c700 f   lib_gmod.obj
  0001:0007b7a0       gobj_GetFloat              000000018007c7a0 f   lib_gmod.obj
  0001:0007b860       gobj_GetUserData           000000018007c860 f   lib_gmod.obj
- 0001:0007b8f0       gobj_Push                  000000018007c8f0 f   lib_gmod.obj
  0001:0007b940       gobj_isNil                 000000018007c940 f   lib_gmod.obj
  0001:0007b960       gobj_isTable               000000018007c960 f   lib_gmod.obj
  0001:0007b980       gobj_isString              000000018007c980 f   lib_gmod.obj
@@ -12455,7 +12400,6 @@
  0001:0007b9c0       gobj_isFunction            000000018007c9c0 f   lib_gmod.obj
  0001:0007b9e0       gobj_isUserData            000000018007c9e0 f   lib_gmod.obj
  0001:0007ba00       gobj_SetMemberStr          000000018007ca00 f   lib_gmod.obj
- 0001:0007baa0       gobj_SetMemberStrObj       000000018007caa0 f   lib_gmod.obj
  0001:0007bb20       gobj_push                  000000018007cb20 f   lib_gmod.obj
  0001:0007bb90       gobj_SetMemberStrNum       000000018007cb90 f   lib_gmod.obj
  0001:0007bc40       gobj_SetMemberStrBool      000000018007cc40 f   lib_gmod.obj
@@ -12467,25 +12411,19 @@
  0001:0007c0d0       gobj_GetMemberStr          000000018007d0d0 f   lib_gmod.obj
  0001:0007c1b0       gobj_SetMemberNum          000000018007d1b0 f   lib_gmod.obj
  0001:0007c270       gobj_SetMemberNumVal       000000018007d270 f   lib_gmod.obj
- 0001:0007c340       gobj_SetMemberNumObj       000000018007d340 f   lib_gmod.obj
  0001:0007c3d0       gobj_GetDouble             000000018007d3d0 f   lib_gmod.obj
- 0001:0007c4d0       glua_type_name             000000018007d4d0 f   lib_gmod.obj
  0001:0007c570       gobj_SetReference          000000018007d570 f   lib_gmod.obj
  0001:0007c580       gobj_SetFromGlobal         000000018007d580 f   lib_gmod.obj
- 0001:0007c640       gobj_Init                  000000018007d640 f   lib_gmod.obj
+ 0001:0007c630       gobj_Init                  000000018007d630 f   lib_gmod.obj
  0001:0007c690       gobj_GetBool0              000000018007d690 f   lib_gmod.obj
  0001:0007c6b0       gobj_RemoveMe              000000018007d6b0 f   lib_gmod.obj
  0001:0007c6c0       gobj_SetFloat              000000018007d6c0 f   lib_gmod.obj
  0001:0007c6d0       gobj_SetString             000000018007d6d0 f   lib_gmod.obj
- 0001:0007c700       gobj_GetStringLen          000000018007d700 f   lib_gmod.obj
  0001:0007c7b0       cs_dtor                    000000018007d7b0 f   lib_gmod.obj
- 0001:0007c7c0       cs_Init                    000000018007d7c0 f   lib_gmod.obj
  0001:0007c7d0       cs_Shutdown                000000018007d7d0 f   lib_gmod.obj
  0001:0007c8a0       cs_DumpStats               000000018007d8a0 f   lib_gmod.obj
  0001:0007c8b0       cs_CreateLuaInterface      000000018007d8b0 f   lib_gmod.obj
  0001:0007c9a0       cs_CloseLuaInterface       000000018007d9a0 f   lib_gmod.obj
- 0001:0007ca10       cs_GetLuaInterface         000000018007da10 f   lib_gmod.obj
- 0001:0007ca40       cs_LoadFile                000000018007da40 f   lib_gmod.obj
  0001:0007ca50       cs_MountLua                000000018007da50 f   lib_gmod.obj
  0001:0007ca60       cs_MountLuaAdd             000000018007da60 f   lib_gmod.obj
  0001:0007ca70       cs_UnMountLua              000000018007da70 f   lib_gmod.obj
@@ -12498,8 +12436,6 @@
  0001:0007cae0       cs_ScriptExists            000000018007dae0 f   lib_gmod.obj
  0001:0007cb30       cv_dtor                    000000018007db30 f   lib_gmod.obj
  0001:0007cb40       cv_Init                    000000018007db40 f   lib_gmod.obj
- 0001:0007cb50       cv_CreateConVar            000000018007db50 f   lib_gmod.obj
- 0001:0007cb60       cv_CreateConCommand        000000018007db60 f   lib_gmod.obj
  0001:0007cb70       cv_DestroyManaged          000000018007db70 f   lib_gmod.obj
  0001:0007cb80       cv_Cache                   000000018007db80 f   lib_gmod.obj
  0001:0007cb90       cv_ClearCache              000000018007db90 f   lib_gmod.obj
@@ -12509,12 +12445,9 @@
  0001:0007cee0       glua_game_dir              000000018007dee0 f   lib_gmod.obj
  0001:0007cf90       glua_gettype               000000018007df90 f   lib_gmod.obj
  0001:0007d000       glua_load_binary_module    000000018007e000 f   lib_gmod.obj
- 0001:0007d100       glua_module_ext            000000018007e100 f   lib_gmod.obj
  0001:0007d110       glua_module_prefix         000000018007e110 f   lib_gmod.obj
- 0001:0007d130       glua_module_suffix         000000018007e130 f   lib_gmod.obj
  0001:0007d140       glua_object_alloc          000000018007e140 f   lib_gmod.obj
- 0001:0007d190       glua_open_module           000000018007e190 f   lib_gmod.obj
- 0001:0007d4d0       glua_pcall_int             000000018007e4d0 f   lib_gmod.obj
+ 0001:0007d1d0       glua_pcall_int             000000018007e1d0 f   lib_gmod.obj
  0001:0007d570       glua_run_ex                000000018007e570 f   lib_gmod.obj
  0001:0007d7c0       glua_vmsg                  000000018007e7c0 f   lib_gmod.obj
  0001:0007d940       gobj_bind_stack            000000018007e940 f   lib_gmod.obj
@@ -12523,12 +12456,16 @@
  0001:0007de70       lj_cf_io_method_write      000000018007ee70 f   lib_io.obj
  0001:0007def0       lj_cf_io_method_flush      000000018007eef0 f   lib_io.obj
  0001:0007df90       lj_cf_io_method_seek       000000018007ef90 f   lib_io.obj
+ 0001:0007e0e0       ci_slot_CallInternalNoReturns 000000018007f0e0 f   lib_gmod.obj
  0001:0007e130       lj_cf_io_method_setvbuf    000000018007f130 f   lib_io.obj
+ 0001:0007e240       ci_slot_PushNumber         000000018007f240 f   lib_gmod.obj
  0001:0007e280       lj_cf_io_method_lines      000000018007f280 f   lib_io.obj
  0001:0007e330       lj_cf_io_method___gc       000000018007f330 f   lib_io.obj
  0001:0007e3b0       lj_cf_io_method___tostring 000000018007f3b0 f   lib_io.obj
  0001:0007e450       lj_cf_io_open              000000018007f450 f   lib_io.obj
+ 0001:0007e520       ci_slot_GetUserdata        000000018007f520 f   lib_gmod.obj
  0001:0007e550       lj_cf_io_popen             000000018007f550 f   lib_io.obj
+ 0001:0007e620       ci_slot_CreateTable        000000018007f620 f   lib_gmod.obj
  0001:0007e650       lj_cf_io_tmpfile           000000018007f650 f   lib_io.obj
  0001:0007e700       lj_cf_io_close             000000018007f700 f   lib_io.obj
  0001:0007e760       lj_cf_io_read              000000018007f760 f   lib_io.obj
@@ -12537,25 +12474,34 @@
  0001:0007e840       lj_cf_io_input             000000018007f840 f   lib_io.obj
  0001:0007e860       lj_cf_io_output            000000018007f860 f   lib_io.obj
  0001:0007e880       lj_cf_io_lines             000000018007f880 f   lib_io.obj
+ 0001:0007e940       ci_slot_Global             000000018007f940 f   lib_gmod.obj
  0001:0007e970       lj_cf_io_type              000000018007f970 f   lib_io.obj
  0001:0007ea30       copyTV                     000000018007fa30 f   lib_io.obj
  0001:0007ea40       io_file_close              000000018007fa40 f   lib_io.obj
  0001:0007eaf0       io_file_iter               000000018007faf0 f   lib_io.obj
+ 0001:0007ec10       ci_slot_PCall              000000018007fc10 f   lib_gmod.obj
  0001:0007ec60       io_file_lines              000000018007fc60 f   lib_io.obj
  0001:0007ecb0       io_file_new                000000018007fcb0 f   lib_io.obj
  0001:0007ed20       io_file_open               000000018007fd20 f   lib_io.obj
+ 0001:0007edf0       ci_slot_Remove             000000018007fdf0 f   lib_gmod.obj
  0001:0007ee20       io_file_read               000000018007fe20 f   lib_io.obj
+ 0001:0007f180       ci_slot_SetMemberFast      0000000180080180 f   lib_gmod.obj
  0001:0007f260       io_file_readall            0000000180080260 f   lib_io.obj
+ 0001:0007f340       ci_slot_GetMetaTable       0000000180080340 f   lib_gmod.obj
  0001:0007f380       io_file_readlen            0000000180080380 f   lib_io.obj
+ 0001:0007f480       ci_slot_RawEqual           0000000180080480 f   lib_gmod.obj
  0001:0007f4c0       io_file_readline           00000001800804c0 f   lib_io.obj
+ 0001:0007f5d0       ci_slot_ReferenceFree      00000001800805d0 f   lib_gmod.obj
  0001:0007f610       io_file_readnum            0000000180080610 f   lib_io.obj
  0001:0007f680       io_file_write              0000000180080680 f   lib_io.obj
  0001:0007f760       io_std_getset              0000000180080760 f   lib_io.obj
+ 0001:0007f810       ci_slot_IsMenu             0000000180080810 f   lib_gmod.obj
  0001:0007f840       io_std_new                 0000000180080840 f   lib_io.obj
  0001:0007f8f0       io_stdfile                 00000001800808f0 f   lib_io.obj
  0001:0007f930       io_tofile                  0000000180080930 f   lib_io.obj
  0001:0007f9b0       io_tofilep                 00000001800809b0 f   lib_io.obj
  0001:0007fa10       lj_state_checkstack        0000000180080a10 f   lib_io.obj
+ 0001:0007fbe0       ci_slot_RunLuaModule       0000000180080be0 f   lib_gmod.obj
  0001:0007fc40       setgcV                     0000000180080c40 f   lib_io.obj
  0001:0007fc60       setgcVraw                  0000000180080c60 f   lib_io.obj
  0001:0007fc80       setint64V                  0000000180080c80 f   lib_io.obj
@@ -12565,23 +12511,38 @@
  0001:0007fce0       lj_cf_jit_on               0000000180080ce0 f   lib_jit.obj
  0001:0007fcf0       lj_cf_jit_off              0000000180080cf0 f   lib_jit.obj
  0001:0007fd00       lj_cf_jit_flush            0000000180080d00 f   lib_jit.obj
+ 0001:0007fd50       cs_LoadFile                0000000180080d50 f   lib_gmod.obj
  0001:0007fd70       lj_cf_jit_status           0000000180080d70 f   lib_jit.obj
+ 0001:0007fe90       ci_slot_PushBool           0000000180080e90 f   lib_gmod.obj
  0001:0007fed0       lj_cf_jit_attach           0000000180080ed0 f   lib_jit.obj
+ 0001:00080020       gobj_UnReference           0000000180081020 f   lib_gmod.obj
  0001:00080080       lj_cf_jit_util_funcinfo    0000000180081080 f   lib_jit.obj
+ 0001:000804c0       gobj_SetMemberStrObj       00000001800814c0 f   lib_gmod.obj
  0001:000805d0       lj_cf_jit_util_funcbc      00000001800815d0 f   lib_jit.obj
+ 0001:000806b0       ci_slot_PushNil            00000001800816b0 f   lib_gmod.obj
  0001:000806e0       lj_cf_jit_util_funck       00000001800816e0 f   lib_jit.obj
  0001:00080810       lj_cf_jit_util_funcuvname  0000000180081810 f   lib_jit.obj
+ 0001:00080910       ci_slot_GetField           0000000180081910 f   lib_gmod.obj
  0001:00080950       lj_cf_jit_util_traceinfo   0000000180081950 f   lib_jit.obj
  0001:00080b20       ci_slot_PushVector         0000000180081b20 f   lib_gmod.obj
+ 0001:00080b60       ci_slot_SetState           0000000180081b60 f   lib_gmod.obj
  0001:00080ba0       lj_cf_jit_util_traceir     0000000180081ba0 f   lib_jit.obj
+ 0001:00080d00       ci_slot_GetString          0000000180081d00 f   lib_gmod.obj
  0001:00080d60       lj_cf_jit_util_tracek      0000000180081d60 f   lib_jit.obj
+ 0001:00080e80       ci_slot_ThrowError         0000000180081e80 f   lib_gmod.obj
  0001:00080ed0       lj_cf_jit_util_tracesnap   0000000180081ed0 f   lib_jit.obj
+ 0001:000810b0       ci_slot_Pop                00000001800820b0 f   lib_gmod.obj
  0001:00081130       lj_cf_jit_util_tracemc     0000000180082130 f   lib_jit.obj
+ 0001:000811f0       ci_slot_RawSet             00000001800821f0 f   lib_gmod.obj
  0001:00081220       lj_cf_jit_util_traceexitstub 0000000180082220 f   lib_jit.obj
  0001:000812a0       lj_cf_jit_util_ircalladdr  00000001800822a0 f   lib_jit.obj
  0001:00081300       lj_cf_jit_opt_start        0000000180082300 f   lib_jit.obj
+ 0001:00081530       ci_slot_PreCreateTable     0000000180082530 f   lib_gmod.obj
+ 0001:00081570       ci_slot_CheckStringOpt     0000000180082570 f   lib_gmod.obj
  0001:000815c0       lj_cf_jit_profile_start    00000001800825c0 f   lib_jit.obj
+ 0001:000816f0       ci_slot_PushUserdata       00000001800826f0 f   lib_gmod.obj
  0001:00081730       lj_cf_jit_profile_stop     0000000180082730 f   lib_jit.obj
+ 0001:000817f0       ci_slot_ObjLen             00000001800827f0 f   lib_gmod.obj
  0001:00081820       lj_cf_jit_profile_dumpstack 0000000180082820 f   lib_jit.obj
  0001:000818f0       check_Lproto               00000001800828f0 f   lib_jit.obj
  0001:00081990       copyTV                     0000000180082990 f   lib_jit.obj
@@ -12589,12 +12550,17 @@
  0001:000819c0       flagbits_to_strings        00000001800829c0 f   lib_jit.obj
  0001:00081a70       jit_checktrace             0000000180082a70 f   lib_jit.obj
  0001:00081ac0       jit_cpudetect              0000000180082ac0 f   lib_jit.obj
+ 0001:00081bc0       ci_slot_SetField           0000000180082bc0 f   lib_gmod.obj
  0001:00081c00       jit_init                   0000000180082c00 f   lib_jit.obj
+ 0001:00081d50       ci_slot_GetTypeName        0000000180082d50 f   lib_gmod.obj
  0001:00081da0       jit_profile_callback       0000000180082da0 f   lib_jit.obj
+ 0001:00081ee0       ci_slot_ArgError           0000000180082ee0 f   lib_gmod.obj
  0001:00081f30       jitopt_flag                0000000180082f30 f   lib_jit.obj
  0001:00082050       jitopt_level               0000000180083050 f   lib_jit.obj
  0001:000820c0       jitopt_param               00000001800830c0 f   lib_jit.obj
+ 0001:00082190       ci_slot_Next               0000000180083190 f   lib_gmod.obj
  0001:000821c0       lj_gc_barrierback          00000001800831c0 f   lib_jit.obj
+ 0001:000823f0       ci_slot_RunStringEx        00000001800833f0 f   lib_gmod.obj
  0001:00082480       luaopen_jit_profile        0000000180083480 f   lib_jit.obj
  0001:000824b0       luaopen_jit_util           00000001800834b0 f   lib_jit.obj
  0001:000824e0       setfuncV                   00000001800834e0 f   lib_jit.obj
@@ -12604,6 +12570,7 @@
  0001:00082550       setintV                    0000000180083550 f   lib_jit.obj
  0001:00082560       setintfield                0000000180083560 f   lib_jit.obj
  0001:000825e0       setjitmode                 00000001800835e0 f   lib_jit.obj
+ 0001:000826a0       ci_slot_RawGet             00000001800836a0 f   lib_gmod.obj
  0001:000826d0       setlightudV                00000001800836d0 f   lib_jit.obj
  0001:000826f0       setprotoV                  00000001800836f0 f   lib_jit.obj
  0001:00082710       setstrV                    0000000180083710 f   lib_jit.obj
@@ -12615,8 +12582,10 @@
  0001:00082880       lj_ffh_math_ldexp          0000000180083880 f   lib_math.obj
  0001:000828c0       lj_ffh_math_min            00000001800838c0 f   lib_math.obj
  0001:00082910       lj_cf_math_random          0000000180083910 f   lib_math.obj
+ 0001:00082a10       ci_slot_Equal              0000000180083a10 f   lib_gmod.obj
  0001:00082a50       lj_cf_math_randomseed      0000000180083a50 f   lib_math.obj
  0001:00082c30       random_init                0000000180083c30 f   lib_math.obj
+ 0001:00082d00       ci_slot_GetPath            0000000180083d00 f   lib_gmod.obj
  0001:00082d30       lj_cf_os_execute           0000000180083d30 f   lib_os.obj
  0001:00082d90       lj_cf_os_remove            0000000180083d90 f   lib_os.obj
  0001:00082df0       lj_cf_os_rename            0000000180083df0 f   lib_os.obj
@@ -12626,10 +12595,12 @@
  0001:00082fc0       lj_cf_os_clock             0000000180083fc0 f   lib_os.obj
  0001:00083010       lj_cf_os_date              0000000180084010 f   lib_os.obj
  0001:00083410       lj_cf_os_time              0000000180084410 f   lib_os.obj
+ 0001:000836c0       glua_module_ext            00000001800846c0 f   lib_gmod.obj
  0001:00083770       lj_cf_os_difftime          0000000180084770 f   lib_os.obj
  0001:000837e0       lj_cf_os_setlocale         00000001800847e0 f   lib_os.obj
  0001:000838d0       difftime                   00000001800848d0 f   lib_os.obj
  0001:000838e0       getboolfield               00000001800848e0 f   lib_os.obj
+ 0001:00083930       ci_slot_GetFlags           0000000180084930 f   lib_gmod.obj
  0001:00083950       getfield                   0000000180084950 f   lib_os.obj
  0001:000839f0       gmtime                     00000001800849f0 f   lib_os.obj
  0001:00083a00       lj_buf_need                0000000180084a00 f   lib_os.obj
@@ -12644,12 +12615,18 @@
  0001:00083b80       time                       0000000180084b80 f   lib_os.obj
  0001:00083b90       lj_cf_package_loadlib      0000000180084b90 f   lib_package.obj
  0001:00083c50       lj_cf_package_searchpath   0000000180084c50 f   lib_package.obj
+ 0001:00083d10       ci_slot_Top                0000000180084d10 f   lib_gmod.obj
  0001:00083d40       lj_cf_package_loader_lua   0000000180084d40 f   lib_package.obj
+ 0001:00083e00       ci_slot_Push               0000000180084e00 f   lib_gmod.obj
  0001:00083e30       lj_cf_package_loader_c     0000000180084e30 f   lib_package.obj
  0001:00083f30       lj_cf_package_loader_croot 0000000180084f30 f   lib_package.obj
+ 0001:00084000       ci_slot_SetMetaTable       0000000180085000 f   lib_gmod.obj
  0001:00084030       lj_cf_package_loader_preload 0000000180085030 f   lib_package.obj
+ 0001:000841a0       ci_slot_Shutdown           00000001800851a0 f   lib_gmod.obj
  0001:000841f0       lj_cf_package_require      00000001800851f0 f   lib_package.obj
+ 0001:00084490       ci_slot_PushLuaObject      0000000180085490 f   lib_gmod.obj
  0001:00084530       lj_cf_package_module       0000000180085530 f   lib_package.obj
+ 0001:00084730       ci_slot_CallInternalGetBool 0000000180085730 f   lib_gmod.obj
  0001:000847b0       lj_cf_package_seeall       00000001800857b0 f   lib_package.obj
  0001:00084850       dooptions                  0000000180085850 f   lib_package.obj
  0001:000848d0       findfile                   00000001800858d0 f   lib_package.obj
@@ -12657,23 +12634,34 @@
  0001:000849e0       ll_bcsym                   00000001800859e0 f   lib_package.obj
  0001:00084a80       ll_load                    0000000180085a80 f   lib_package.obj
  0001:00084ad0       ll_loadfunc                0000000180085ad0 f   lib_package.obj
+ 0001:00084cf0       ci_slot_PushSpecial        0000000180085cf0 f   lib_gmod.obj
  0001:00084d70       ll_register                0000000180085d70 f   lib_package.obj
+ 0001:00084e40       ci_slot_NewUserdata        0000000180085e40 f   lib_gmod.obj
  0001:00084e70       ll_sym                     0000000180085e70 f   lib_package.obj
  0001:00084ec0       ll_unloadlib               0000000180085ec0 f   lib_package.obj
  0001:00084ed0       loaderror                  0000000180085ed0 f   lib_package.obj
+ 0001:00084f30       ci_slot_GetPathID          0000000180085f30 f   lib_gmod.obj
+ 0001:00085180       ci_slot_GetAngle           0000000180086180 f   lib_gmod.obj
  0001:00085200       mksymname                  0000000180086200 f   lib_package.obj
  0001:000852a0       modinit                    00000001800862a0 f   lib_package.obj
  0001:00085360       pusherror                  0000000180086360 f   lib_package.obj
+ 0001:00085400       ci_slot_GetTable           0000000180086400 f   lib_gmod.obj
  0001:00085430       pushnexttemplate           0000000180086430 f   lib_package.obj
  0001:000854e0       readable                   00000001800864e0 f   lib_package.obj
  0001:00085520       searchpath                 0000000180086520 f   lib_package.obj
+ 0001:00085690       cs_GetLuaInterface         0000000180086690 f   lib_gmod.obj
  0001:000856f0       setfenv                    00000001800866f0 f   lib_package.obj
+ 0001:000857a0       ci_slot_Insert             00000001800867a0 f   lib_gmod.obj
  0001:000857d0       setpath                    00000001800867d0 f   lib_package.obj
+ 0001:00085900       ci_slot_SetUserType        0000000180086900 f   lib_gmod.obj
  0001:00085950       setprogdir                 0000000180086950 f   lib_package.obj
  0001:00085a30       lj_ffh_string_byte         0000000180086a30 f   lib_string.obj
+ 0001:00085bd0       ci_slot_SetPathID          0000000180086bd0 f   lib_gmod.obj
  0001:00085c30       lj_ffh_string_char         0000000180086c30 f   lib_string.obj
+ 0001:00085cf0       ci_slot_GetNumber          0000000180086cf0 f   lib_gmod.obj
  0001:00085d20       lj_ffh_string_sub          0000000180086d20 f   lib_string.obj
  0001:00085d80       lj_cf_string_rep           0000000180086d80 f   lib_string.obj
+ 0001:00085e80       ci_slot_Call               0000000180086e80 f   lib_gmod.obj
  0001:00085ec0       lj_ffh_string_reverse      0000000180086ec0 f   lib_string.obj
  0001:00085ee0       lj_cf_string_dump          0000000180086ee0 f   lib_string.obj
  0001:00086000       lj_cf_string_find          0000000180087000 f   lib_string.obj
@@ -12681,12 +12669,14 @@
  0001:00086020       lj_cf_string_gmatch        0000000180087020 f   lib_string.obj
  0001:00086090       lj_cf_string_gsub          0000000180087090 f   lib_string.obj
  0001:00086280       ci_slot_PushAngle          0000000180087280 f   lib_gmod.obj
+ 0001:000862c0       ci_slot_GetActualTypeName  00000001800872c0 f   lib_gmod.obj
  0001:000862f0       lj_cf_string_format        00000001800872f0 f   lib_string.obj
  0001:0008660c       $LN57                      000000018008760c     lib_string.obj
  0001:00086630       gobj_state                 0000000180087630 f   lib_gmod.obj
  0001:00086700       add_s                      0000000180087700 f   lib_string.obj
  0001:00086800       gobj_SetFromStack          0000000180087800 f   lib_gmod.obj
  0001:00086840       add_value                  0000000180087840 f   lib_string.obj
+ 0001:00086a70       ci_slot_DestroyObject      0000000180087a70 f   lib_gmod.obj
  0001:00086af0       capture_to_close           0000000180087af0 f   lib_string.obj
  0001:00086b50       check_capture              0000000180087b50 f   lib_string.obj
  0001:00086ba0       classend                   0000000180087ba0 f   lib_string.obj
@@ -12696,16 +12686,22 @@
  0001:00086d10       lj_buf_str                 0000000180087d10 f   lib_string.obj
  0001:00086d30       lj_buf_tmp_                0000000180087d30 f   lib_string.obj
  0001:00086d50       lj_cf_string_gmatch_aux    0000000180087d50 f   lib_string.obj
+ 0001:00086f00       ci_slot_GetInfo            0000000180087f00 f   lib_gmod.obj
  0001:00086f60       lj_state_checkstack        0000000180087f60 f   lib_string.obj
  0001:00086f80       lj_strfmt_init             0000000180087f80 f   lib_string.obj
  0001:00087060       match                      0000000180088060 f   lib_string.obj
+ 0001:00087550       ci_slot_SetMemberNumObj    0000000180088550 f   lib_gmod.obj
  0001:00087690       match_capture              0000000180088690 f   lib_string.obj
  0001:00087740       match_class                0000000180088740 f   lib_string.obj
  0001:000877c0       matchbalance               00000001800887c0 f   lib_string.obj
  0001:00087850       matchbracketclass          0000000180088850 f   lib_string.obj
+ 0001:00087940       ci_slot_GetCFunction       0000000180088940 f   lib_gmod.obj
  0001:00087970       max_expand                 0000000180088970 f   lib_string.obj
+ 0001:00087a50       ci_slot_SetTable           0000000180088a50 f   lib_gmod.obj
  0001:00087a80       min_expand                 0000000180088a80 f   lib_string.obj
+ 0001:00087b30       ci_slot_IsServer           0000000180088b30 f   lib_gmod.obj
  0001:00087b60       push_captures              0000000180088b60 f   lib_string.obj
+ 0001:00087c60       ci_slot_GetBool            0000000180088c60 f   lib_gmod.obj
  0001:00087ca0       push_onecapture            0000000180088ca0 f   lib_string.obj
  0001:00087d50       setgcV                     0000000180088d50 f   lib_string.obj
  0001:00087d70       setgcVraw                  0000000180088d70 f   lib_string.obj
@@ -12718,8 +12714,12 @@
  0001:00088200       string_fmt_tostring        0000000180089200 f   lib_string.obj
  0001:00088320       writer_buf                 0000000180089320 f   lib_string.obj
  0001:00088340       lj_cf_table_maxn           0000000180089340 f   lib_table.obj
+ 0001:000883d0       ci_slot_IsClient           00000001800893d0 f   lib_gmod.obj
  0001:00088400       lj_cf_table_insert         0000000180089400 f   lib_table.obj
+ 0001:000885a0       ci_slot_GetUpvalue         00000001800895a0 f   lib_gmod.obj
+ 0001:000885e0       cv_CreateConCommand        00000001800895e0 f   lib_gmod.obj
  0001:00088600       lj_cf_table_concat         0000000180089600 f   lib_table.obj
+ 0001:00088770       ci_slot_PushString         0000000180089770 f   lib_gmod.obj
  0001:000887d0       lj_cf_table_sort           00000001800897d0 f   lib_table.obj
  0001:00088850       auxsort                    0000000180089850 f   lib_table.obj
  0001:00088d70       copyTV                     0000000180089d70 f   lib_table.obj
@@ -16495,140 +16495,121 @@
  0002:0002bda0       $unwind$gc_ErrorPrint      0000000180172da0     lib_gmod.obj
  0002:0002bda8       $unwind$gc_Msg             0000000180172da8     lib_gmod.obj
  0002:0002bdb0       $unwind$gc_MsgColour       0000000180172db0     lib_gmod.obj
- 0002:0002bdc0       $unwind$ci_slot_DestroyObject 0000000180172dc0     lib_gmod.obj
- 0002:0002bdcc       $unwind$ci_slot_CreateMetaTableType 0000000180172dcc     lib_gmod.obj
- 0002:0002bddc       $unwind$ci_slot_GetString  0000000180172ddc     lib_gmod.obj
- 0002:0002bde4       $unwind$gobj_Set           0000000180172de4     lib_gmod.obj
- 0002:0002bdf0       $unwind$ci_slot_CallInternalGetString 0000000180172df0     lib_gmod.obj
- 0002:0002bdfc       $unwind$ci_slot_GetMetaTable 0000000180172dfc     lib_gmod.obj
- 0002:0002be08       $unwind$ci_slot_GetCurrentFile 0000000180172e08     lib_gmod.obj
- 0002:0002be10       $unwind$gobj_GetType       0000000180172e10     lib_gmod.obj
- 0002:0002be20       $unwind$ci_slot_GetBool    0000000180172e20     lib_gmod.obj
- 0002:0002be30       $unwind$ci_slot_IsType     0000000180172e30     lib_gmod.obj
- 0002:0002be40       $unwind$loadlib_close      0000000180172e40     lib_gmod.obj
- 0002:0002be4c       $unwind$ci_slot_GetAngle   0000000180172e4c     lib_gmod.obj
- 0002:0002be5c       $unwind$ci_slot_CreateMetaTable 0000000180172e5c     lib_gmod.obj
- 0002:0002be74       $unwind$ci_slot_GetVector  0000000180172e74     lib_gmod.obj
- 0002:0002be7c       $unwind$ci_slot_GetMetaTableObjectName 0000000180172e7c     lib_gmod.obj
- 0002:0002be90       $chain$6$ci_slot_Init      0000000180172e90     lib_gmod.obj
- 0002:0002bea4       $unwind$ci_slot_PushVector 0000000180172ea4     lib_gmod.obj
- 0002:0002beb4       $unwind$ci_slot_Shutdown   0000000180172eb4     lib_gmod.obj
- 0002:0002bec4       $unwind$ci_slot_RunString  0000000180172ec4     lib_gmod.obj
- 0002:0002becc       $unwind$gobj_SetMemberNumVal 0000000180172ecc     lib_gmod.obj
- 0002:0002bedc       $chain$5$ci_slot_Init      0000000180172edc     lib_gmod.obj
- 0002:0002befc       $unwind$gobj_SetFromStack  0000000180172efc     lib_gmod.obj
- 0002:0002bf08       $unwind$ci_slot_Init       0000000180172f08     lib_gmod.obj
- 0002:0002bf10       $unwind$ci_slot_RunLuaModule 0000000180172f10     lib_gmod.obj
- 0002:0002bf18       $unwind$glua_pcall_int     0000000180172f18     lib_gmod.obj
- 0002:0002bf28       $unwind$gobj_isNil         0000000180172f28     lib_gmod.obj
- 0002:0002bf34       $chain$2$ci_slot_Init      0000000180172f34     lib_gmod.obj
- 0002:0002bf48       $unwind$ci_slot_CallInternalGetBool 0000000180172f48     lib_gmod.obj
- 0002:0002bf58       $chain$1$ci_slot_GetMetaTableObjectName 0000000180172f58     lib_gmod.obj
- 0002:0002bf68       $unwind$glua_run_ex        0000000180172f68     lib_gmod.obj
- 0002:0002bf80       $chain$7$ci_slot_Init      0000000180172f80     lib_gmod.obj
- 0002:0002bf90       $unwind$gobj_GetString     0000000180172f90     lib_gmod.obj
- 0002:0002bfa4       $unwind$gobj_GetFloat      0000000180172fa4     lib_gmod.obj
- 0002:0002bfb0       $unwind$ci_slot_GetObject  0000000180172fb0     lib_gmod.obj
- 0002:0002bfc0       $chain$4$ci_slot_CallInternal 0000000180172fc0     lib_gmod.obj
- 0002:0002bfd8       $chain$5$ci_slot_CallInternal 0000000180172fd8     lib_gmod.obj
- 0002:0002bfe8       $chain$0$cs_CloseLuaInterface 0000000180172fe8     lib_gmod.obj
- 0002:0002bffc       $unwind$ci_slot_SetMemberFast 0000000180172ffc     lib_gmod.obj
- 0002:0002c00c       $unwind$ci_slot_CallInternalGet 000000018017300c     lib_gmod.obj
- 0002:0002c018       $unwind$gobj_GetInt        0000000180173018     lib_gmod.obj
- 0002:0002c024       $unwind$ci_slot_NewGlobalTable 0000000180173024     lib_gmod.obj
- 0002:0002c030       $unwind$ci_slot_IsEqual    0000000180173030     lib_gmod.obj
- 0002:0002c048       $unwind$ci_slot_isUserData 0000000180173048     lib_gmod.obj
- 0002:0002c058       $chain$0$ci_slot_GetMetaTableObjectName 0000000180173058     lib_gmod.obj
- 0002:0002c06c       $unwind$ci_slot_PushColor  000000018017306c     lib_gmod.obj
- 0002:0002c084       $unwind$ci_slot_GetMetaTableObjectIndex 0000000180173084     lib_gmod.obj
- 0002:0002c098       $unwind$ci_slot_GetReturn  0000000180173098     lib_gmod.obj
- 0002:0002c0b0       $unwind$CreateInterface    00000001801730b0     lib_gmod.obj
- 0002:0002c0bc       $unwind$ci_slot_CreateObject 00000001801730bc     lib_gmod.obj
- 0002:0002c0cc       $unwind$ci_slot_SetMemberStrObj 00000001801730cc     lib_gmod.obj
- 0002:0002c0e0       $unwind$ci_slot_SetMemberStr 00000001801730e0     lib_gmod.obj
- 0002:0002c0f4       $unwind$ci_slot_SetMemberNumObj 00000001801730f4     lib_gmod.obj
+ 0002:0002bdb8       $unwind$GMOD_LoadBinaryModule 0000000180172db8     lib_gmod.obj
+ 0002:0002bdf8       $unwind$ci_slot_GetString  0000000180172df8     lib_gmod.obj
+ 0002:0002be00       $unwind$CreateInterface    0000000180172e00     lib_gmod.obj
+ 0002:0002be0c       $unwind$gobj_SetMemberStr  0000000180172e0c     lib_gmod.obj
+ 0002:0002be20       $unwind$ci_slot_GetType    0000000180172e20     lib_gmod.obj
+ 0002:0002be2c       $unwind$ci_slot_PushMetaTable 0000000180172e2c     lib_gmod.obj
+ 0002:0002be4c       $chain$1$ci_slot_FindAndRunScript 0000000180172e4c     lib_gmod.obj
+ 0002:0002be5c       $chain$5$ci_slot_CallInternal 0000000180172e5c     lib_gmod.obj
+ 0002:0002be6c       $unwind$ci_slot_CallInternalGet 0000000180172e6c     lib_gmod.obj
+ 0002:0002be84       $unwind$ci_slot_CompileString 0000000180172e84     lib_gmod.obj
+ 0002:0002be8c       $chain$4$ci_slot_AppendStackTrace 0000000180172e8c     lib_gmod.obj
+ 0002:0002be9c       $unwind$ci_slot_DestroyObject 0000000180172e9c     lib_gmod.obj
+ 0002:0002bea8       $unwind$ci_slot_SetMemberStr 0000000180172ea8     lib_gmod.obj
+ 0002:0002bebc       $unwind$ci_slot_RunLuaModule 0000000180172ebc     lib_gmod.obj
+ 0002:0002bed4       $unwind$ci_slot_GetObject  0000000180172ed4     lib_gmod.obj
+ 0002:0002beec       $unwind$ci_slot_CreateConCommand 0000000180172eec     lib_gmod.obj
+ 0002:0002bf18       $unwind$gobj_SetMemberNumObj 0000000180172f18     lib_gmod.obj
+ 0002:0002bf28       $chain$0$ci_slot_SetMemberStrObj 0000000180172f28     lib_gmod.obj
+ 0002:0002bf58       $unwind$ci_slot_CreateObject 0000000180172f58     lib_gmod.obj
+ 0002:0002bf68       $chain$0$gobj_SetMemberNumObj 0000000180172f68     lib_gmod.obj
+ 0002:0002bf80       $chain$2$gobj_GetType      0000000180172f80     lib_gmod.obj
+ 0002:0002bf98       $unwind$gobj_UnReference   0000000180172f98     lib_gmod.obj
+ 0002:0002bfac       $unwind$ci_slot_FindObjectOnTable 0000000180172fac     lib_gmod.obj
+ 0002:0002bfc0       $unwind$gobj_GetMemberInt  0000000180172fc0     lib_gmod.obj
+ 0002:0002bfd8       $unwind$ci_slot_NewGlobalTable 0000000180172fd8     lib_gmod.obj
+ 0002:0002bff0       $unwind$ci_slot_GetVector  0000000180172ff0     lib_gmod.obj
+ 0002:0002bff8       $chain$3$ci_slot_FindAndRunScript 0000000180172ff8     lib_gmod.obj
+ 0002:0002c010       $chain$0$glua_run_ex       0000000180173010     lib_gmod.obj
+ 0002:0002c040       $unwind$ci_slot_GetReturn  0000000180173040     lib_gmod.obj
+ 0002:0002c04c       $chain$1$ci_slot_GetNewTable 000000018017304c     lib_gmod.obj
+ 0002:0002c060       $unwind$ci_slot_isUserData 0000000180173060     lib_gmod.obj
+ 0002:0002c074       $unwind$gobj_GetMemberStr  0000000180173074     lib_gmod.obj
+ 0002:0002c084       $unwind$ci_slot_SetMemberStrObj 0000000180173084     lib_gmod.obj
+ 0002:0002c094       $chain$1$ci_slot_SetMemberStrObj 0000000180173094     lib_gmod.obj
+ 0002:0002c0b8       $unwind$ci_slot_IsEqual    00000001801730b8     lib_gmod.obj
+ 0002:0002c0ec       $unwind$gobj_isNumber      00000001801730ec     lib_gmod.obj
+ 0002:0002c0f4       $chain$0$gobj_SetMemberStrObj 00000001801730f4     lib_gmod.obj
  0002:0002c10c       $unwind$ci_slot_SetMemberNum 000000018017310c     lib_gmod.obj
- 0002:0002c120       $unwind$ci_slot_SetMemberObjObj 0000000180173120     lib_gmod.obj
- 0002:0002c130       $unwind$ci_slot_GetNewTable 0000000180173130     lib_gmod.obj
- 0002:0002c140       $chain$0$ci_slot_GetNewTable 0000000180173140     lib_gmod.obj
- 0002:0002c15c       $unwind$ci_slot_FindOnObjectsMetaTable 000000018017315c     lib_gmod.obj
- 0002:0002c174       $unwind$ci_slot_FindObjectOnTable 0000000180173174     lib_gmod.obj
- 0002:0002c180       $chain$3$ci_slot_FindAndRunScript 0000000180173180     lib_gmod.obj
- 0002:0002c198       $chain$2$ci_slot_AppendStackTrace 0000000180173198     lib_gmod.obj
- 0002:0002c1bc       $unwind$ci_slot_SetPathID  00000001801731bc     lib_gmod.obj
- 0002:0002c1cc       $unwind$ci_slot_GetStringOrError 00000001801731cc     lib_gmod.obj
- 0002:0002c1dc       $chain$2$ci_slot_FindAndRunScript 00000001801731dc     lib_gmod.obj
- 0002:0002c1f0       $chain$0$ci_slot_FindAndRunScript 00000001801731f0     lib_gmod.obj
- 0002:0002c204       $unwind$glua_load_binary_module 0000000180173204     lib_gmod.obj
- 0002:0002c214       $chain$1$ci_slot_FindAndRunScript 0000000180173214     lib_gmod.obj
- 0002:0002c224       $unwind$ci_slot_ErrorNoHalt 0000000180173224     lib_gmod.obj
- 0002:0002c23c       $chain$2$ci_slot_Require   000000018017323c     lib_gmod.obj
- 0002:0002c25c       $unwind$ci_slot_PushPath   000000018017325c     lib_gmod.obj
- 0002:0002c270       $unwind$ci_slot_Msg        0000000180173270     lib_gmod.obj
- 0002:0002c284       $unwind$ci_slot_GetDataString 0000000180173284     lib_gmod.obj
- 0002:0002c294       $unwind$ci_slot_PopPath    0000000180173294     lib_gmod.obj
- 0002:0002c29c       $unwind$gobj_SetMemberNumObj 000000018017329c     lib_gmod.obj
- 0002:0002c2b4       $unwind$gobj_push          00000001801732b4     lib_gmod.obj
- 0002:0002c2dc       $unwind$ci_slot_ErrorFromLua 00000001801732dc     lib_gmod.obj
- 0002:0002c2f4       $unwind$ci_slot_GetCurrentLocation 00000001801732f4     lib_gmod.obj
- 0002:0002c310       $unwind$ci_slot_MsgColour  0000000180173310     lib_gmod.obj
- 0002:0002c32c       $chain$0$ci_slot_AppendStackTrace 000000018017332c     lib_gmod.obj
- 0002:0002c348       $unwind$ci_slot_CompileString 0000000180173348     lib_gmod.obj
- 0002:0002c364       $chain$1$gobj_SetFromGlobal 0000000180173364     lib_gmod.obj
- 0002:0002c378       $unwind$ci_slot_Require    0000000180173378     lib_gmod.obj
- 0002:0002c390       $chain$1$ci_slot_Require   0000000180173390     lib_gmod.obj
- 0002:0002c3a8       $chain$1$cs_CloseLuaInterface 00000001801733a8     lib_gmod.obj
- 0002:0002c3cc       $chain$0$glua_run_ex       00000001801733cc     lib_gmod.obj
- 0002:0002c3e4       $chain$3$ci_slot_AppendStackTrace 00000001801733e4     lib_gmod.obj
- 0002:0002c3fc       $chain$4$ci_slot_AppendStackTrace 00000001801733fc     lib_gmod.obj
- 0002:0002c414       $unwind$ci_slot_CreateConVar 0000000180173414     lib_gmod.obj
- 0002:0002c428       $unwind$ci_slot_CreateConCommand 0000000180173428     lib_gmod.obj
- 0002:0002c430       $chain$0$ci_slot_RegisterMetaTable 0000000180173430     lib_gmod.obj
- 0002:0002c448       $chain$1$ci_slot_RegisterMetaTable 0000000180173448     lib_gmod.obj
- 0002:0002c45c       $unwind$ci_slot_dtor       000000018017345c     lib_gmod.obj
- 0002:0002c474       $unwind$gobj_GetMemberStr  0000000180173474     lib_gmod.obj
- 0002:0002c484       $unwind$gobj_UnReference   0000000180173484     lib_gmod.obj
- 0002:0002c494       $unwind$gobj_SetFromGlobal 0000000180173494     lib_gmod.obj
- 0002:0002c4b4       $unwind$gobj_GetUserData   00000001801734b4     lib_gmod.obj
- 0002:0002c4c4       $unwind$gobj_isTable       00000001801734c4     lib_gmod.obj
- 0002:0002c4d4       $unwind$gobj_isString      00000001801734d4     lib_gmod.obj
- 0002:0002c4e8       $unwind$gobj_isNumber      00000001801734e8     lib_gmod.obj
- 0002:0002c4fc       $unwind$gobj_isFunction    00000001801734fc     lib_gmod.obj
- 0002:0002c510       $unwind$gobj_isUserData    0000000180173510     lib_gmod.obj
- 0002:0002c524       $unwind$gobj_SetMemberStr  0000000180173524     lib_gmod.obj
- 0002:0002c538       $unwind$gobj_SetMemberStrObj 0000000180173538     lib_gmod.obj
- 0002:0002c54c       $unwind$gobj_SetMemberStrNum 000000018017354c     lib_gmod.obj
- 0002:0002c560       $unwind$gobj_SetMemberStrBool 0000000180173560     lib_gmod.obj
- 0002:0002c574       $unwind$gobj_SetMemberStrStr 0000000180173574     lib_gmod.obj
- 0002:0002c588       $unwind$gobj_SetMemberStrFn 0000000180173588     lib_gmod.obj
- 0002:0002c598       $unwind$gobj_GetMemberBool 0000000180173598     lib_gmod.obj
- 0002:0002c5ac       $unwind$gobj_GetMemberInt  00000001801735ac     lib_gmod.obj
- 0002:0002c5c0       $unwind$gobj_GetMemberFloat 00000001801735c0     lib_gmod.obj
- 0002:0002c5dc       $unwind$gobj_SetMemberNum  00000001801735dc     lib_gmod.obj
- 0002:0002c5e8       $unwind$glua_open_module   00000001801735e8     lib_gmod.obj
- 0002:0002c604       $unwind$cs_CreateLuaInterface 0000000180173604     lib_gmod.obj
- 0002:0002c614       $unwind$gobj_SetMemberObjObj 0000000180173614     lib_gmod.obj
- 0002:0002c624       $chain$0$gobj_SetFromGlobal 0000000180173624     lib_gmod.obj
- 0002:0002c63c       $unwind$gobj_Init          000000018017363c     lib_gmod.obj
- 0002:0002c64c       $unwind$gobj_GetBool0      000000018017364c     lib_gmod.obj
- 0002:0002c658       $unwind$cs_CloseLuaInterface 0000000180173658     lib_gmod.obj
- 0002:0002c66c       $unwind$gobj_GetDouble     000000018017366c     lib_gmod.obj
- 0002:0002c67c       $unwind$gobj_GetStringLen  000000018017367c     lib_gmod.obj
- 0002:0002c690       $unwind$glua_warn_once     0000000180173690     lib_gmod.obj
- 0002:0002c6a4       $unwind$GMOD_LoadBinaryModule 00000001801736a4     lib_gmod.obj
- 0002:0002c6b0       $unwind$glua_vmsg          00000001801736b0     lib_gmod.obj
- 0002:0002c6d0       $chain$4$opglua_selftest   00000001801736d0     lib_gmod.obj
- 0002:0002c71c       $chain$1$glua_run_ex       000000018017371c     lib_gmod.obj
- 0002:0002c730       $unwind$glua_game_dir      0000000180173730     lib_gmod.obj
- 0002:0002c74c       $unwind$cs_ScriptExists    000000018017374c     lib_gmod.obj
- 0002:0002c75c       $unwind$cs_Shutdown        000000018017375c     lib_gmod.obj
- 0002:0002c76c       $unwind$glua_file_exists   000000018017376c     lib_gmod.obj
- 0002:0002c77c       $unwind$ci_slot_PushUserType 000000018017377c     lib_gmod.obj
- 0002:0002c790       $unwind$ci_slot_GetType    0000000180173790     lib_gmod.obj
- 0002:0002c7a8       $unwind$ci_slot_NewTemporaryObject 00000001801737a8     lib_gmod.obj
- 0002:0002c7b8       $chain$3$opglua_selftest   00000001801737b8     lib_gmod.obj
- 0002:0002c7d4       $unwind$ci_slot_PushMetaTable 00000001801737d4     lib_gmod.obj
- 0002:0002c7e8       $unwind$ns_equals          00000001801737e8     lib_gmod.obj
+ 0002:0002c118       $unwind$ci_slot_SetMemberObjObj 0000000180173118     lib_gmod.obj
+ 0002:0002c130       $unwind$gobj_SetMemberNumVal 0000000180173130     lib_gmod.obj
+ 0002:0002c14c       $unwind$ci_slot_FindOnObjectsMetaTable 000000018017314c     lib_gmod.obj
+ 0002:0002c15c       $chain$0$ci_slot_GetNewTable 000000018017315c     lib_gmod.obj
+ 0002:0002c170       $unwind$cs_CreateLuaInterface 0000000180173170     lib_gmod.obj
+ 0002:0002c188       $unwind$gobj_SetFromGlobal 0000000180173188     lib_gmod.obj
+ 0002:0002c198       $unwind$ci_slot_dtor       0000000180173198     lib_gmod.obj
+ 0002:0002c1a8       $chain$1$gobj_GetFloat     00000001801731a8     lib_gmod.obj
+ 0002:0002c1b8       $chain$2$ci_slot_Require   00000001801731b8     lib_gmod.obj
+ 0002:0002c1cc       $unwind$ci_slot_RunString  00000001801731cc     lib_gmod.obj
+ 0002:0002c1d4       $chain$0$ci_slot_FindAndRunScript 00000001801731d4     lib_gmod.obj
+ 0002:0002c1e8       $chain$1$gobj_Set          00000001801731e8     lib_gmod.obj
+ 0002:0002c1f8       $unwind$cs_ScriptExists    00000001801731f8     lib_gmod.obj
+ 0002:0002c220       $chain$0$ci_slot_AppendStackTrace 0000000180173220     lib_gmod.obj
+ 0002:0002c234       $unwind$gobj_Init          0000000180173234     lib_gmod.obj
+ 0002:0002c23c       $chain$1$glua_run_ex       000000018017323c     lib_gmod.obj
+ 0002:0002c24c       $unwind$ci_slot_CreateMetaTableType 000000018017324c     lib_gmod.obj
+ 0002:0002c25c       $unwind$ci_slot_ErrorNoHalt 000000018017325c     lib_gmod.obj
+ 0002:0002c270       $unwind$ci_slot_SetPathID  0000000180173270     lib_gmod.obj
+ 0002:0002c284       $unwind$ci_slot_GetColor   0000000180173284     lib_gmod.obj
+ 0002:0002c29c       $unwind$gobj_SetMemberStrObj 000000018017329c     lib_gmod.obj
+ 0002:0002c2b4       $unwind$ci_slot_Pop        00000001801732b4     lib_gmod.obj
+ 0002:0002c2c0       $unwind$ci_slot_NewTemporaryObject 00000001801732c0     lib_gmod.obj
+ 0002:0002c2d0       $unwind$ci_slot_PushColor  00000001801732d0     lib_gmod.obj
+ 0002:0002c2e4       $unwind$gobj_GetInt        00000001801732e4     lib_gmod.obj
+ 0002:0002c2ec       $chain$1$gobj_SetMemberStrObj 00000001801732ec     lib_gmod.obj
+ 0002:0002c2fc       $unwind$ns_equals          00000001801732fc     lib_gmod.obj
+ 0002:0002c328       $unwind$cs_CloseLuaInterface 0000000180173328     lib_gmod.obj
+ 0002:0002c33c       $unwind$gobj_Set           000000018017333c     lib_gmod.obj
+ 0002:0002c35c       $unwind$glua_game_dir      000000018017335c     lib_gmod.obj
+ 0002:0002c36c       $unwind$gobj_GetStringLen  000000018017336c     lib_gmod.obj
+ 0002:0002c378       $unwind$opglua_selftest    0000000180173378     lib_gmod.obj
+ 0002:0002c398       $unwind$glua_pcall_int     0000000180173398     lib_gmod.obj
+ 0002:0002c3b8       $chain$0$ci_slot_GetMetaTableObjectName 00000001801733b8     lib_gmod.obj
+ 0002:0002c3cc       $chain$1$gobj_SetMemberNumObj 00000001801733cc     lib_gmod.obj
+ 0002:0002c3ec       $unwind$gobj_isUserData    00000001801733ec     lib_gmod.obj
+ 0002:0002c3f4       $unwind$gobj_SetMemberStrFn 00000001801733f4     lib_gmod.obj
+ 0002:0002c414       $chain$3$ci_slot_AppendStackTrace 0000000180173414     lib_gmod.obj
+ 0002:0002c424       $unwind$gobj_GetMemberBool 0000000180173424     lib_gmod.obj
+ 0002:0002c448       $unwind$ci_slot_RegisterMetaTable 0000000180173448     lib_gmod.obj
+ 0002:0002c490       $unwind$ci_slot_GetStringOrError 0000000180173490     lib_gmod.obj
+ 0002:0002c4ac       $unwind$ci_slot_CreateConVar 00000001801734ac     lib_gmod.obj
+ 0002:0002c4b4       $unwind$gobj_GetBool0      00000001801734b4     lib_gmod.obj
+ 0002:0002c4cc       $chain$0$gobj_GetString    00000001801734cc     lib_gmod.obj
+ 0002:0002c4e8       $unwind$cs_Shutdown        00000001801734e8     lib_gmod.obj
+ 0002:0002c4fc       $unwind$gobj_GetFloat      00000001801734fc     lib_gmod.obj
+ 0002:0002c504       $chain$0$gobj_GetFloat     0000000180173504     lib_gmod.obj
+ 0002:0002c518       $unwind$gobj_isFunction    0000000180173518     lib_gmod.obj
+ 0002:0002c52c       $chain$1$cs_CloseLuaInterface 000000018017352c     lib_gmod.obj
+ 0002:0002c54c       $unwind$gobj_GetUserData   000000018017354c     lib_gmod.obj
+ 0002:0002c560       $chain$0$gobj_GetUserData  0000000180173560     lib_gmod.obj
+ 0002:0002c574       $chain$1$gobj_GetUserData  0000000180173574     lib_gmod.obj
+ 0002:0002c588       $unwind$gobj_isNil         0000000180173588     lib_gmod.obj
+ 0002:0002c598       $unwind$gobj_isTable       0000000180173598     lib_gmod.obj
+ 0002:0002c5ac       $unwind$gobj_isString      00000001801735ac     lib_gmod.obj
+ 0002:0002c5d4       $unwind$gobj_SetMemberStrNum 00000001801735d4     lib_gmod.obj
+ 0002:0002c5e8       $unwind$gobj_SetMemberNum  00000001801735e8     lib_gmod.obj
+ 0002:0002c61c       $unwind$gobj_SetMemberStrBool 000000018017361c     lib_gmod.obj
+ 0002:0002c638       $unwind$glua_load_binary_module 0000000180173638     lib_gmod.obj
+ 0002:0002c654       $unwind$gobj_GetDouble     0000000180173654     lib_gmod.obj
+ 0002:0002c65c       $chain$1$opglua_selftest   000000018017365c     lib_gmod.obj
+ 0002:0002c674       $chain$0$gobj_SetMemberObjObj 0000000180173674     lib_gmod.obj
+ 0002:0002c690       $unwind$gobj_GetMemberFloat 0000000180173690     lib_gmod.obj
+ 0002:0002c6e0       $unwind$ci_slot_GetMetaTableObjectName 00000001801736e0     lib_gmod.obj
+ 0002:0002c6f4       $unwind$ci_slot_GetDataString 00000001801736f4     lib_gmod.obj
+ 0002:0002c704       $chain$1$gobj_GetString    0000000180173704     lib_gmod.obj
+ 0002:0002c71c       $unwind$gobj_SetMemberObjObj 000000018017371c     lib_gmod.obj
+ 0002:0002c730       $chain$1$gobj_SetMemberObjObj 0000000180173730     lib_gmod.obj
+ 0002:0002c74c       $unwind$glua_warn_once     000000018017374c     lib_gmod.obj
+ 0002:0002c75c       $chain$2$gobj_SetFromGlobal 000000018017375c     lib_gmod.obj
+ 0002:0002c77c       $chain$2$ci_slot_Init      000000018017377c     lib_gmod.obj
+ 0002:0002c790       $unwind$ci_slot_GetAngle   0000000180173790     lib_gmod.obj
+ 0002:0002c798       $unwind$ci_slot_GetMetaTableObjectIndex 0000000180173798     lib_gmod.obj
+ 0002:0002c7a8       $chain$1$ci_slot_GetMetaTableObjectName 00000001801737a8     lib_gmod.obj
+ 0002:0002c7b8       $unwind$glua_run_ex        00000001801737b8     lib_gmod.obj
+ 0002:0002c7d4       $chain$0$ci_slot_Init      00000001801737d4     lib_gmod.obj
+ 0002:0002c7e8       $unwind$loadlib_close      00000001801737e8     lib_gmod.obj
  0002:0002c800       $unwind$luaL_openlibs      0000000180173800     lib_init.obj
  0002:0002c810       $unwind$luaopen_io         0000000180173810     lib_io.obj
  0002:0002c828       $unwind$io_tofilep         0000000180173828     lib_io.obj
@@ -19299,23 +19280,59 @@
  0002:000387e4       $unwind$__GSHandlerCheck_SEH_noexcept 000000018017f7e4     LIBCMT:gshandlerseh_noexcept.obj
  0002:000387f4       $unwind$_local_unwind      000000018017f7f4     libvcruntime:jmpuwind.obj
  0002:000387fc       $unwind$__C_specific_handler_noexcept 000000018017f7fc     libvcruntime:chandler_noexcept.obj
- 0002:00038808       $unwind$gobj_state         000000018017f808     lib_gmod.obj
- 0002:0003882c       $unwind$ci_slot_CheckType  000000018017f82c     lib_gmod.obj
- 0002:00038848       $unwind$ci_slot_SetUserType 000000018017f848     lib_gmod.obj
- 0002:0003885c       $unwind$ci_slot_CallInternal 000000018017f85c     lib_gmod.obj
- 0002:00038874       $unwind$ci_slot_RegisterMetaTable 000000018017f874     lib_gmod.obj
- 0002:00038888       $unwind$opglua_selftest    000000018017f888     lib_gmod.obj
- 0002:000388a0       $chain$1$opglua_selftest   000000018017f8a0     lib_gmod.obj
- 0002:000388b8       $unwind$ci_slot_Pop        000000018017f8b8     lib_gmod.obj
- 0002:000388c4       $chain$0$ci_slot_Init      000000018017f8c4     lib_gmod.obj
- 0002:000388d8       $unwind$ci_slot_PushAngle  000000018017f8d8     lib_gmod.obj
- 0002:000388f4       $chain$1$ci_slot_GetNewTable 000000018017f8f4     lib_gmod.obj
- 0002:00038908       $unwind$ci_push_typed      000000018017f908     lib_gmod.obj
- 0002:00038924       $chain$4$ci_slot_Init      000000018017f924     lib_gmod.obj
- 0002:0003893c       $unwind$ci_slot_FindAndRunScript 000000018017f93c     lib_gmod.obj
- 0002:0003895c       $unwind$ci_slot_GetColor   000000018017f95c     lib_gmod.obj
- 0002:00038974       $unwind$ci_slot_CallFunctionProtected 000000018017f974     lib_gmod.obj
- 0002:0003898c       $unwind$ci_slot_AppendStackTrace 000000018017f98c     lib_gmod.obj
+ 0002:00038808       $unwind$ci_slot_CreateMetaTable 000000018017f808     lib_gmod.obj
+ 0002:0003882c       $unwind$ci_slot_GetBool    000000018017f82c     lib_gmod.obj
+ 0002:00038834       $unwind$ci_slot_SetMemberNumObj 000000018017f834     lib_gmod.obj
+ 0002:00038844       $unwind$ci_slot_CallInternal 000000018017f844     lib_gmod.obj
+ 0002:0003885c       $unwind$ci_slot_CallInternalGetString 000000018017f85c     lib_gmod.obj
+ 0002:00038868       $chain$0$ci_slot_SetMemberObjObj 000000018017f868     lib_gmod.obj
+ 0002:000388b0       $chain$0$cs_CloseLuaInterface 000000018017f8b0     lib_gmod.obj
+ 0002:000388c4       $chain$6$ci_slot_Init      000000018017f8c4     lib_gmod.obj
+ 0002:000388d8       $unwind$ci_slot_PushUserType 000000018017f8d8     lib_gmod.obj
+ 0002:000388ec       $unwind$ci_slot_GetNewTable 000000018017f8ec     lib_gmod.obj
+ 0002:00038910       $chain$5$ci_slot_Init      000000018017f910     lib_gmod.obj
+ 0002:00038924       $unwind$ci_slot_Shutdown   000000018017f924     lib_gmod.obj
+ 0002:00038948       $chain$0$ci_slot_RegisterMetaTable 000000018017f948     lib_gmod.obj
+ 0002:0003895c       $unwind$ci_slot_PopPath    000000018017f95c     lib_gmod.obj
+ 0002:00038974       $unwind$ci_slot_GetCurrentFile 000000018017f974     lib_gmod.obj
+ 0002:0003898c       $chain$1$ci_slot_Require   000000018017f98c     lib_gmod.obj
+ 0002:000389a4       $unwind$ci_slot_Msg        000000018017f9a4     lib_gmod.obj
+ 0002:000389b8       $unwind$ci_slot_GetCurrentLocation 000000018017f9b8     lib_gmod.obj
+ 0002:000389d4       $unwind$ci_slot_MsgColour  000000018017f9d4     lib_gmod.obj
+ 0002:000389e8       $chain$1$gobj_GetType      000000018017f9e8     lib_gmod.obj
+ 0002:00038a34       $chain$4$opglua_selftest   000000018017fa34     lib_gmod.obj
+ 0002:00038a48       $unwind$ci_slot_GetMetaTable 000000018017fa48     lib_gmod.obj
+ 0002:00038a5c       $unwind$ci_slot_IsType     000000018017fa5c     lib_gmod.obj
+ 0002:00038a70       $unwind$ci_slot_SetUserType 000000018017fa70     lib_gmod.obj
+ 0002:00038a84       $chain$7$ci_slot_Init      000000018017fa84     lib_gmod.obj
+ 0002:00038a9c       $unwind$ci_slot_CallInternalGetBool 000000018017fa9c     lib_gmod.obj
+ 0002:00038aa8       $unwind$gobj_GetString     000000018017faa8     lib_gmod.obj
+ 0002:00038abc       $unwind$gobj_SetMemberStrStr 000000018017fabc     lib_gmod.obj
+ 0002:00038ad4       $unwind$gobj_GetType       000000018017fad4     lib_gmod.obj
+ 0002:00038ae8       $unwind$glua_file_exists   000000018017fae8     lib_gmod.obj
+ 0002:00038b60       $unwind$ci_slot_Init       000000018017fb60     lib_gmod.obj
+ 0002:00038b88       $unwind$ci_slot_SetMemberFast 000000018017fb88     lib_gmod.obj
+ 0002:00038ba4       $unwind$ci_slot_PushPath   000000018017fba4     lib_gmod.obj
+ 0002:00038bac       $unwind$ci_slot_ErrorFromLua 000000018017fbac     lib_gmod.obj
+ 0002:00038d64       $chain$1$ci_slot_RegisterMetaTable 000000018017fd64     lib_gmod.obj
+ 0002:00038d74       $unwind$ci_slot_CheckType  000000018017fd74     lib_gmod.obj
+ 0002:00038d88       $unwind$ci_push_typed      000000018017fd88     lib_gmod.obj
+ 0002:00038da4       $chain$4$ci_slot_Init      000000018017fda4     lib_gmod.obj
+ 0002:00038dbc       $chain$4$ci_slot_CallInternal 000000018017fdbc     lib_gmod.obj
+ 0002:00038dd4       $chain$0$ci_slot_SetMemberNumObj 000000018017fdd4     lib_gmod.obj
+ 0002:00038de8       $chain$1$ci_slot_SetMemberNumObj 000000018017fde8     lib_gmod.obj
+ 0002:00038df8       $chain$1$ci_slot_SetMemberObjObj 000000018017fdf8     lib_gmod.obj
+ 0002:00038e08       $unwind$ci_slot_FindAndRunScript 000000018017fe08     lib_gmod.obj
+ 0002:00038e28       $chain$2$ci_slot_FindAndRunScript 000000018017fe28     lib_gmod.obj
+ 0002:00038e3c       $unwind$ci_slot_CallFunctionProtected 000000018017fe3c     lib_gmod.obj
+ 0002:00038e54       $unwind$ci_slot_Require    000000018017fe54     lib_gmod.obj
+ 0002:00038e6c       $unwind$ci_slot_AppendStackTrace 000000018017fe6c     lib_gmod.obj
+ 0002:00038e84       $chain$2$ci_slot_AppendStackTrace 000000018017fe84     lib_gmod.obj
+ 0002:00038e9c       $chain$0$gobj_Set          000000018017fe9c     lib_gmod.obj
+ 0002:00038eb0       $chain$1$gobj_SetFromGlobal 000000018017feb0     lib_gmod.obj
+ 0002:00038ec8       $unwind$glua_open_module   000000018017fec8     lib_gmod.obj
+ 0002:00038ee4       $unwind$glua_vmsg          000000018017fee4     lib_gmod.obj
+ 0002:00038f00       $chain$3$opglua_selftest   000000018017ff00     lib_gmod.obj
  0002:00039760       .edata                     0000000180180760     lua51.exp
  0002:00039788       rgpv                       0000000180180788     lua51.exp
  0002:00039ca8       rgszName                   0000000180180ca8     lua51.exp
