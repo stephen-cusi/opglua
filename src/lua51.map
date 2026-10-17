@@ -1,6 +1,6 @@
  lua51
 
- Timestamp is 6ad3caea (Sun Oct 18 03:22:18 2026)
+ Timestamp is 6ad3cf73 (Sun Oct 18 03:41:39 2026)
 
  Preferred load address is 0000000180000000
 
@@ -328,21 +328,44 @@
  0001:000113ce       lj_cont_ffi_callback       00000001800123ce f   lj_vm.obj
  0001:000113ce       lj_vm_ffi_call             00000001800123ce f   lj_vm.obj
  0001:000113ce       lj_vm_ffi_callback         00000001800123ce f   lj_vm.obj
+ 0001:000180a0       ??A?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAAEAP6AXPEAVIConVar@@PEBDM@ZH@Z 00000001800190a0 f i convar_impl.obj
+ 0001:0001816a       GetTickCount64             000000018001916a f   kernel32:KERNEL32.dll
+ 0001:00018170       ??$CopyConstruct@P6AXPEAVIConVar@@PEBDM@Z@@YAPEAP6AXPEAVIConVar@@PEBDM@ZPEAP6AX01M@ZAEBQ6AX01M@Z@Z 0000000180019170 f i convar_impl.obj
+ 0001:00018450       ??0CUtlString@@QEAA@PEBD@Z 0000000180019450 f i convar_impl.obj
+ 0001:00018930       ??$Destruct@P6AXPEAVIConVar@@PEBDM@Z@@YAXPEAP6AXPEAVIConVar@@PEBDM@Z@Z 0000000180019930 f i convar_impl.obj
+ 0001:00018ce0       ??1CUtlBuffer@@QEAA@XZ     0000000180019ce0 f i convar_impl.obj
  0001:00018db0       lj_alloc_create            0000000180019db0 f   lj_alloc.obj
+ 0001:000190d0       ??0CUtlString@@QEAA@AEBV0@@Z 000000018001a0d0 f i convar_impl.obj
  0001:00019190       lj_alloc_destroy           000000018001a190 f   lj_alloc.obj
+ 0001:00019250       ??1ConCommand@@UEAA@XZ     000000018001a250 f   convar_impl.obj
  0001:00019280       lj_alloc_f                 000000018001a280 f   lj_alloc.obj
+ 0001:000192a0       ?V_strlen@@YAHPEBD@Z       000000018001a2a0 f i convar_impl.obj
+ 0001:000197d0       ??$CopyConstruct@VCUtlString@@@@YAPEAVCUtlString@@PEAV0@AEBV0@@Z 000000018001a7d0 f i convar_impl.obj
+ 0001:00019c00       ?FindArgInt@CCommand@@QEBAHPEBDH@Z 000000018001ac00 f   convar_impl.obj
+ 0001:0001a230       ??0ConCommandBase@@QEAA@PEBD0H@Z 000000018001b230 f   convar_impl.obj
+ 0001:0001a5f0       ??0Color@@QEAA@XZ          000000018001b5f0 f i convar_impl.obj
+ 0001:0001aac0       ??_EConCommand@@UEAAPEAXI@Z 000000018001bac0 f i convar_impl.obj
+ 0001:0001aac0       ??_GConCommand@@UEAAPEAXI@Z 000000018001bac0 f i convar_impl.obj
+ 0001:0001ae70       ?SetValue@CEmptyConVar@@UEAAXM@Z 000000018001be70 f i convar_impl.obj
  0001:0001b240       luaL_callmeta              000000018001c240 f   lj_api.obj
  0001:0001b2e0       luaL_checkany              000000018001c2e0 f   lj_api.obj
  0001:0001b330       luaL_checkinteger          000000018001c330 f   lj_api.obj
+ 0001:0001b3b0       ?GetFlags@ConCommandBase@@UEBAHXZ 000000018001c3b0 f   convar_impl.obj
  0001:0001b3d0       luaL_checklstring          000000018001c3d0 f   lj_api.obj
+ 0001:0001b480       ??1CUtlString@@QEAA@XZ     000000018001c480 f i convar_impl.obj
+ 0001:0001b490       ?SetDefault@ConVar@@QEAAXPEBD@Z 000000018001c490 f   convar_impl.obj
  0001:0001b4b0       luaL_checknumber           000000018001c4b0 f   lj_api.obj
  0001:0001b550       luaL_checkoption           000000018001c550 f   lj_api.obj
+ 0001:0001b660       ??0ConVarRef@@QEAA@PEBD@Z  000000018001c660 f   convar_impl.obj
  0001:0001b6b0       luaL_checkstack            000000018001c6b0 f   lj_api.obj
+ 0001:0001b710       ?InternalSetColorValue@ConVar@@EEAAXVColor@@@Z 000000018001c710 f   convar_impl.obj
  0001:0001b730       luaL_checktype             000000018001c730 f   lj_api.obj
  0001:0001b7c0       luaL_checkudata            000000018001c7c0 f   lj_api.obj
+ 0001:0001b800       ?SetValue@CEmptyConVar@@UEAAXPEBD@Z 000000018001c800 f i convar_impl.obj
  0001:0001b810       luaL_getmetafield          000000018001c810 f   lj_api.obj
  0001:0001b8d0       luaL_newmetatable          000000018001c8d0 f   lj_api.obj
  0001:0001bb90       luaL_newmetatable_type     000000018001cb90 f   lj_api.obj
+ 0001:0001bbb0       ?SetValue@ConVar@@UEAAXH@Z 000000018001cbb0 f   convar_impl.obj
  0001:0001bbc0       luaL_optinteger            000000018001cbc0 f   lj_api.obj
  0001:0001bc80       luaL_optlstring            000000018001cc80 f   lj_api.obj
  0001:0001bda0       luaL_optnumber             000000018001cda0 f   lj_api.obj
@@ -351,19 +374,24 @@
  0001:0001bf80       lua_call                   000000018001cf80 f   lj_api.obj
  0001:0001bfe0       lua_checkstack             000000018001cfe0 f   lj_api.obj
  0001:0001c060       lua_concat                 000000018001d060 f   lj_api.obj
+ 0001:0001c160       ??0ConVarRef@@QEAA@PEAVIConVar@@@Z 000000018001d160 f   convar_impl.obj
  0001:0001c1a0       lua_copy                   000000018001d1a0 f   lj_api.obj
  0001:0001c1d0       lua_cpcall                 000000018001d1d0 f   lj_api.obj
  0001:0001c230       lua_createtable            000000018001d230 f   lj_api.obj
  0001:0001c2c0       lua_equal                  000000018001d2c0 f   lj_api.obj
+ 0001:0001c3e0       ?Purge@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAXXZ 000000018001d3e0 f i convar_impl.obj
  0001:0001c430       lua_gc                     000000018001d430 f   lj_api.obj
+ 0001:0001c630       ??1ConCommandBase@@UEAA@XZ 000000018001d630 f   convar_impl.obj
  0001:0001c6b0       lua_getallocf              000000018001d6b0 f   lj_api.obj
  0001:0001c6d0       lua_getfenv                000000018001d6d0 f   lj_api.obj
  0001:0001c7a0       lua_getfield               000000018001d7a0 f   lj_api.obj
  0001:0001c880       lua_getmetatable           000000018001d880 f   lj_api.obj
  0001:0001c940       lua_gettable               000000018001d940 f   lj_api.obj
+ 0001:0001c9a0       ?SetValue@ConVar@@UEAAXM@Z 000000018001d9a0 f   convar_impl.obj
  0001:0001c9c0       lua_gettop                 000000018001d9c0 f   lj_api.obj
  0001:0001c9d0       lua_getupvalue             000000018001d9d0 f   lj_api.obj
  0001:0001ca50       lua_insert                 000000018001da50 f   lj_api.obj
+ 0001:0001cab0       ?Shutdown@ConCommandBase@@QEAAXXZ 000000018001dab0 f   convar_impl.obj
  0001:0001cad0       lua_iscfunction            000000018001dad0 f   lj_api.obj
  0001:0001cb20       lua_isnumber               000000018001db20 f   lj_api.obj
  0001:0001cb80       lua_isstring               000000018001db80 f   lj_api.obj
@@ -380,8 +408,10 @@
  0001:0001d230       lua_pushfstring            000000018001e230 f   lj_api.obj
  0001:0001d290       lua_pushinteger            000000018001e290 f   lj_api.obj
  0001:0001d2c0       lua_pushlightuserdata      000000018001e2c0 f   lj_api.obj
+ 0001:0001d310       ?IsFlagSet@ConCommandBase@@UEBA_NH@Z 000000018001e310 f   convar_impl.obj
  0001:0001d330       lua_pushlstring            000000018001e330 f   lj_api.obj
  0001:0001d3d0       lua_pushnil                000000018001e3d0 f   lj_api.obj
+ 0001:0001d3f0       ?SetValue@ConVar@@UEAAXPEBD@Z 000000018001e3f0 f   convar_impl.obj
  0001:0001d400       lua_pushnumber             000000018001e400 f   lj_api.obj
  0001:0001d450       lua_pushstring             000000018001e450 f   lj_api.obj
  0001:0001d500       lua_pushthread             000000018001e500 f   lj_api.obj
@@ -389,9 +419,11 @@
  0001:0001d5b0       lua_pushvfstring           000000018001e5b0 f   lj_api.obj
  0001:0001d610       lua_rawequal               000000018001e610 f   lj_api.obj
  0001:0001d670       lua_rawget                 000000018001e670 f   lj_api.obj
+ 0001:0001d6b0       ?SetValue@ConVar@@UEAAXVColor@@@Z 000000018001e6b0 f   convar_impl.obj
  0001:0001d6c0       lua_rawgeti                000000018001e6c0 f   lj_api.obj
  0001:0001d750       lua_rawset                 000000018001e750 f   lj_api.obj
  0001:0001d7f0       lua_rawseti                000000018001e7f0 f   lj_api.obj
+ 0001:0001d890       ?GetCompMin@ConVar@@QEBA_NAEAM@Z 000000018001e890 f   convar_impl.obj
  0001:0001d8c0       lua_remove                 000000018001e8c0 f   lj_api.obj
  0001:0001d940       lua_replace                000000018001e940 f   lj_api.obj
  0001:0001d970       lua_resume                 000000018001e970 f   lj_api.obj
@@ -413,16 +445,58 @@
  0001:0001e2f0       lua_tonumberx              000000018001f2f0 f   lj_api.obj
  0001:0001e390       lua_topointer              000000018001f390 f   lj_api.obj
  0001:0001e3b0       lua_tothread               000000018001f3b0 f   lj_api.obj
+ 0001:0001e3e0       ?ValidateGrowSize@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@IEAAXXZ 000000018001f3e0 f i convar_impl.obj
  0001:0001e3f0       lua_touserdata             000000018001f3f0 f   lj_api.obj
+ 0001:0001e430       ?TellGet@CUtlBuffer@@QEBAHXZ 000000018001f430 f i convar_impl.obj
  0001:0001e440       lua_type                   000000018001f440 f   lj_api.obj
  0001:0001e4b0       lua_typename               000000018001f4b0 f   lj_api.obj
+ 0001:0001e4c0       ?V_memmove@@YAXPEAXPEBXH@Z 000000018001f4c0 f i convar_impl.obj
  0001:0001e4d0       lua_upvalueid              000000018001f4d0 f   lj_api.obj
  0001:0001e520       lua_upvaluejoin            000000018001f520 f   lj_api.obj
  0001:0001e5c0       lua_version                000000018001f5c0 f   lj_api.obj
  0001:0001e5d0       lua_xmove                  000000018001f5d0 f   lj_api.obj
  0001:0001e680       lua_yield                  000000018001f680 f   lj_api.obj
+ 0001:0001e770       ??0ConVarRef@@QEAA@PEBD_N@Z 000000018001f770 f   convar_impl.obj
+ 0001:0001f0e0       ?AddToTail@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAHAEBQ6AXPEAVIConVar@@PEBDM@Z@Z 00000001800200e0 f i convar_impl.obj
+ 0001:0001f880       ??0?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAA@HH@Z 0000000180020880 f i convar_impl.obj
+ 0001:0001fc60       ?Base@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAAPEAP6AXPEAVIConVar@@PEBDM@ZXZ 0000000180020c60 f i convar_impl.obj
+ 0001:0001fe40       ?Base@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAPEAP6AXPEAVIConVar@@PEBDM@ZXZ 0000000180020e40 f i convar_impl.obj
+ 0001:00020a90       ?Arg@CCommand@@QEBAPEBDH@Z 0000000180021a90 f i convar_impl.obj
+ 0001:00020ab0       ?InsertBefore@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@QEAAHHAEBVCUtlString@@@Z 0000000180021ab0 f i convar_impl.obj
+ 0001:000210f0       ?GetHelpText@ConCommandBase@@UEBAPEBDXZ 00000001800220f0 f   convar_impl.obj
+ 0001:00021a80       ?IsFlagSet@CEmptyConVar@@UEBA_NH@Z 0000000180022a80 f i convar_impl.obj
+ 0001:000220a0       ?GetHelpText@ConVar@@UEBAPEBDXZ 00000001800230a0 f   convar_impl.obj
+ 0001:00022550       ?GetMax@ConVar@@QEBA_NAEAM@Z 0000000180023550 f   convar_impl.obj
+ 0001:00022880       ?GetFlags@ConVar@@UEBAHXZ  0000000180023880 f   convar_impl.obj
+ 0001:00022fc0       opglua_script_exists_id    0000000180023fc0 f   lib_gmod.obj
+ 0001:000237e0       ?GetFloat@ConVar@@UEBAMXZ  00000001800247e0 f   convar_impl.obj
+ 0001:00024310       ?IsRegistered@ConCommandBase@@UEBA_NXZ 0000000180025310 f   convar_impl.obj
+ 0001:00024320       ?Tokenize@CCommand@@QEAA_NPEBDPEAUcharacterset_t@@@Z 0000000180025320 f   convar_impl.obj
+ 0001:00025020       ??0CCommand@@QEAA@HPEAPEBD@Z 0000000180026020 f   convar_impl.obj
+ 0001:00025150       ??0CEmptyConVar@@QEAA@XZ   0000000180026150 f i convar_impl.obj
+ 0001:00025880       ?ArgC@CCommand@@QEBAHXZ    0000000180026880 f i convar_impl.obj
+ 0001:00025890       ?FindArg@CCommand@@QEBAPEBDPEBD@Z 0000000180026890 f   convar_impl.obj
+ 0001:000270e0       ?AddToTail@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@QEAAHAEBVCUtlString@@@Z 00000001800280e0 f i convar_impl.obj
+ 0001:00027410       ??0ConVar@@QEAA@PEBD0H0_NM1M@Z 0000000180028410 f   convar_impl.obj
+ 0001:00027d90       ?RemoveAll@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAXXZ 0000000180028d90 f i convar_impl.obj
+ 0001:00027df0       ?RemoveFlags@ConCommandBase@@UEAAXH@Z 0000000180028df0 f   convar_impl.obj
+ 0001:00027e70       ?RemoveFlags@ConVar@@UEAAXH@Z 0000000180028e70 f   convar_impl.obj
+ 0001:00027ea0       ?Reset@CCommand@@QEAAXXZ   0000000180028ea0 f   convar_impl.obj
+ 0001:00028970       ?Create@ConVar@@UEAAXPEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 0000000180029970 f   convar_impl.obj
+ 0001:00028b80       ?ConVar_Unregister@@YAXXZ  0000000180029b80 f   convar_impl.obj
+ 0001:000290b0       ?Purge@?$CUtlMemory@EH@@QEAAXXZ 000000018002a0b0 f i convar_impl.obj
+ 0001:0002a2f0       ??0ConVar@@QEAA@PEBD0H@Z   000000018002b2f0 f   convar_impl.obj
+ 0001:0002a440       ?V_memset@@YAXPEAXHH@Z     000000018002b440 f i convar_impl.obj
+ 0001:0002aae0       ?UtlMemory_CalcNewAllocationCount@@YAHHHHH@Z 000000018002bae0 f i convar_impl.obj
+ 0001:0002b600       ?ResetDbgInfo@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@IEAAXXZ 000000018002c600 f i convar_impl.obj
+ 0001:0002cde0       ?ShiftElementsRight@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@IEAAXHH@Z 000000018002dde0 f i convar_impl.obj
+ 0001:0002ce50       ?V_strcmp@@YAHPEBD0@Z      000000018002de50 f i convar_impl.obj
+ 0001:0002d4e0       ?Revert@ConVar@@QEAAXXZ    000000018002e4e0 f   convar_impl.obj
+ 0001:0002e210       ?ResetDbgInfo@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@IEAAXXZ 000000018002f210 f i convar_impl.obj
+ 0001:0002e270       ?SetColor@Color@@QEAAXHHHH@Z 000000018002f270 f i convar_impl.obj
  0001:0002e390       lj_asm_patchexit           000000018002f390 f   lj_asm.obj
  0001:0002e550       lj_asm_trace               000000018002f550 f   lj_asm.obj
+ 0001:0002ecd0       ??0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 000000018002fcd0 f   convar_impl.obj
  0001:00031270       lj_bcread                  0000000180032270 f   lj_bcread.obj
  0001:00031530       lj_bcread_proto            0000000180032530 f   lj_bcread.obj
  0001:00032930       lj_bcwrite                 0000000180033930 f   lj_bcwrite.obj
@@ -929,14 +1003,10 @@
  0001:00084400       CreateInterface            0000000180085400 f   lib_gmod.obj
  0001:00084540       DllMain                    0000000180085540 f   lib_gmod.obj
  0001:00084570       GMOD_LoadBinaryModule      0000000180085570 f   lib_gmod.obj
- 0001:00086f50       opglua_find_scripts        0000000180087f50 f   lib_gmod.obj
- 0001:000872e0       opglua_lua_error_report    00000001800882e0 f   lib_gmod.obj
- 0001:00087550       opglua_read_script         0000000180088550 f   lib_gmod.obj
- 0001:00087700       opglua_read_script_id      0000000180088700 f   lib_gmod.obj
- 0001:000878a0       opglua_script_exists       00000001800888a0 f   lib_gmod.obj
- 0001:00087940       opglua_script_exists_id    0000000180088940 f   lib_gmod.obj
- 0001:000879f0       opglua_script_isdir_id     00000001800889f0 f   lib_gmod.obj
- 0001:00087c20       opglua_selftest            0000000180088c20 f   lib_gmod.obj
+ 0001:00086fc0       opglua_find_scripts        0000000180087fc0 f   lib_gmod.obj
+ 0001:00087360       opglua_lua_error_report    0000000180088360 f   lib_gmod.obj
+ 0001:000879f0       opglua_read_script_id      00000001800889f0 f   lib_gmod.obj
+ 0001:00087c20       opglua_script_exists       0000000180088c20 f   lib_gmod.obj
  0001:00087ed0       luaL_openlibs              0000000180088ed0 f   lib_init.obj
  0001:00089c20       luaopen_io                 000000018008ac20 f   lib_io.obj
  0001:0008c3d0       luaopen_jit                000000018008d3d0 f   lib_jit.obj
@@ -1009,6 +1079,7 @@
  0001:0008eca0       ??$_Move_backward_unchecked@PEAULuaFindResult@Lua@GarrysMod@@PEAU123@@std@@YAPEAULuaFindResult@Lua@GarrysMod@@PEAU123@00@Z 000000018008fca0 f i lib_luashared.obj
  0001:0008edb0       ??$_Next_iter@PEAULuaFindResult@Lua@GarrysMod@@@std@@YAPEAULuaFindResult@Lua@GarrysMod@@PEAU123@@Z 000000018008fdb0 f i lib_luashared.obj
  0001:0008edc0       ??$_Partition_by_median_guess_unchecked@PEAULuaFindResult@Lua@GarrysMod@@P6A_NAEBU123@0@Z@std@@YA?AU?$pair@PEAULuaFindResult@Lua@GarrysMod@@PEAU123@@0@PEAULuaFindResult@Lua@GarrysMod@@0P6A_NAEBU234@1@Z@Z 000000018008fdc0 f i lib_luashared.obj
+ 0001:0008f630       opglua_selftest            0000000180090630 f   lib_gmod.obj
  0001:0008f840       ??$_Pass_fn@P6A_NAEBULuaFindResult@Lua@GarrysMod@@0@Z@std@@YA?A_PAEAP6A_NAEBULuaFindResult@Lua@GarrysMod@@0@Z@Z 0000000180090840 f i lib_luashared.obj
  0001:0008f850       ??$_Pocca@V?$allocator@D@std@@@std@@YAXAEAV?$allocator@D@0@AEBV10@@Z 0000000180090850 f i lib_luashared.obj
  0001:0008f860       ??$_Pocma@V?$allocator@D@std@@@std@@YAXAEAV?$allocator@D@0@0@Z 0000000180090860 f i lib_luashared.obj
@@ -1312,94 +1383,59 @@
  0001:0009e520       luaopen_string             000000018009f520 f   lib_string.obj
  0001:000a0400       luaopen_table              00000001800a1400 f   lib_table.obj
  0001:000a0680       ?RegisterConCommandBase@CDefaultAccessor@@UEAA_NPEAVConCommandBase@@@Z 00000001800a1680 f i convar_impl.obj
- 0001:000a06a0       ??$CopyConstruct@P6AXPEAVIConVar@@PEBDM@Z@@YAPEAP6AXPEAVIConVar@@PEBDM@ZPEAP6AX01M@ZAEBQ6AX01M@Z@Z 00000001800a16a0 f i convar_impl.obj
- 0001:000a06b0       ??$CopyConstruct@VCUtlString@@@@YAPEAVCUtlString@@PEAV0@AEBV0@@Z 00000001800a16b0 f i convar_impl.obj
- 0001:000a06f0       ??$Destruct@P6AXPEAVIConVar@@PEBDM@Z@@YAXPEAP6AXPEAVIConVar@@PEBDM@Z@Z 00000001800a16f0 f i convar_impl.obj
- 0001:000a0700       ??0?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAA@HH@Z 00000001800a1700 f i convar_impl.obj
+ 0001:000a06a0       ??0ConCommandBase@@QEAA@XZ 00000001800a16a0 f   convar_impl.obj
  0001:000a0750       ??0?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAA@HH@Z 00000001800a1750 f i convar_impl.obj
- 0001:000a07b0       ??0CCommand@@QEAA@HPEAPEBD@Z 00000001800a17b0 f   convar_impl.obj
+ 0001:000a07d0       ??0ConCommand@@QEAA@PEBDP6AXXZ0HP6AH0QEAY0EA@D@Z@Z 00000001800a17d0 f   convar_impl.obj
  0001:000a0930       ??0CCommand@@QEAA@XZ       00000001800a1930 f   convar_impl.obj
- 0001:000a0980       ??0CEmptyConVar@@QEAA@XZ   00000001800a1980 f i convar_impl.obj
- 0001:000a0b10       ??0CUtlString@@QEAA@AEBV0@@Z 00000001800a1b10 f i convar_impl.obj
- 0001:000a0b50       ??0CUtlString@@QEAA@PEBD@Z 00000001800a1b50 f i convar_impl.obj
- 0001:000a0b80       ??0Color@@QEAA@XZ          00000001800a1b80 f i convar_impl.obj
- 0001:000a0b90       ??0ConCommand@@QEAA@PEBDP6AXAEBVCCommand@@@Z0HP6AH0QEAY0EA@D@Z@Z 00000001800a1b90 f   convar_impl.obj
- 0001:000a0c80       ??0ConCommand@@QEAA@PEBDP6AXXZ0HP6AH0QEAY0EA@D@Z@Z 00000001800a1c80 f   convar_impl.obj
- 0001:000a0d70       ??0ConCommand@@QEAA@PEBDPEAVICommandCallback@@0HPEAVICommandCompletionCallback@@@Z 00000001800a1d70 f   convar_impl.obj
- 0001:000a0e50       ??0ConCommandBase@@QEAA@PEBD0H@Z 00000001800a1e50 f   convar_impl.obj
- 0001:000a0f10       ??0ConCommandBase@@QEAA@XZ 00000001800a1f10 f   convar_impl.obj
- 0001:000a0f40       ??0ConVar@@QEAA@PEBD0H0@Z  00000001800a1f40 f   convar_impl.obj
+ 0001:000a0970       ??0ConCommand@@QEAA@PEBDP6AXAEBVCCommand@@@Z0HP6AH0QEAY0EA@D@Z@Z 00000001800a1970 f   convar_impl.obj
+ 0001:000a0a30       ?SetValue@CEmptyConVar@@UEAAXH@Z 00000001800a1a30 f i convar_impl.obj
+ 0001:000a0a40       ?AddFlags@ConVar@@UEAAXH@Z 00000001800a1a40 f   convar_impl.obj
+ 0001:000a0a50       ?ChangeStringValue@ConVar@@UEAAXPEBDM@Z 00000001800a1a50 f   convar_impl.obj
+ 0001:000a0bc0       ??0ConCommand@@QEAA@PEBDPEAVICommandCallback@@0HPEAVICommandCompletionCallback@@@Z 00000001800a1bc0 f   convar_impl.obj
+ 0001:000a0c70       ??0ConVar@@QEAA@PEBD0H0@Z  00000001800a1c70 f   convar_impl.obj
+ 0001:000a0dd0       ??0ConVar@@QEAA@PEBD0H0_NM1M1M1MP6AXPEAVIConVar@@0M@Z@Z 00000001800a1dd0 f   convar_impl.obj
+ 0001:000a0ff0       ?GetInt@ConVar@@UEBAHXZ    00000001800a1ff0 f   convar_impl.obj
  0001:000a1100       ??0ConVar@@QEAA@PEBD0H0P6AXPEAVIConVar@@0M@Z@Z 00000001800a2100 f   convar_impl.obj
- 0001:000a12f0       ??0ConVar@@QEAA@PEBD0H0_NM1M1M1MP6AXPEAVIConVar@@0M@Z@Z 00000001800a22f0 f   convar_impl.obj
- 0001:000a1510       ??0ConVar@@QEAA@PEBD0H0_NM1M@Z 00000001800a2510 f   convar_impl.obj
- 0001:000a16f0       ??0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 00000001800a26f0 f   convar_impl.obj
- 0001:000a1910       ??0ConVar@@QEAA@PEBD0H@Z   00000001800a2910 f   convar_impl.obj
- 0001:000a1ac0       ??0ConVarRef@@QEAA@PEAVIConVar@@@Z 00000001800a2ac0 f   convar_impl.obj
- 0001:000a1af0       ??0ConVarRef@@QEAA@PEBD@Z  00000001800a2af0 f   convar_impl.obj
- 0001:000a1b10       ??0ConVarRef@@QEAA@PEBD_N@Z 00000001800a2b10 f   convar_impl.obj
+ 0001:000a1530       ?Base@?$CUtlMemory@VCUtlString@@H@@QEAAPEAVCUtlString@@XZ 00000001800a2530 f i convar_impl.obj
+ 0001:000a1920       opglua_script_isdir_id     00000001800a2920 f   lib_gmod.obj
  0001:000a1b30       ??0IConVar@@QEAA@XZ        00000001800a2b30 f i convar_impl.obj
  0001:000a1b50       ??1?$CUtlMemory@EH@@QEAA@XZ 00000001800a2b50 f i convar_impl.obj
  0001:000a1ba0       ??1?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAA@XZ 00000001800a2ba0 f i convar_impl.obj
  0001:000a1bf0       ??1?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAA@XZ 00000001800a2bf0 f i convar_impl.obj
  0001:000a1c70       ??1CEmptyConVar@@UEAA@XZ   00000001800a2c70 f i convar_impl.obj
- 0001:000a1c80       ??1CUtlBuffer@@QEAA@XZ     00000001800a2c80 f i convar_impl.obj
- 0001:000a1cd0       ??1CUtlString@@QEAA@XZ     00000001800a2cd0 f i convar_impl.obj
- 0001:000a1cf0       ??1ConCommand@@UEAA@XZ     00000001800a2cf0 f   convar_impl.obj
- 0001:000a1d00       ??1ConCommandBase@@UEAA@XZ 00000001800a2d00 f   convar_impl.obj
  0001:000a1d10       ??1ConVar@@UEAA@XZ         00000001800a2d10 f   convar_impl.obj
  0001:000a1dd0       ??A?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAAAEAP6AXPEAVIConVar@@PEBDM@ZH@Z 00000001800a2dd0 f i convar_impl.obj
  0001:000a1de0       ??A?$CUtlMemory@VCUtlString@@H@@QEAAAEAVCUtlString@@H@Z 00000001800a2de0 f i convar_impl.obj
- 0001:000a1df0       ??A?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAAEAP6AXPEAVIConVar@@PEBDM@ZH@Z 00000001800a2df0 f i convar_impl.obj
  0001:000a1e00       ??_ECEmptyConVar@@UEAAPEAXI@Z 00000001800a2e00 f i convar_impl.obj
  0001:000a1e00       ??_GCEmptyConVar@@UEAAPEAXI@Z 00000001800a2e00 f i convar_impl.obj
- 0001:000a1e50       ??_EConCommand@@UEAAPEAXI@Z 00000001800a2e50 f i convar_impl.obj
- 0001:000a1e50       ??_GConCommand@@UEAAPEAXI@Z 00000001800a2e50 f i convar_impl.obj
  0001:000a1e90       ??_EConCommandBase@@UEAAPEAXI@Z 00000001800a2e90 f i convar_impl.obj
  0001:000a1e90       ??_GConCommandBase@@UEAAPEAXI@Z 00000001800a2e90 f i convar_impl.obj
  0001:000a1ed0       ??_EConVar@@UEAAPEAXI@Z    00000001800a2ed0 f i convar_impl.obj
  0001:000a1ed0       ??_GConVar@@UEAAPEAXI@Z    00000001800a2ed0 f i convar_impl.obj
  0001:000a1f20       ?AddFlags@ConCommandBase@@UEAAXH@Z 00000001800a2f20 f   convar_impl.obj
- 0001:000a1f30       ?AddFlags@ConVar@@UEAAXH@Z 00000001800a2f30 f   convar_impl.obj
- 0001:000a1f50       ?AddToTail@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAHAEBQ6AXPEAVIConVar@@PEBDM@Z@Z 00000001800a2f50 f i convar_impl.obj
- 0001:000a1f60       ?AddToTail@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@QEAAHAEBVCUtlString@@@Z 00000001800a2f60 f i convar_impl.obj
- 0001:000a1f70       ?Arg@CCommand@@QEBAPEBDH@Z 00000001800a2f70 f i convar_impl.obj
- 0001:000a1fa0       ?ArgC@CCommand@@QEBAHXZ    00000001800a2fa0 f i convar_impl.obj
  0001:000a1fb0       ?AutoCompleteSuggest@ConCommand@@UEAAHPEBDAEAV?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@@Z 00000001800a2fb0 f   convar_impl.obj
- 0001:000a20b0       ?Base@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAAPEAP6AXPEAVIConVar@@PEBDM@ZXZ 00000001800a30b0 f i convar_impl.obj
- 0001:000a20c0       ?Base@?$CUtlMemory@VCUtlString@@H@@QEAAPEAVCUtlString@@XZ 00000001800a30c0 f i convar_impl.obj
- 0001:000a20d0       ?Base@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAPEAP6AXPEAVIConVar@@PEBDM@ZXZ 00000001800a30d0 f i convar_impl.obj
  0001:000a20e0       ?Base@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@QEAAPEAVCUtlString@@XZ 00000001800a30e0 f i convar_impl.obj
  0001:000a20f0       ?CanAutoComplete@ConCommand@@UEAA_NXZ 00000001800a30f0 f   convar_impl.obj
- 0001:000a2100       ?ChangeStringValue@ConVar@@UEAAXPEBDM@Z 00000001800a3100 f   convar_impl.obj
+ 0001:000a2140       opglua_read_script         00000001800a3140 f   lib_gmod.obj
  0001:000a22c0       ?ClampValue@ConVar@@UEAA_NAEAM@Z 00000001800a32c0 f   convar_impl.obj
  0001:000a2310       ?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001800a3310 f   convar_impl.obj
- 0001:000a2730       ?ConVar_PrintFlags@@YAXPEBVConCommandBase@@@Z 00000001800a3730 f   convar_impl.obj
+ 0001:000a2660       ?ConVar_PrintFlags@@YAXPEBVConCommandBase@@@Z 00000001800a3660 f   convar_impl.obj
+ 0001:000a27e0       ?GetMin@ConVar@@QEBA_NAEAM@Z 00000001800a37e0 f   convar_impl.obj
  0001:000a2910       ?ConVar_Register@@YAXHPEAVIConCommandBaseAccessor@@@Z 00000001800a3910 f   convar_impl.obj
- 0001:000a2a00       ?ConVar_Unregister@@YAXXZ  00000001800a3a00 f   convar_impl.obj
+ 0001:000a29d0       ?ShiftElementsRight@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@IEAAXHH@Z 00000001800a39d0 f i convar_impl.obj
+ 0001:000a2a10       ?IsRegistered@ConVar@@UEBA_NXZ 00000001800a3a10 f   convar_impl.obj
  0001:000a2a50       ?CopyString@ConCommandBase@@QEAAPEADPEBD@Z 00000001800a3a50 f   convar_impl.obj
  0001:000a2ad0       ?Count@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEBAHXZ 00000001800a3ad0 f i convar_impl.obj
  0001:000a2ae0       ?Create@ConCommandBase@@UEAAXPEBD0H@Z 00000001800a3ae0 f   convar_impl.obj
- 0001:000a2af0       ?Create@ConVar@@UEAAXPEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 00000001800a3af0 f   convar_impl.obj
  0001:000a2c70       ?CreateBase@ConCommandBase@@UEAAXPEBD0H@Z 00000001800a3c70 f   convar_impl.obj
  0001:000a2ce0       ?DefaultBreakSet@CCommand@@SAPEAUcharacterset_t@@XZ 00000001800a3ce0 f   convar_impl.obj
  0001:000a2cf0       ?DefaultCompletionFunc@@YAHPEBDQEAY0EA@D@Z 00000001800a3cf0 f   convar_impl.obj
  0001:000a2d00       ?Dispatch@ConCommand@@UEAAXAEBVCCommand@@@Z 00000001800a3d00 f   convar_impl.obj
  0001:000a2d40       ?Element@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAAEAP6AXPEAVIConVar@@PEBDM@ZH@Z 00000001800a3d40 f i convar_impl.obj
  0001:000a2d50       ?Element@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@QEAAAEAVCUtlString@@H@Z 00000001800a3d50 f i convar_impl.obj
- 0001:000a2d60       ?FindArg@CCommand@@QEBAPEBDPEBD@Z 00000001800a3d60 f   convar_impl.obj
- 0001:000a2e40       ?FindArgInt@CCommand@@QEBAHPEBDH@Z 00000001800a3e40 f   convar_impl.obj
+ 0001:000a2d70       ?GetDLLIdentifier@ConCommandBase@@UEBAHXZ 00000001800a3d70 f   convar_impl.obj
+ 0001:000a2e50       ?GetDefault@ConVar@@QEBAPEBDXZ 00000001800a3e50 f   convar_impl.obj
  0001:000a2f20       ?GetCompMax@ConVar@@QEBA_NAEAM@Z 00000001800a3f20 f   convar_impl.obj
- 0001:000a2f30       ?GetCompMin@ConVar@@QEBA_NAEAM@Z 00000001800a3f30 f   convar_impl.obj
- 0001:000a2f40       ?GetDLLIdentifier@ConCommandBase@@UEBAHXZ 00000001800a3f40 f   convar_impl.obj
- 0001:000a2f50       ?GetDefault@ConVar@@QEBAPEBDXZ 00000001800a3f50 f   convar_impl.obj
- 0001:000a2f60       ?GetFlags@ConCommandBase@@UEBAHXZ 00000001800a3f60 f   convar_impl.obj
- 0001:000a2f70       ?GetFlags@ConVar@@UEBAHXZ  00000001800a3f70 f   convar_impl.obj
- 0001:000a2f80       ?GetFloat@ConVar@@UEBAMXZ  00000001800a3f80 f   convar_impl.obj
- 0001:000a2f90       ?GetHelpText@ConCommandBase@@UEBAPEBDXZ 00000001800a3f90 f   convar_impl.obj
- 0001:000a2fa0       ?GetHelpText@ConVar@@UEBAPEBDXZ 00000001800a3fa0 f   convar_impl.obj
- 0001:000a2fb0       ?GetInt@ConVar@@UEBAHXZ    00000001800a3fb0 f   convar_impl.obj
- 0001:000a2fc0       ?GetMax@ConVar@@QEBA_NAEAM@Z 00000001800a3fc0 f   convar_impl.obj
- 0001:000a2fe0       ?GetMin@ConVar@@QEBA_NAEAM@Z 00000001800a3fe0 f   convar_impl.obj
  0001:000a3000       ?GetName@CEmptyConVar@@UEBAPEBDXZ 00000001800a4000 f i convar_impl.obj
  0001:000a300c       ?GetName@CEmptyConVar@@WDA@EBAPEBDXZ 00000001800a400c f i convar_impl.obj
  0001:000a3020       ?GetName@ConCommandBase@@UEBAPEBDXZ 00000001800a4020 f   convar_impl.obj
@@ -1416,11 +1452,10 @@
  0001:000a34d0       ?Init@ConVar@@UEAAXXZ      00000001800a44d0 f   convar_impl.obj
  0001:000a34f0       ?Init@ConVarRef@@QEAAXPEBD_N@Z 00000001800a44f0 f   convar_impl.obj
  0001:000a35e0       ?InsertBefore@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAHHAEBQ6AXPEAVIConVar@@PEBDM@Z@Z 00000001800a45e0 f i convar_impl.obj
- 0001:000a3740       ?InsertBefore@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@QEAAHHAEBVCUtlString@@@Z 00000001800a4740 f i convar_impl.obj
  0001:000a38d0       ?InstallChangeCallback@ConVar@@QEAAXP6AXPEAVIConVar@@PEBDM@Z@Z 00000001800a48d0 f   convar_impl.obj
- 0001:000a3940       ?InternalSetColorValue@ConVar@@EEAAXVColor@@@Z 00000001800a4940 f   convar_impl.obj
  0001:000a3950       ?InternalSetFloatValue@ConVar@@EEAAXM_N@Z 00000001800a4950 f   convar_impl.obj
  0001:000a3aa0       ?InternalSetIntValue@ConVar@@EEAAXH@Z 00000001800a4aa0 f   convar_impl.obj
+ 0001:000a3ba0       ?Purge@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAAXXZ 00000001800a4ba0 f i convar_impl.obj
  0001:000a3be0       ?InternalSetValue@ConVar@@EEAAXPEBD@Z 00000001800a4be0 f   convar_impl.obj
  0001:000a3d40       ?IsCommand@ConCommand@@UEBA_NXZ 00000001800a4d40 f   convar_impl.obj
  0001:000a3d50       ?IsCommand@ConCommandBase@@UEBA_NXZ 00000001800a4d50 f   convar_impl.obj
@@ -1428,48 +1463,14 @@
  0001:000a3d70       ?IsExternallyAllocated@?$CUtlMemory@EH@@QEBA_NXZ 00000001800a4d70 f i convar_impl.obj
  0001:000a3d80       ?IsExternallyAllocated@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEBA_NXZ 00000001800a4d80 f i convar_impl.obj
  0001:000a3d90       ?IsExternallyAllocated@?$CUtlMemory@VCUtlString@@H@@QEBA_NXZ 00000001800a4d90 f i convar_impl.obj
- 0001:000a3da0       ?IsFlagSet@CEmptyConVar@@UEBA_NH@Z 00000001800a4da0 f i convar_impl.obj
+ 0001:000a3da0       ?SetCompetitiveMode@ConVar@@QEAA_N_N@Z 00000001800a4da0 f   convar_impl.obj
  0001:000a3da4       ?IsFlagSet@CEmptyConVar@@WDA@EBA_NH@Z 00000001800a4da4 f i convar_impl.obj
- 0001:000a3db0       ?IsFlagSet@ConCommandBase@@UEBA_NH@Z 00000001800a4db0 f   convar_impl.obj
  0001:000a3dc0       ?IsFlagSet@ConVar@@UEBA_NH@Z 00000001800a4dc0 f   convar_impl.obj
  0001:000a3dd0       ?IsFlagSet@ConVar@@WDA@EBA_NH@Z 00000001800a4dd0 f i convar_impl.obj
- 0001:000a3de0       ?IsRegistered@ConCommandBase@@UEBA_NXZ 00000001800a4de0 f   convar_impl.obj
- 0001:000a3df0       ?IsRegistered@ConVar@@UEBA_NXZ 00000001800a4df0 f   convar_impl.obj
  0001:000a3e00       ?IsValid@CUtlBuffer@@QEBA_NXZ 00000001800a4e00 f i convar_impl.obj
  0001:000a3e10       ?IsValid@ConVarRef@@QEBA_NXZ 00000001800a4e10 f   convar_impl.obj
  0001:000a3e30       ?NumAllocated@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEBAHXZ 00000001800a4e30 f i convar_impl.obj
  0001:000a3e40       ?NumAllocated@?$CUtlMemory@VCUtlString@@H@@QEBAHXZ 00000001800a4e40 f i convar_impl.obj
- 0001:000a3e50       ?Purge@?$CUtlMemory@EH@@QEAAXXZ 00000001800a4e50 f i convar_impl.obj
- 0001:000a3ea0       ?Purge@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAAXXZ 00000001800a4ea0 f i convar_impl.obj
- 0001:000a3ef0       ?Purge@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAXXZ 00000001800a4ef0 f i convar_impl.obj
- 0001:000a3f60       ?RemoveAll@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAXXZ 00000001800a4f60 f i convar_impl.obj
- 0001:000a3f70       ?RemoveFlags@ConCommandBase@@UEAAXH@Z 00000001800a4f70 f   convar_impl.obj
- 0001:000a3f80       ?RemoveFlags@ConVar@@UEAAXH@Z 00000001800a4f80 f   convar_impl.obj
- 0001:000a3f90       ?Reset@CCommand@@QEAAXXZ   00000001800a4f90 f   convar_impl.obj
- 0001:000a3fa0       ?ResetDbgInfo@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@IEAAXXZ 00000001800a4fa0 f i convar_impl.obj
- 0001:000a3fb0       ?ResetDbgInfo@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@IEAAXXZ 00000001800a4fb0 f i convar_impl.obj
- 0001:000a3fc0       ?Revert@ConVar@@QEAAXXZ    00000001800a4fc0 f   convar_impl.obj
- 0001:000a3fe0       ?SetColor@Color@@QEAAXHHHH@Z 00000001800a4fe0 f i convar_impl.obj
- 0001:000a4000       ?SetCompetitiveMode@ConVar@@QEAA_N_N@Z 00000001800a5000 f   convar_impl.obj
- 0001:000a4010       ?SetDefault@ConVar@@QEAAXPEBD@Z 00000001800a5010 f   convar_impl.obj
- 0001:000a4030       ?SetValue@CEmptyConVar@@UEAAXH@Z 00000001800a5030 f i convar_impl.obj
- 0001:000a4040       ?SetValue@CEmptyConVar@@UEAAXM@Z 00000001800a5040 f i convar_impl.obj
- 0001:000a4050       ?SetValue@CEmptyConVar@@UEAAXPEBD@Z 00000001800a5050 f i convar_impl.obj
- 0001:000a4060       ?SetValue@ConVar@@UEAAXH@Z 00000001800a5060 f   convar_impl.obj
- 0001:000a4080       ?SetValue@ConVar@@UEAAXM@Z 00000001800a5080 f   convar_impl.obj
- 0001:000a40a0       ?SetValue@ConVar@@UEAAXPEBD@Z 00000001800a50a0 f   convar_impl.obj
- 0001:000a40c0       ?SetValue@ConVar@@UEAAXVColor@@@Z 00000001800a50c0 f   convar_impl.obj
- 0001:000a40d0       ?ShiftElementsRight@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@IEAAXHH@Z 00000001800a50d0 f i convar_impl.obj
- 0001:000a4120       ?ShiftElementsRight@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@IEAAXHH@Z 00000001800a5120 f i convar_impl.obj
- 0001:000a4170       ?Shutdown@ConCommandBase@@QEAAXXZ 00000001800a5170 f   convar_impl.obj
- 0001:000a4190       ?TellGet@CUtlBuffer@@QEBAHXZ 00000001800a5190 f i convar_impl.obj
- 0001:000a41a0       ?Tokenize@CCommand@@QEAA_NPEBDPEAUcharacterset_t@@@Z 00000001800a51a0 f   convar_impl.obj
- 0001:000a43a0       ?UtlMemory_CalcNewAllocationCount@@YAHHHHH@Z 00000001800a53a0 f i convar_impl.obj
- 0001:000a43f0       ?V_memmove@@YAXPEAXPEBXH@Z 00000001800a53f0 f i convar_impl.obj
- 0001:000a4400       ?V_memset@@YAXPEAXHH@Z     00000001800a5400 f i convar_impl.obj
- 0001:000a4410       ?V_strcmp@@YAHPEBD0@Z      00000001800a5410 f i convar_impl.obj
- 0001:000a4420       ?V_strlen@@YAHPEBD@Z       00000001800a5420 f i convar_impl.obj
- 0001:000a4430       ?ValidateGrowSize@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@IEAAXXZ 00000001800a5430 f i convar_impl.obj
  0001:000a4440       ?ConnectTier1Libraries@@YAXPEAP6APEAXPEBDPEAH@ZH@Z 00000001800a5440 f   tier1:tier1.cpp.33.o
  0001:000a4520       ?DisconnectTier1Libraries@@YAXXZ 00000001800a5520 f   tier1:tier1.cpp.33.o
  0001:000a4550       ??$CopyConstruct@PEAD@@YAPEAPEADPEAPEADAEBQEAD@Z 00000001800a5550 f i tier1:strtools.cpp.33.o
@@ -5689,6 +5690,7 @@
  0002:00000c50       __xt_z                     0000000180182c50     LIBCMT:initializers.obj
  0002:00000d70       ??_C@_08EJHDDIMG@MetaName@ 0000000180182d70     lj_api.obj
  0002:00000d7c       ??_C@_06HLOAEAPG@MetaID@   0000000180182d7c     lj_api.obj
+ 0002:00000fc8       ??_7ConCommandBase@@6B@    0000000180182fc8     convar_impl.obj
  0002:00001030       __xmm@ffff0000ffff0000ffff0000ffff0000 0000000180183030     lj_asm.obj
  0002:00001050       lj_bc_mode                 0000000180183050     lj_bc.obj
  0002:00001190       lj_bc_ofs                  0000000180183190     lj_bc.obj
@@ -5740,6 +5742,12 @@
  0002:00001754       ??_C@_06NDFPNBCO@?5at?5?$CFp@ 0000000180183754     lj_debug.obj
  0002:00001760       ??_C@_0BF@IDFBHDGL@?5in?5function?5?$DM?$CFs?3?$CFd?$DO@ 0000000180183760     lj_debug.obj
  0002:00001780       ??_C@_0MAM@NNIPKJOB@not?5enough?5memory?$AAerror?5in?5erro@ 0000000180183780     lj_err.obj
+ 0002:00002398       ??_7ConCommand@@6B@        0000000180184398     convar_impl.obj
+ 0002:00002420       ??_7ConVar@@6BConCommandBase@@@ 0000000180184420     convar_impl.obj
+ 0002:000024e0       ??_7CEmptyConVar@@6BConCommandBase@@@ 00000001801844e0     convar_impl.obj
+ 0002:00002598       ??_C@_0BG@PFENIACF@?1garrysmod?1gamemodes?1@ 0000000180184598     lib_gmod.obj
+ 0002:000025b0       ??_C@_0CD@GPHIAHKD@SLOT?3SetField?$CIi?$DN?$CFd?5name?$DN?$CFs?5top?$DN@ 00000001801845b0     lib_gmod.obj
+ 0002:000025d8       ??_C@_0BJ@KONNKLOA@SLOT?3ci_slot_CreateTable@ 00000001801845d8     lib_gmod.obj
  0002:000025f4       ??_C@_01OGPIMHDM@?$DP@     00000001801845f4     lj_err.obj
  0002:00002970       lj_ir_mode                 0000000180184970     lj_ir.obj
  0002:000029d8       lj_ir_type_size            00000001801849d8     lj_ir.obj
@@ -5894,8 +5902,10 @@
  0002:00006658       ??_C@_06NBFPPGEG@vector@   0000000180188658     lib_gmod.obj
  0002:00006660       ??_C@_05FECBCJJD@angle@    0000000180188660     lib_gmod.obj
  0002:00006668       ??_C@_07KLIPAOKE@physobj@  0000000180188668     lib_gmod.obj
+ 0002:00006670       ??_C@_03IBJHJIAF@lua@      0000000180188670     lib_gmod.obj
  0002:00006674       ??_C@_04EMMDIJJL@save@     0000000180188674     lib_gmod.obj
  0002:00006680       ??_C@_07HICINA@restore@    0000000180188680     lib_gmod.obj
+ 0002:00006688       __real@4093480000000000    0000000180188688     lib_gmod.obj
  0002:00006690       ??_C@_0L@MPBLLEF@damageinfo@ 0000000180188690     lib_gmod.obj
  0002:000066a0       ??_C@_0L@DEKLJEIB@effectdata@ 00000001801886a0     lib_gmod.obj
  0002:000066b0       ??_C@_08KKKGJPMM@movedata@ 00000001801886b0     lib_gmod.obj
@@ -6242,263 +6252,248 @@
  0002:00008290       ??_C@_05FDINCMKF@Angle@    000000018018a290     lib_gmod.obj
  0002:00008298       ??_C@_06ENNEIMBA@String@   000000018018a298     lib_gmod.obj
  0002:000082a0       ??_C@_06KBCHOIMA@Entity@   000000018018a2a0     lib_gmod.obj
- 0002:000082a8       ??_C@_0BA@LOHKFAGL@?1garrysmod?1lua?1@ 000000018018a2a8     lib_gmod.obj
- 0002:000082c0       ??_C@_0BG@PFENIACF@?1garrysmod?1gamemodes?1@ 000000018018a2c0     lib_gmod.obj
- 0002:000082e0       ??_C@_0M@DCAGAJPN@?1garrysmod?1@ 000000018018a2e0     lib_gmod.obj
+ 0002:000082a8       ??_C@_08JNGOLMEK@setlocal@ 000000018018a2a8     lib_gmod.obj
+ 0002:000082c0       ??_C@_0L@CDIIKFBA@setupvalue@ 000000018018a2c0     lib_gmod.obj
+ 0002:000082e0       ??_C@_09LPCDDMGF@upvalueid@ 000000018018a2e0     lib_gmod.obj
  0002:000082f0       ??_C@_05ODONLKCH@?1lua?1@  000000018018a2f0     lib_gmod.obj
  0002:000082f8       ??_C@_01KMDKNFGN@?1@       000000018018a2f8     lib_gmod.obj
  0002:000082fc       ??_C@_04CGFJFPFD@none@     000000018018a2fc     lib_gmod.obj
- 0002:00008308       ??_C@_07CIFAGBMG@unknown@  000000018018a308     lib_gmod.obj
- 0002:00008318       ??_C@_0L@LGILCPGH@OPGLUA_LOG@ 000000018018a318     lib_gmod.obj
- 0002:00008328       ??_C@_0BK@LADILLHE@D?3?2tmp?2glua?2opglua_enable@ 000000018018a328     lib_gmod.obj
+ 0002:00008308       ??_C@_0M@BLDMBHBB@upvaluejoin@ 000000018018a308     lib_gmod.obj
+ 0002:00008318       ??_C@_0BA@LOHKFAGL@?1garrysmod?1lua?1@ 000000018018a318     lib_gmod.obj
+ 0002:00008330       ??_C@_0BI@LINIOGIC@SLOT?3ci_slot_isUserData@ 000000018018a330     lib_gmod.obj
  0002:00008348       ??_C@_01MCMALHOG@a@        000000018018a348     lib_gmod.obj
- 0002:00008350       ??_C@_0BH@KLBFNJJM@D?3?2tmp?2glua?2opglua?4log@ 000000018018a350     lib_gmod.obj
- 0002:00008370       ??_C@_0BM@MJHKEJM@D?3?2tmp?2glua?2opglua_boot?4log@ 000000018018a370     lib_gmod.obj
- 0002:00008394       ??_C@_02LIELOMNJ@on@       000000018018a394     lib_gmod.obj
- 0002:00008398       ??_C@_03MCADLMAF@off@      000000018018a398     lib_gmod.obj
- 0002:000083a0       ??_C@_0DE@DLFGOJCK@attach?5pid?$DN?$CFlu?5what?$DN?$CFs?5switch?$DN?$CF@ 000000018018a3a0     lib_gmod.obj
- 0002:000083e0       ??_C@_0CO@DFBLGOED@gobj_push?3?5FOREIGN?5obj?$DN?$CFp?5vtabl@ 000000018018a3e0     lib_gmod.obj
- 0002:00008418       ??_C@_0BB@DGMGDMKJ@SLOT?3ci_slot_Top@ 000000018018a418     lib_gmod.obj
- 0002:00008430       ??_C@_0BC@MKHKJDLN@SLOT?3ci_slot_Push@ 000000018018a430     lib_gmod.obj
- 0002:00008448       ??_C@_0BB@LJKEKLPO@SLOT?3ci_slot_Pop@ 000000018018a448     lib_gmod.obj
- 0002:00008460       ??_C@_0BH@MMHONNMD@Lua?5stack?5over?9popped?$CB@ 000000018018a460     lib_gmod.obj
- 0002:00008480       ??_C@_0BL@GKDMNINE@SLOT?3GetTable?$CIi?$DN?$CFd?5top?$DN?$CFd?$CJ@ 000000018018a480     lib_gmod.obj
- 0002:000084a0       ??_C@_0CD@OOBHLHIB@SLOT?3GetField?$CIi?$DN?$CFd?5name?$DN?$CFs?5top?$DN@ 000000018018a4a0     lib_gmod.obj
- 0002:000084d0       ??_C@_0CD@GPHIAHKD@SLOT?3SetField?$CIi?$DN?$CFd?5name?$DN?$CFs?5top?$DN@ 000000018018a4d0     lib_gmod.obj
- 0002:00008500       ??_C@_0BJ@KONNKLOA@SLOT?3ci_slot_CreateTable@ 000000018018a500     lib_gmod.obj
- 0002:00008520       ??_C@_0BG@CBDPBCFJ@SLOT?3ci_slot_SetTable@ 000000018018a520     lib_gmod.obj
- 0002:00008540       ??_C@_0BK@EDFILHMN@SLOT?3ci_slot_SetMetaTable@ 000000018018a540     lib_gmod.obj
- 0002:00008560       ??_C@_0BK@DHOGHLIB@SLOT?3ci_slot_GetMetaTable@ 000000018018a560     lib_gmod.obj
- 0002:00008580       ??_C@_0BC@EBFHJPGO@SLOT?3ci_slot_Call@ 000000018018a580     lib_gmod.obj
- 0002:00008598       ??_C@_0BD@KPCKOLOH@SLOT?3ci_slot_PCall@ 000000018018a598     lib_gmod.obj
- 0002:000085b0       ??_C@_0BD@PAHDMALC@SLOT?3ci_slot_Equal@ 000000018018a5b0     lib_gmod.obj
- 0002:000085c8       ??_C@_0BG@DPFIBDPN@SLOT?3ci_slot_RawEqual@ 000000018018a5c8     lib_gmod.obj
- 0002:000085e8       ??_C@_0BE@ENHGCLCF@SLOT?3ci_slot_Insert@ 000000018018a5e8     lib_gmod.obj
- 0002:00008600       ??_C@_0BE@KGNFFBJJ@SLOT?3ci_slot_Remove@ 000000018018a600     lib_gmod.obj
- 0002:00008618       ??_C@_0BC@KPJBFPHN@SLOT?3ci_slot_Next@ 000000018018a618     lib_gmod.obj
- 0002:00008630       ??_C@_0BJ@JAAFEDCN@SLOT?3ci_slot_NewUserdata@ 000000018018a630     lib_gmod.obj
- 0002:00008650       ??_C@_0BI@LNIDFDCO@SLOT?3ci_slot_ThrowError@ 000000018018a650     lib_gmod.obj
- 0002:00008670       ??_C@_0BH@PDPICNAA@SLOT?3ci_slot_CheckType@ 000000018018a670     lib_gmod.obj
- 0002:00008690       ??_C@_0BG@DLFHJHPD@SLOT?3ci_slot_ArgError@ 000000018018a690     lib_gmod.obj
- 0002:000086b0       ??_C@_0BE@DPCLCFEE@SLOT?3ci_slot_RawGet@ 000000018018a6b0     lib_gmod.obj
- 0002:000086c8       ??_C@_0BE@OAFAOFIM@SLOT?3ci_slot_RawSet@ 000000018018a6c8     lib_gmod.obj
- 0002:000086e0       ??_C@_0BH@NLLICPEH@SLOT?3ci_slot_GetString@ 000000018018a6e0     lib_gmod.obj
- 0002:00008700       ??_C@_0BH@BILMIPEL@SLOT?3ci_slot_GetNumber@ 000000018018a700     lib_gmod.obj
- 0002:00008720       ??_C@_0BF@EJGIMAHA@SLOT?3ci_slot_GetBool@ 000000018018a720     lib_gmod.obj
- 0002:00008740       ??_C@_0BK@CPHNEKFH@SLOT?3ci_slot_GetCFunction@ 000000018018a740     lib_gmod.obj
- 0002:00008760       ??_C@_0BJ@OGJLMCLP@SLOT?3ci_slot_GetUserdata@ 000000018018a760     lib_gmod.obj
- 0002:00008780       ??_C@_0BF@NCLPNHHI@SLOT?3ci_slot_PushNil@ 000000018018a780     lib_gmod.obj
- 0002:000087a0       ??_C@_0BI@IHAPKCJE@SLOT?3ci_slot_PushString@ 000000018018a7a0     lib_gmod.obj
- 0002:000087c0       ??_C@_0BI@EEALACJI@SLOT?3ci_slot_PushNumber@ 000000018018a7c0     lib_gmod.obj
- 0002:000087e0       ??_C@_0BG@HFJJGOPG@SLOT?3ci_slot_PushBool@ 000000018018a7e0     lib_gmod.obj
- 0002:00008800       ??_C@_0BK@NPIHPHEJ@SLOT?3ci_slot_PushUserdata@ 000000018018a800     lib_gmod.obj
- 0002:00008820       ??_C@_0BL@NFHKEKGC@SLOT?3ReferenceCreate?5?9?$DO?5?$CFd@ 000000018018a820     lib_gmod.obj
- 0002:00008840       ??_C@_0BJ@BBNBABME@SLOT?3ReferenceFree?$CIi?$DN?$CFd?$CJ@ 000000018018a840     lib_gmod.obj
- 0002:00008860       ??_C@_0BJ@PBJBDKBP@SLOT?3ReferencePush?$CIi?$DN?$CFd?$CJ@ 000000018018a860     lib_gmod.obj
- 0002:00008880       ??_C@_0BJ@HNLDGMO@SLOT?3ci_slot_PushSpecial@ 000000018018a880     lib_gmod.obj
- 0002:000088a0       ??_C@_0BE@MLENNGCN@SLOT?3ci_slot_IsType@ 000000018018a8a0     lib_gmod.obj
- 0002:000088b8       ??_C@_0BF@BFACPFBF@SLOT?3ci_slot_GetType@ 000000018018a8b8     lib_gmod.obj
- 0002:000088d8       ??_C@_0BJ@LHPPCBCA@SLOT?3ci_slot_GetTypeName@ 000000018018a8d8     lib_gmod.obj
- 0002:000088f8       ??_C@_0CB@FKDADCKC@SLOT?3ci_slot_CreateMetaTableTyp@ 000000018018a8f8     lib_gmod.obj
- 0002:00008920       ??_C@_0BJ@GEAFHFEP@SLOT?3ci_slot_CheckString@ 000000018018a920     lib_gmod.obj
- 0002:00008940       ??_C@_0BJ@KHABNFED@SLOT?3ci_slot_CheckNumber@ 000000018018a940     lib_gmod.obj
- 0002:00008960       ??_C@_0BE@EAOKIEAN@SLOT?3ci_slot_ObjLen@ 000000018018a960     lib_gmod.obj
- 0002:00008978       ??_C@_0BG@DGIGPFOP@SLOT?3ci_slot_GetAngle@ 000000018018a978     lib_gmod.obj
- 0002:00008998       ??_C@_0BH@IIIOGMIN@SLOT?3ci_slot_GetVector@ 000000018018a998     lib_gmod.obj
- 0002:000089b8       ??_C@_0BH@DCGBCCFE@SLOT?3ci_slot_PushAngle@ 000000018018a9b8     lib_gmod.obj
- 0002:000089d8       ??_C@_0BI@NEDJOBFO@SLOT?3ci_slot_PushVector@ 000000018018a9d8     lib_gmod.obj
- 0002:000089f8       ??_C@_0BG@JELKGHDF@SLOT?3ci_slot_SetState@ 000000018018a9f8     lib_gmod.obj
- 0002:00008a18       ??_C@_0BE@KPEEJHJM@IFACE?3?3SetState?$CI?$CFp?$CJ@ 000000018018aa18     lib_gmod.obj
- 0002:00008a30       ??_C@_0BN@PIOCHMJN@SLOT?3ci_slot_CreateMetaTable@ 000000018018aa30     lib_gmod.obj
- 0002:00008a58       ??_C@_0BL@GDABDAJN@SLOT?3ci_slot_PushMetaTable@ 000000018018aa58     lib_gmod.obj
- 0002:00008a78       ??_C@_0BK@IIGOFNGH@SLOT?3ci_slot_PushUserType@ 000000018018aa78     lib_gmod.obj
- 0002:00008a98       ??_C@_0BJ@LOGMLOBC@SLOT?3ci_slot_SetUserType@ 000000018018aa98     lib_gmod.obj
- 0002:00008ab8       ??_C@_0DF@FFMAFKFH@?$FLopglua?$FN?5safe?5stand?9in?5for?5?$CFs?5?$CI@ 000000018018aab8     lib_gmod.obj
- 0002:00008af8       ??_C@_08HNNNOMMJ@_LOADLIB@ 000000018018aaf8     lib_gmod.obj
- 0002:00008b08       ??_C@_0N@DGJJJODO@gmod13_close@ 000000018018ab08     lib_gmod.obj
- 0002:00008b18       ??_C@_0M@JKPDPNBF@LOADLIB?3?5?$CFs@ 000000018018ab18     lib_gmod.obj
- 0002:00008b28       ??_C@_0CD@KEFGPAFF@Couldn?8t?5load?5module?5library?$CB?5?$CI@ 000000018018ab28     lib_gmod.obj
- 0002:00008b58       ??_C@_08BJDCLMIE@luaopen_@ 000000018018ab58     lib_gmod.obj
- 0002:00008b68       ??_C@_0CI@MLJCFHBL@Couldn?8t?5find?5function?5in?5libra@ 000000018018ab68     lib_gmod.obj
- 0002:00008b98       ??_C@_0M@IKMILBJB@gmod13_open@ 000000018018ab98     lib_gmod.obj
- 0002:00008ba8       ??_C@_0CJ@LJKHFAD@IFACE?3?3Init?$CIcb?$DN?$CFp?5dedicated?$DN?$CFd?5@ 000000018018aba8     lib_gmod.obj
- 0002:00008be0       ??_C@_0DI@PIEOGCNI@Unable?5to?5create?5new?5Lua?5State?$CB@ 000000018018abe0     lib_gmod.obj
- 0002:00008c24       ??_C@_04BDLIKKMN@__gc@     000000018018ac24     lib_gmod.obj
- 0002:00008c2c       ??_C@_05PDOBBJNA@Color@    000000018018ac2c     lib_gmod.obj
- 0002:00008c38       ??_C@_0DB@EOEDNEAO@IFACE?3?3Init?3?5gameCallback?$DN?$CFp?5cb@ 000000018018ac38     lib_gmod.obj
- 0002:00008c78       ??_C@_0CC@BBFGJENL@IFACE?3?3?9?$DO?5InterfaceCreated?$CIcb?$DN?$CF@ 000000018018ac78     lib_gmod.obj
- 0002:00008ca0       ??_C@_0CE@CFNKGLAH@IFACE?3?3?$DM?9?5InterfaceCreated?5retu@ 000000018018aca0     lib_gmod.obj
- 0002:00008cd0       ??_C@_0BG@NCOMMLPN@SLOT?3ci_slot_Shutdown@ 000000018018acd0     lib_gmod.obj
- 0002:00008cf0       ??_C@_0BD@LKDCEIDH@SLOT?3ci_slot_Cycle@ 000000018018acf0     lib_gmod.obj
- 0002:00008d08       ??_C@_0O@HCLJKCJO@Global?3?5NULL?$CB@ 000000018018ad08     lib_gmod.obj
- 0002:00008d18       ??_C@_0BG@KDANEMIH@SLOT?3ci_slot_LuaError@ 000000018018ad18     lib_gmod.obj
- 0002:00008d38       ??_C@_0BH@GMGFLCOO@SLOT?3ci_slot_TypeError@ 000000018018ad38     lib_gmod.obj
- 0002:00008d58       ??_C@_0CB@KLNFBBBD@Lua?5tried?5to?5call?5a?5non?9functio@ 000000018018ad58     lib_gmod.obj
- 0002:00008d80       ??_C@_0BK@IHABCGMN@SLOT?3ci_slot_CallInternal@ 000000018018ad80     lib_gmod.obj
- 0002:00008da0       ??_C@_0BB@CMOFIJKC@too?5many?5returns@ 000000018018ada0     lib_gmod.obj
- 0002:00008db8       ??_C@_0CD@DIJLMKOF@SLOT?3ci_slot_CallInternalNoRetu@ 000000018018adb8     lib_gmod.obj
- 0002:00008de8       ??_C@_0CB@JAABBMPJ@SLOT?3ci_slot_CallInternalGetBoo@ 000000018018ade8     lib_gmod.obj
- 0002:00008e10       ??_C@_0CD@LOJMELND@SLOT?3ci_slot_CallInternalGetStr@ 000000018018ae10     lib_gmod.obj
- 0002:00008e40       ??_C@_0BN@COCCGDJL@SLOT?3ci_slot_CallInternalGet@ 000000018018ae40     lib_gmod.obj
- 0002:00008e68       ??_C@_0BM@BLJHFEAA@SLOT?3ci_slot_NewGlobalTable@ 000000018018ae68     lib_gmod.obj
- 0002:00008e90       ??_C@_0BI@LINIOGIC@SLOT?3ci_slot_isUserData@ 000000018018ae90     lib_gmod.obj
- 0002:00008eb0       ??_C@_0CN@CDBAFPF@SLOT?3GetMetaTableObjectName?$CInam@ 000000018018aeb0     lib_gmod.obj
- 0002:00008ee8       ??_C@_0DJ@GPBBCHLC@SLOT?3GetMetaTableObjectName?5?9?$DO?5@ 000000018018aee8     lib_gmod.obj
- 0002:00008f30       ??_C@_0BH@OEDEAJBH@SLOT?3ci_slot_GetReturn@ 000000018018af30     lib_gmod.obj
- 0002:00008f50       ??_C@_0CE@KHHJCDPJ@Tried?5to?5get?5return?5higher?5than@ 000000018018af50     lib_gmod.obj
- 0002:00008f80       ??_C@_0BG@JFFAKDID@SLOT?3ci_slot_IsServer@ 000000018018af80     lib_gmod.obj
- 0002:00008fa0       ??_C@_0BA@ENNMNJNG@IFACE?3?3IsServer@ 000000018018afa0     lib_gmod.obj
- 0002:00008fb8       ??_C@_0BG@NKBCHIAA@SLOT?3ci_slot_IsClient@ 000000018018afb8     lib_gmod.obj
- 0002:00008fd8       ??_C@_0BA@CJOACFF@IFACE?3?3IsClient@ 000000018018afd8     lib_gmod.obj
- 0002:00008ff0       ??_C@_0BE@OAAIFHNC@SLOT?3ci_slot_IsMenu@ 000000018018aff0     lib_gmod.obj
- 0002:00009008       ??_C@_0O@PJBDCAG@IFACE?3?3IsMenu@ 000000018018b008     lib_gmod.obj
- 0002:00009018       ??_C@_0BL@GEAEPODC@SLOT?3ci_slot_DestroyObject@ 000000018018b018     lib_gmod.obj
- 0002:00009038       ??_C@_0CE@IKDIMF@SLOT?3ci_slot_FindOnObjectsMetaT@ 000000018018b038     lib_gmod.obj
- 0002:00009068       ??_C@_0BP@FNIKHGEH@SLOT?3ci_slot_FindObjectOnTable@ 000000018018b068     lib_gmod.obj
- 0002:00009090       ??_C@_0BL@HFPPPJIJ@SLOT?3ci_slot_SetMemberFast@ 000000018018b090     lib_gmod.obj
- 0002:000090b0       ??_C@_0CG@NILAOELI@IFACE?3?3RunString?$CIfn?$DN?$CFs?5run?$DN?$CFd?5l@ 000000018018b0b0     lib_gmod.obj
- 0002:000090e0       ??_C@_0BG@LHMDDMCA@Cannot?5run?5byte?5code?$CB@ 000000018018b0e0     lib_gmod.obj
- 0002:00009100       ??_C@_0BB@BJENLGDM@DEFINE_BASECLASS@ 000000018018b100     lib_gmod.obj
- 0002:00009118       ??_C@_0CA@NEEBPJLK@local?5BaseClass?5?$DN?5baseclass?4Get@ 000000018018b118     lib_gmod.obj
- 0002:00009140       ??_C@_0CJ@BDFOBKAE@IFACE?3?3RunString?5COMPILE?9ERROR?5@ 000000018018b140     lib_gmod.obj
- 0002:00009178       ??_C@_0CJ@PNCODPDO@IFACE?3?3RunString?5RUNTIME?9ERROR?5@ 000000018018b178     lib_gmod.obj
- 0002:000091b0       ??_C@_0BK@EEJOAFGL@IFACE?3?3RunString?5OK?5fn?$DN?$CFs@ 000000018018b1b0     lib_gmod.obj
- 0002:000091d0       ??_C@_0BH@FLIEAKHJ@SLOT?3ci_slot_RunString@ 000000018018b1d0     lib_gmod.obj
- 0002:000091f0       ??_C@_0BJ@IPJPMMPA@SLOT?3ci_slot_RunStringEx@ 000000018018b1f0     lib_gmod.obj
- 0002:00009210       ??_C@_0BF@EEHBPHBJ@SLOT?3ci_slot_IsEqual@ 000000018018b210     lib_gmod.obj
- 0002:00009230       ??_C@_0BD@PENLJAAO@SLOT?3ci_slot_Error@ 000000018018b230     lib_gmod.obj
- 0002:00009248       ??_C@_0BO@GOMNEHBE@SLOT?3ci_slot_GetStringOrError@ 000000018018b248     lib_gmod.obj
- 0002:00009270       ??_C@_0BK@MKFIENCL@SLOT?3ci_slot_RunLuaModule@ 000000018018b270     lib_gmod.obj
- 0002:00009290       ??_C@_07NBPNCAKD@?$CBMODULE@ 000000018018b290     lib_gmod.obj
+ 0002:00008350       ??_C@_0M@DCAGAJPN@?1garrysmod?1@ 000000018018a350     lib_gmod.obj
+ 0002:00008370       ??_C@_07CIFAGBMG@unknown@  000000018018a370     lib_gmod.obj
+ 0002:00008378       ??_C@_0BM@MJHKEJM@D?3?2tmp?2glua?2opglua_boot?4log@ 000000018018a378     lib_gmod.obj
+ 0002:00008394       ??_C@_03MCADLMAF@off@      000000018018a394     lib_gmod.obj
+ 0002:00008398       ??_C@_04BDLIKKMN@__gc@     000000018018a398     lib_gmod.obj
+ 0002:000083a0       ??_C@_0L@LGILCPGH@OPGLUA_LOG@ 000000018018a3a0     lib_gmod.obj
+ 0002:000083c0       ??_C@_0BH@DCGBCCFE@SLOT?3ci_slot_PushAngle@ 000000018018a3c0     lib_gmod.obj
+ 0002:000083e0       ??_C@_07KBAMPNJK@verbose@  000000018018a3e0     lib_gmod.obj
+ 0002:000083f0       ??_C@_0BG@JELKGHDF@SLOT?3ci_slot_SetState@ 000000018018a3f0     lib_gmod.obj
+ 0002:00008408       ??_C@_0BJ@LOGMLOBC@SLOT?3ci_slot_SetUserType@ 000000018018a408     lib_gmod.obj
+ 0002:00008430       ??_C@_0BH@KLBFNJJM@D?3?2tmp?2glua?2opglua?4log@ 000000018018a430     lib_gmod.obj
+ 0002:00008458       ??_C@_0BN@PIOCHMJN@SLOT?3ci_slot_CreateMetaTable@ 000000018018a458     lib_gmod.obj
+ 0002:00008478       ??_C@_0CD@DIJLMKOF@SLOT?3ci_slot_CallInternalNoRetu@ 000000018018a478     lib_gmod.obj
+ 0002:000084a0       ??_C@_0BI@OHEFACEI@K32GetProcessMemoryInfo@ 000000018018a4a0     lib_gmod.obj
+ 0002:000084b8       ??_C@_0BH@OEDEAJBH@SLOT?3ci_slot_GetReturn@ 000000018018a4b8     lib_gmod.obj
+ 0002:000084d0       ??_C@_0N@MDJJJHMB@kernel32?4dll@ 000000018018a4d0     lib_gmod.obj
+ 0002:000084e0       ??_C@_0CH@EJFFNMGL@heartbeat?5t?$DN?$CFllus?5working_set_m@ 000000018018a4e0     lib_gmod.obj
+ 0002:00008508       ??_C@_0CO@DFBLGOED@gobj_push?3?5FOREIGN?5obj?$DN?$CFp?5vtabl@ 000000018018a508     lib_gmod.obj
+ 0002:00008540       ??_C@_0BB@DGMGDMKJ@SLOT?3ci_slot_Top@ 000000018018a540     lib_gmod.obj
+ 0002:00008560       ??_C@_08BJDCLMIE@luaopen_@ 000000018018a560     lib_gmod.obj
+ 0002:00008570       ??_C@_0CG@PMFOGOBJ@ILuaShared?3?3GetLuaInterface?$CIrea@ 000000018018a570     lib_gmod.obj
+ 0002:00008598       ??_C@_0CJ@BDFOBKAE@IFACE?3?3RunString?5COMPILE?9ERROR?5@ 000000018018a598     lib_gmod.obj
+ 0002:000085c8       ??_C@_0CD@OOBHLHIB@SLOT?3GetField?$CIi?$DN?$CFd?5name?$DN?$CFs?5top?$DN@ 000000018018a5c8     lib_gmod.obj
+ 0002:000085f0       ??_C@_0BJ@BBNBABME@SLOT?3ReferenceFree?$CIi?$DN?$CFd?$CJ@ 000000018018a5f0     lib_gmod.obj
+ 0002:00008618       ??_C@_0BG@CBDPBCFJ@SLOT?3ci_slot_SetTable@ 000000018018a618     lib_gmod.obj
+ 0002:00008630       ??_C@_0BK@EDFILHMN@SLOT?3ci_slot_SetMetaTable@ 000000018018a630     lib_gmod.obj
+ 0002:00008650       ??_C@_0BK@DHOGHLIB@SLOT?3ci_slot_GetMetaTable@ 000000018018a650     lib_gmod.obj
+ 0002:00008670       ??_C@_0BC@EBFHJPGO@SLOT?3ci_slot_Call@ 000000018018a670     lib_gmod.obj
+ 0002:00008690       ??_C@_0BD@KPCKOLOH@SLOT?3ci_slot_PCall@ 000000018018a690     lib_gmod.obj
+ 0002:000086b0       ??_C@_0BD@PAHDMALC@SLOT?3ci_slot_Equal@ 000000018018a6b0     lib_gmod.obj
+ 0002:000086e0       ??_C@_0BE@ENHGCLCF@SLOT?3ci_slot_Insert@ 000000018018a6e0     lib_gmod.obj
+ 0002:00008700       ??_C@_0BE@KGNFFBJJ@SLOT?3ci_slot_Remove@ 000000018018a700     lib_gmod.obj
+ 0002:00008720       ??_C@_0BC@KPJBFPHN@SLOT?3ci_slot_Next@ 000000018018a720     lib_gmod.obj
+ 0002:00008740       ??_C@_0BJ@JAAFEDCN@SLOT?3ci_slot_NewUserdata@ 000000018018a740     lib_gmod.obj
+ 0002:00008760       ??_C@_0BI@LNIDFDCO@SLOT?3ci_slot_ThrowError@ 000000018018a760     lib_gmod.obj
+ 0002:00008780       ??_C@_0BH@PDPICNAA@SLOT?3ci_slot_CheckType@ 000000018018a780     lib_gmod.obj
+ 0002:000087a0       ??_C@_0BG@DLFHJHPD@SLOT?3ci_slot_ArgError@ 000000018018a7a0     lib_gmod.obj
+ 0002:000087c0       ??_C@_0BE@DPCLCFEE@SLOT?3ci_slot_RawGet@ 000000018018a7c0     lib_gmod.obj
+ 0002:000087e0       ??_C@_0BE@OAFAOFIM@SLOT?3ci_slot_RawSet@ 000000018018a7e0     lib_gmod.obj
+ 0002:00008800       ??_C@_0BH@NLLICPEH@SLOT?3ci_slot_GetString@ 000000018018a800     lib_gmod.obj
+ 0002:00008820       ??_C@_0BH@BILMIPEL@SLOT?3ci_slot_GetNumber@ 000000018018a820     lib_gmod.obj
+ 0002:00008840       ??_C@_0BF@EJGIMAHA@SLOT?3ci_slot_GetBool@ 000000018018a840     lib_gmod.obj
+ 0002:00008860       ??_C@_0BK@CPHNEKFH@SLOT?3ci_slot_GetCFunction@ 000000018018a860     lib_gmod.obj
+ 0002:00008898       ??_C@_0BF@NCLPNHHI@SLOT?3ci_slot_PushNil@ 000000018018a898     lib_gmod.obj
+ 0002:000088b8       ??_C@_0BI@IHAPKCJE@SLOT?3ci_slot_PushString@ 000000018018a8b8     lib_gmod.obj
+ 0002:000088d8       ??_C@_0BI@EEALACJI@SLOT?3ci_slot_PushNumber@ 000000018018a8d8     lib_gmod.obj
+ 0002:000088f8       ??_C@_0BG@HFJJGOPG@SLOT?3ci_slot_PushBool@ 000000018018a8f8     lib_gmod.obj
+ 0002:00008920       ??_C@_0BK@NPIHPHEJ@SLOT?3ci_slot_PushUserdata@ 000000018018a920     lib_gmod.obj
+ 0002:00008940       ??_C@_0BL@NFHKEKGC@SLOT?3ReferenceCreate?5?9?$DO?5?$CFd@ 000000018018a940     lib_gmod.obj
+ 0002:00008978       ??_C@_0BJ@PBJBDKBP@SLOT?3ReferencePush?$CIi?$DN?$CFd?$CJ@ 000000018018a978     lib_gmod.obj
+ 0002:00008998       ??_C@_0BI@NEDJOBFO@SLOT?3ci_slot_PushVector@ 000000018018a998     lib_gmod.obj
+ 0002:000089b8       ??_C@_0BE@MLENNGCN@SLOT?3ci_slot_IsType@ 000000018018a9b8     lib_gmod.obj
+ 0002:000089d8       ??_C@_0BF@BFACPFBF@SLOT?3ci_slot_GetType@ 000000018018a9d8     lib_gmod.obj
+ 0002:000089f8       ??_C@_0BJ@LHPPCBCA@SLOT?3ci_slot_GetTypeName@ 000000018018a9f8     lib_gmod.obj
+ 0002:00008a30       ??_C@_0BJ@GEAFHFEP@SLOT?3ci_slot_CheckString@ 000000018018aa30     lib_gmod.obj
+ 0002:00008a58       ??_C@_0BJ@KHABNFED@SLOT?3ci_slot_CheckNumber@ 000000018018aa58     lib_gmod.obj
+ 0002:00008a78       ??_C@_0BE@EAOKIEAN@SLOT?3ci_slot_ObjLen@ 000000018018aa78     lib_gmod.obj
+ 0002:00008a98       ??_C@_0BG@DGIGPFOP@SLOT?3ci_slot_GetAngle@ 000000018018aa98     lib_gmod.obj
+ 0002:00008ab8       ??_C@_0BH@IIIOGMIN@SLOT?3ci_slot_GetVector@ 000000018018aab8     lib_gmod.obj
+ 0002:00008ad0       ??_C@_0CI@MLJCFHBL@Couldn?8t?5find?5function?5in?5libra@ 000000018018aad0     lib_gmod.obj
+ 0002:00008af8       ??_C@_0CJ@LJKHFAD@IFACE?3?3Init?$CIcb?$DN?$CFp?5dedicated?$DN?$CFd?5@ 000000018018aaf8     lib_gmod.obj
+ 0002:00008b28       ??_C@_0BE@KPEEJHJM@IFACE?3?3SetState?$CI?$CFp?$CJ@ 000000018018ab28     lib_gmod.obj
+ 0002:00008b40       ??_C@_0CE@KHHJCDPJ@Tried?5to?5get?5return?5higher?5than@ 000000018018ab40     lib_gmod.obj
+ 0002:00008b68       ??_C@_0BL@GDABDAJN@SLOT?3ci_slot_PushMetaTable@ 000000018018ab68     lib_gmod.obj
+ 0002:00008b88       ??_C@_0CN@CDBAFPF@SLOT?3GetMetaTableObjectName?$CInam@ 000000018018ab88     lib_gmod.obj
+ 0002:00008bb8       ??_C@_0M@IKMILBJB@gmod13_open@ 000000018018abb8     lib_gmod.obj
+ 0002:00008bc8       ??_C@_0DI@PIEOGCNI@Unable?5to?5create?5new?5Lua?5State?$CB@ 000000018018abc8     lib_gmod.obj
+ 0002:00008c00       ??_C@_0BJ@IPJPMMPA@SLOT?3ci_slot_RunStringEx@ 000000018018ac00     lib_gmod.obj
+ 0002:00008c24       ??_C@_05PDOBBJNA@Color@    000000018018ac24     lib_gmod.obj
+ 0002:00008c2c       ??_C@_06KEGFEFEO@BRANCH@   000000018018ac2c     lib_gmod.obj
+ 0002:00008c38       ??_C@_08HNNNOMMJ@_LOADLIB@ 000000018018ac38     lib_gmod.obj
+ 0002:00008c48       ??_C@_0CD@KEFGPAFF@Couldn?8t?5load?5module?5library?$CB?5?$CI@ 000000018018ac48     lib_gmod.obj
+ 0002:00008c78       ??_C@_0N@DGJJJODO@gmod13_close@ 000000018018ac78     lib_gmod.obj
+ 0002:00008ca0       ??_C@_0M@JKPDPNBF@LOADLIB?3?5?$CFs@ 000000018018aca0     lib_gmod.obj
+ 0002:00008da0       ??_C@_07NCHCCDCP@VERSION@  000000018018ada0     lib_gmod.obj
+ 0002:00008da8       ??_C@_0P@BBJBCGIA@process?9attach@ 000000018018ada8     lib_gmod.obj
+ 0002:00008db8       ??_C@_0CC@BBFGJENL@IFACE?3?3?9?$DO?5InterfaceCreated?$CIcb?$DN?$CF@ 000000018018adb8     lib_gmod.obj
+ 0002:00008de8       ??_C@_0CE@CFNKGLAH@IFACE?3?3?$DM?9?5InterfaceCreated?5retu@ 000000018018ade8     lib_gmod.obj
+ 0002:00008e10       ??_C@_0BG@NCOMMLPN@SLOT?3ci_slot_Shutdown@ 000000018018ae10     lib_gmod.obj
+ 0002:00008e28       ??_C@_0BG@JFFAKDID@SLOT?3ci_slot_IsServer@ 000000018018ae28     lib_gmod.obj
+ 0002:00008e40       ??_C@_0BD@LKDCEIDH@SLOT?3ci_slot_Cycle@ 000000018018ae40     lib_gmod.obj
+ 0002:00008e68       ??_C@_0O@HCLJKCJO@Global?3?5NULL?$CB@ 000000018018ae68     lib_gmod.obj
+ 0002:00008e80       ??_C@_0BG@KDANEMIH@SLOT?3ci_slot_LuaError@ 000000018018ae80     lib_gmod.obj
+ 0002:00008e98       ??_C@_0BD@PENLJAAO@SLOT?3ci_slot_Error@ 000000018018ae98     lib_gmod.obj
+ 0002:00008eb0       ??_C@_0BH@GMGFLCOO@SLOT?3ci_slot_TypeError@ 000000018018aeb0     lib_gmod.obj
+ 0002:00008ec8       ??_C@_0BN@COCCGDJL@SLOT?3ci_slot_CallInternalGet@ 000000018018aec8     lib_gmod.obj
+ 0002:00008ee8       ??_C@_0CB@KLNFBBBD@Lua?5tried?5to?5call?5a?5non?9functio@ 000000018018aee8     lib_gmod.obj
+ 0002:00008f10       ??_C@_0N@HMOODCAC@?$CFs?5?$CIline?5?$CFd?$CJ@ 000000018018af10     lib_gmod.obj
+ 0002:00008f30       ??_C@_0BK@IHABCGMN@SLOT?3ci_slot_CallInternal@ 000000018018af30     lib_gmod.obj
+ 0002:00008f50       ??_C@_0BB@CMOFIJKC@too?5many?5returns@ 000000018018af50     lib_gmod.obj
+ 0002:00008f98       ??_C@_0CD@LOJMELND@SLOT?3ci_slot_CallInternalGetStr@ 000000018018af98     lib_gmod.obj
+ 0002:00008fc0       ??_C@_0DA@OCKNONAD@SLOT?3ci_slot_CreateConCommand?$CIn@ 000000018018afc0     lib_gmod.obj
+ 0002:00008ff0       ??_C@_0BG@NKBCHIAA@SLOT?3ci_slot_IsClient@ 000000018018aff0     lib_gmod.obj
+ 0002:00009008       ??_C@_0CA@NEEBPJLK@local?5BaseClass?5?$DN?5baseclass?4Get@ 000000018018b008     lib_gmod.obj
+ 0002:00009038       ??_C@_0DC@GFLGELEB@IFACE?3?3FindAndRunScript?5resolve@ 000000018018b038     lib_gmod.obj
+ 0002:00009070       ??_C@_0CA@GBJIEEME@ILuaShared?3?3MountLuaAdd?$CI?$CFs?0?5?$CFs?$CJ@ 000000018018b070     lib_gmod.obj
+ 0002:00009090       ??_C@_0CJ@PNCODPDO@IFACE?3?3RunString?5RUNTIME?9ERROR?5@ 000000018018b090     lib_gmod.obj
+ 0002:000090c0       ??_C@_0BK@EEJOAFGL@IFACE?3?3RunString?5OK?5fn?$DN?$CFs@ 000000018018b0c0     lib_gmod.obj
+ 0002:000090e0       ??_C@_0BA@ENNMNJNG@IFACE?3?3IsServer@ 000000018018b0e0     lib_gmod.obj
+ 0002:000090f0       ??_C@_0CE@IKDIMF@SLOT?3ci_slot_FindOnObjectsMetaT@ 000000018018b0f0     lib_gmod.obj
+ 0002:00009118       ??_C@_0BA@CJOACFF@IFACE?3?3IsClient@ 000000018018b118     lib_gmod.obj
+ 0002:00009128       ??_C@_0BF@EEHBPHBJ@SLOT?3ci_slot_IsEqual@ 000000018018b128     lib_gmod.obj
+ 0002:00009140       ??_C@_0BE@OAAIFHNC@SLOT?3ci_slot_IsMenu@ 000000018018b140     lib_gmod.obj
+ 0002:00009158       ??_C@_0BO@GOMNEHBE@SLOT?3ci_slot_GetStringOrError@ 000000018018b158     lib_gmod.obj
+ 0002:00009178       ??_C@_0O@PJBDCAG@IFACE?3?3IsMenu@ 000000018018b178     lib_gmod.obj
+ 0002:00009188       ??_C@_0CG@MDGAKFMK@IFACE?3?3FindAndRunScript?5resolve@ 000000018018b188     lib_gmod.obj
+ 0002:000091b0       ??_C@_0BL@GEAEPODC@SLOT?3ci_slot_DestroyObject@ 000000018018b1b0     lib_gmod.obj
+ 0002:000091d0       ??_C@_0BK@MKFIENCL@SLOT?3ci_slot_RunLuaModule@ 000000018018b1d0     lib_gmod.obj
+ 0002:000091f0       ??_C@_0BP@FNIKHGEH@SLOT?3ci_slot_FindObjectOnTable@ 000000018018b1f0     lib_gmod.obj
+ 0002:00009210       ??_C@_0CG@NILAOELI@IFACE?3?3RunString?$CIfn?$DN?$CFs?5run?$DN?$CFd?5l@ 000000018018b210     lib_gmod.obj
+ 0002:00009248       ??_C@_0BG@LHMDDMCA@Cannot?5run?5byte?5code?$CB@ 000000018018b248     lib_gmod.obj
+ 0002:00009270       ??_C@_0BB@BJENLGDM@DEFINE_BASECLASS@ 000000018018b270     lib_gmod.obj
  0002:0000929c       ??_C@_05ENEOKLFM@?1bin?1@  000000018018b29c     lib_gmod.obj
  0002:000092a4       ??_C@_04HDOCAJNK@?$CFs?$CFs@ 000000018018b2a4     lib_gmod.obj
  0002:000092ac       ??_C@_06DIJPEION@?$CFs?$CFs?$CFs@ 000000018018b2ac     lib_gmod.obj
- 0002:000092b8       ??_C@_0P@BMMHAEJO@garrysmod?1lua?1@ 000000018018b2b8     lib_gmod.obj
  0002:000092cc       ??_C@_04GCPHFLHK@lua?1@    000000018018b2cc     lib_gmod.obj
- 0002:000092d8       ??_C@_0N@OMMCHPPJ@?$CFs?1garrysmod@ 000000018018b2d8     lib_gmod.obj
- 0002:000092e8       ??_C@_08OBGMOMHH@?$CFs?1?$CFs?1?$CFs@ 000000018018b2e8     lib_gmod.obj
+ 0002:000092d8       ??_C@_0BH@FLIEAKHJ@SLOT?3ci_slot_RunString@ 000000018018b2d8     lib_gmod.obj
  0002:000092f4       ??_C@_05GFOLEBJA@?$CFs?1?$CFs@ 000000018018b2f4     lib_gmod.obj
  0002:000092fc       ??_C@_01NBENCBCI@?$CK@     000000018018b2fc     lib_gmod.obj
  0002:00009300       ??_C@_01LFCBOECM@?4@       000000018018b300     lib_gmod.obj
- 0002:00009308       ??_C@_09CNBHCFLP@?$CFs?1lua?1?$CFs@ 000000018018b308     lib_gmod.obj
  0002:00009314       ??_C@_06GOBNEJOG@?$CFs?1lua@ 000000018018b314     lib_gmod.obj
- 0002:00009320       ??_C@_0BL@PENPIMGA@FindScripts?3?5?$CFs?5?$CI?$CFs?$CJ?5?9?$DO?5?$CFd@ 000000018018b320     lib_gmod.obj
- 0002:00009340       ??_C@_0BO@MAMNMNCL@SLOT?3ci_slot_FindAndRunScript@ 000000018018b340     lib_gmod.obj
- 0002:00009368       ??_C@_0BM@JEGLBJHB@IFACE?3?3FindAndRunScript?$CI?$CFs?$CJ@ 000000018018b368     lib_gmod.obj
+ 0002:00009328       ??_C@_0BF@MHIIPKDE@SLOT?3ci_slot_GetPath@ 000000018018b328     lib_gmod.obj
+ 0002:00009350       ??_C@_0O@JBPNOGKH@LUACONVARS001@ 000000018018b350     lib_gmod.obj
+ 0002:00009378       ??_C@_0L@HKIMIDIA@CV?3cv_Init@ 000000018018b378     lib_gmod.obj
  0002:0000938c       ??_C@_04BIAACBGB@?4lua@    000000018018b38c     lib_gmod.obj
- 0002:00009398       ??_C@_0CP@NOKMGGDJ@Couldn?8t?5include?5file?5?8?$CFs?8?5?9?5No@ 000000018018b398     lib_gmod.obj
- 0002:000093d0       ??_C@_0DC@GFLGELEB@IFACE?3?3FindAndRunScript?5resolve@ 000000018018b3d0     lib_gmod.obj
- 0002:00009410       ??_C@_0CH@PGDINGGL@IFACE?3?3FindAndRunScript?5OPEN?9FA@ 000000018018b410     lib_gmod.obj
- 0002:00009440       ??_C@_0DJ@IOEBBNNG@Couldn?8t?5include?5file?5?8?$CFs?8?5?9?5Fi@ 000000018018b440     lib_gmod.obj
- 0002:00009488       ??_C@_0CG@MDGAKFMK@IFACE?3?3FindAndRunScript?5resolve@ 000000018018b488     lib_gmod.obj
- 0002:000094b8       ??_C@_0CJ@EFJBBIMH@Not?5running?5script?5?$CFs?5?9?5it?8s?5to@ 000000018018b4b8     lib_gmod.obj
- 0002:000094f0       ??_C@_0BH@CDFJDCKB@SLOT?3ci_slot_SetPathID@ 000000018018b4f0     lib_gmod.obj
- 0002:00009510       ??_C@_0BH@NBMBDDD@SLOT?3ci_slot_GetPathID@ 000000018018b510     lib_gmod.obj
- 0002:00009530       ??_C@_0BE@HODBCGJM@LUA_MSG?$CIerr?$DN?$CFd?$CJ?3?5?$CFs@ 000000018018b530     lib_gmod.obj
+ 0002:000093a8       ??_C@_0BM@JEGLBJHB@IFACE?3?3FindAndRunScript?$CI?$CFs?$CJ@ 000000018018b3a8     lib_gmod.obj
+ 0002:000093e0       ??_C@_0CP@NOKMGGDJ@Couldn?8t?5include?5file?5?8?$CFs?8?5?9?5No@ 000000018018b3e0     lib_gmod.obj
+ 0002:00009410       ??_C@_07NBPNCAKD@?$CBMODULE@ 000000018018b410     lib_gmod.obj
+ 0002:00009418       ??_C@_0CH@PGDINGGL@IFACE?3?3FindAndRunScript?5OPEN?9FA@ 000000018018b418     lib_gmod.obj
+ 0002:00009440       ??_C@_0P@BMMHAEJO@garrysmod?1lua?1@ 000000018018b440     lib_gmod.obj
+ 0002:00009460       ??_C@_0BL@PENPIMGA@FindScripts?3?5?$CFs?5?$CI?$CFs?$CJ?5?9?$DO?5?$CFd@ 000000018018b460     lib_gmod.obj
+ 0002:00009488       ??_C@_0N@OMMCHPPJ@?$CFs?1garrysmod@ 000000018018b488     lib_gmod.obj
+ 0002:00009498       ??_C@_0CA@LCLLEMEI@SLOT?3ci_slot_GetCurrentLocation@ 000000018018b498     lib_gmod.obj
+ 0002:000094b8       ??_C@_08OBGMOMHH@?$CFs?1?$CFs?1?$CFs@ 000000018018b4b8     lib_gmod.obj
+ 0002:000094c8       ??_C@_0BL@KIHJMMIL@ILuaShared?3?3GetCache?5?9?$DO?5?$CFp@ 000000018018b4c8     lib_gmod.obj
+ 0002:000094e8       ??_C@_0BO@MAMNMNCL@SLOT?3ci_slot_FindAndRunScript@ 000000018018b4e8     lib_gmod.obj
+ 0002:00009508       ??_C@_0DJ@IOEBBNNG@Couldn?8t?5include?5file?5?8?$CFs?8?5?9?5Fi@ 000000018018b508     lib_gmod.obj
  0002:00009548       ??_C@_04ENHBHKMJ@?$CI?$CFs?$CJ@ 000000018018b548     lib_gmod.obj
- 0002:00009550       ??_C@_0BC@OFMGHCOO@Unknown?5Lua?5error@ 000000018018b550     lib_gmod.obj
- 0002:00009568       ??_C@_0BN@INHPDLLE@AdvancedLuaErrorReporter?3?5?$CFs@ 000000018018b568     lib_gmod.obj
- 0002:00009590       ??_C@_0BJ@KEIFBNAH@SLOT?3ci_slot_ErrorNoHalt@ 000000018018b590     lib_gmod.obj
- 0002:000095b0       ??_C@_0BB@LGIPKDO@SLOT?3ci_slot_Msg@ 000000018018b5b0     lib_gmod.obj
+ 0002:00009550       ??_C@_0BM@MIJLMIEJ@SLOT?3ci_slot_GetCurrentFile@ 000000018018b550     lib_gmod.obj
  0002:000095c4       ??_C@_02CAHBHFGK@?4?1@     000000018018b5c4     lib_gmod.obj
- 0002:000095c8       ??_C@_0BK@HMPAJLHN@SLOT?3ci_slot_PushPath?$CI?$CFs?$CJ@ 000000018018b5c8     lib_gmod.obj
- 0002:000095e8       ??_C@_0BF@IOBHNPFO@SLOT?3ci_slot_PopPath@ 000000018018b5e8     lib_gmod.obj
- 0002:00009608       ??_C@_0CG@GFCKJLLO@CLuaInterface?3?3PopPath?5?9?5Overpo@ 000000018018b608     lib_gmod.obj
- 0002:00009638       ??_C@_0BF@MHIIPKDE@SLOT?3ci_slot_GetPath@ 000000018018b638     lib_gmod.obj
- 0002:00009658       ??_C@_0BG@JGOKMAJK@SLOT?3ci_slot_GetColor@ 000000018018b658     lib_gmod.obj
+ 0002:000095c8       ??_C@_0DC@KOOOHFNO@CallFunctionProtected?5was?5passe@ 000000018018b5c8     lib_gmod.obj
+ 0002:00009608       ??_C@_0CJ@EFJBBIMH@Not?5running?5script?5?$CFs?5?9?5it?8s?5to@ 000000018018b608     lib_gmod.obj
+ 0002:00009638       ??_C@_0BH@CDFJDCKB@SLOT?3ci_slot_SetPathID@ 000000018018b638     lib_gmod.obj
+ 0002:00009658       ??_C@_0BH@NBMBDDD@SLOT?3ci_slot_GetPathID@ 000000018018b658     lib_gmod.obj
  0002:00009674       ??_C@_01KDCPPGHE@r@        000000018018b674     lib_gmod.obj
  0002:00009678       ??_C@_01JEJKBAGA@g@        000000018018b678     lib_gmod.obj
  0002:0000967c       ??_C@_01OJONOECF@b@        000000018018b67c     lib_gmod.obj
- 0002:00009680       ??_C@_0BH@JCANBHCB@SLOT?3ci_slot_PushColor@ 000000018018b680     lib_gmod.obj
- 0002:000096a0       ??_C@_0BG@OCHMOMDD@SLOT?3ci_slot_GetStack@ 000000018018b6a0     lib_gmod.obj
- 0002:000096c0       ??_C@_0BF@KCPIPOEI@SLOT?3ci_slot_GetInfo@ 000000018018b6c0     lib_gmod.obj
- 0002:000096e0       ??_C@_0BG@OBAAHAMM@SLOT?3ci_slot_GetLocal@ 000000018018b6e0     lib_gmod.obj
- 0002:00009700       ??_C@_0BI@NMIDGICI@SLOT?3ci_slot_GetUpvalue@ 000000018018b700     lib_gmod.obj
- 0002:00009720       ??_C@_0BL@PEFBDKF@SLOT?3ci_slot_GetDataString@ 000000018018b720     lib_gmod.obj
- 0002:00009740       ??_C@_0BK@EJGDLBGF@SLOT?3ci_slot_ErrorFromLua@ 000000018018b740     lib_gmod.obj
- 0002:00009760       ??_C@_0CA@LCLLEMEI@SLOT?3ci_slot_GetCurrentLocation@ 000000018018b760     lib_gmod.obj
- 0002:00009788       ??_C@_09KBIFPMBA@?$DMnowhere?$DO@ 000000018018b788     lib_gmod.obj
+ 0002:00009680       ??_C@_0BE@HODBCGJM@LUA_MSG?$CIerr?$DN?$CFd?$CJ?3?5?$CFs@ 000000018018b680     lib_gmod.obj
+ 0002:000096a0       ??_C@_0BC@OFMGHCOO@Unknown?5Lua?5error@ 000000018018b6a0     lib_gmod.obj
+ 0002:000096b8       ??_C@_0BN@INHPDLLE@AdvancedLuaErrorReporter?3?5?$CFs@ 000000018018b6b8     lib_gmod.obj
+ 0002:000096e0       ??_C@_0BJ@KEIFBNAH@SLOT?3ci_slot_ErrorNoHalt@ 000000018018b6e0     lib_gmod.obj
+ 0002:00009700       ??_C@_0BB@LGIPKDO@SLOT?3ci_slot_Msg@ 000000018018b700     lib_gmod.obj
+ 0002:00009720       ??_C@_0BK@HMPAJLHN@SLOT?3ci_slot_PushPath?$CI?$CFs?$CJ@ 000000018018b720     lib_gmod.obj
+ 0002:00009740       ??_C@_0BF@IOBHNPFO@SLOT?3ci_slot_PopPath@ 000000018018b740     lib_gmod.obj
+ 0002:00009758       ??_C@_0BO@LCOBHAJP@SLOT?3ci_slot_AppendStackTrace@ 000000018018b758     lib_gmod.obj
+ 0002:00009778       ??_C@_08OGPJBJKC@_MODULES@ 000000018018b778     lib_gmod.obj
  0002:00009794       ??_C@_02KHAMJCKP@Sl@       000000018018b794     lib_gmod.obj
- 0002:00009798       ??_C@_0N@HMOODCAC@?$CFs?5?$CIline?5?$CFd?$CJ@ 000000018018b798     lib_gmod.obj
- 0002:000097a8       ??_C@_0BH@DCMGAAJB@SLOT?3ci_slot_MsgColour@ 000000018018b7a8     lib_gmod.obj
- 0002:000097c8       ??_C@_0BM@MIJLMIEJ@SLOT?3ci_slot_GetCurrentFile@ 000000018018b7c8     lib_gmod.obj
- 0002:000097f0       ??_C@_0BL@KFDBLLAM@SLOT?3ci_slot_CompileString@ 000000018018b7f0     lib_gmod.obj
- 0002:00009810       ??_C@_0BF@PAIOBGLM@IFACE?3?3CompileString@ 000000018018b810     lib_gmod.obj
- 0002:00009830       ??_C@_0BP@BBEGGCEB@CompileString?$CIBootil?3?3Buffer?$CG?$CJ@ 000000018018b830     lib_gmod.obj
- 0002:00009858       ??_C@_0CD@NIKDNGIH@SLOT?3ci_slot_CallFunctionProtec@ 000000018018b858     lib_gmod.obj
- 0002:00009888       ??_C@_0DC@KOOOHFNO@CallFunctionProtected?5was?5passe@ 000000018018b888     lib_gmod.obj
+ 0002:000097a8       ??_C@_0BH@JCANBHCB@SLOT?3ci_slot_PushColor@ 000000018018b7a8     lib_gmod.obj
+ 0002:000097c8       ??_C@_0BG@OCHMOMDD@SLOT?3ci_slot_GetStack@ 000000018018b7c8     lib_gmod.obj
+ 0002:000097f0       ??_C@_0BF@KCPIPOEI@SLOT?3ci_slot_GetInfo@ 000000018018b7f0     lib_gmod.obj
+ 0002:00009810       ??_C@_0BG@OBAAHAMM@SLOT?3ci_slot_GetLocal@ 000000018018b810     lib_gmod.obj
+ 0002:00009830       ??_C@_0BI@NMIDGICI@SLOT?3ci_slot_GetUpvalue@ 000000018018b830     lib_gmod.obj
+ 0002:00009858       ??_C@_0BL@PEFBDKF@SLOT?3ci_slot_GetDataString@ 000000018018b858     lib_gmod.obj
+ 0002:00009888       ??_C@_0BK@EJGDLBGF@SLOT?3ci_slot_ErrorFromLua@ 000000018018b888     lib_gmod.obj
+ 0002:000098a8       ??_C@_0BG@BCEEJIBC@?5?5?5Lua?5State?5?$DN?5NULL?6?6@ 000000018018b8a8     lib_gmod.obj
  0002:000098c4       ??_C@_05GPBDPJHA@gmcl_@    000000018018b8c4     lib_gmod.obj
  0002:000098cc       ??_C@_05COLLIIEJ@gmsv_@    000000018018b8cc     lib_gmod.obj
  0002:000098d4       ??_C@_05IMANJMPM@win64@    000000018018b8d4     lib_gmod.obj
  0002:000098dc       ??_C@_04HLONOPDM@?4dll@    000000018018b8dc     lib_gmod.obj
- 0002:000098e8       ??_C@_0P@LAPIEMPJ@OPGLUA_GAMEDIR@ 000000018018b8e8     lib_gmod.obj
- 0002:00009900       ??_C@_0BF@NOKINOKM@SLOT?3ci_slot_Require@ 000000018018b900     lib_gmod.obj
- 0002:00009920       ??_C@_08OGPJBJKC@_MODULES@ 000000018018b920     lib_gmod.obj
- 0002:00009930       ??_C@_0BP@CEPPLPPK@?$CFs?1lua?1includes?1modules?1?$CFs?4lua@ 000000018018b930     lib_gmod.obj
- 0002:00009958       ??_C@_0BF@KFFGJDO@?$CFs?1lua?1bin?1?$CFs?$CFs_?$CFs?$CFs@ 000000018018b958     lib_gmod.obj
- 0002:00009978       ??_C@_0BI@KDGDPDNG@Module?5not?5found?$CB?5?$CI?$CFs?$CJ?6@ 000000018018b978     lib_gmod.obj
- 0002:00009998       ??_C@_0BP@CLEJPAOO@SLOT?3ci_slot_GetActualTypeName@ 000000018018b998     lib_gmod.obj
- 0002:000099c0       ??_C@_0BM@BFEIFECF@SLOT?3ci_slot_PreCreateTable@ 000000018018b9c0     lib_gmod.obj
- 0002:000099e8       ??_C@_0CI@NDAFIGAP@SLOT?3ci_slot_PushPooledString?$CI?$CF@ 000000018018b9e8     lib_gmod.obj
- 0002:00009a18       ??_C@_0BN@OFMCLEEC@SLOT?3ci_slot_AddThreadedCall@ 000000018018ba18     lib_gmod.obj
- 0002:00009a40       ??_C@_0BO@LCOBHAJP@SLOT?3ci_slot_AppendStackTrace@ 000000018018ba40     lib_gmod.obj
- 0002:00009a68       ??_C@_0BG@BCEEJIBC@?5?5?5Lua?5State?5?$DN?5NULL?6?6@ 000000018018ba68     lib_gmod.obj
+ 0002:00009900       ??_C@_09KBIFPMBA@?$DMnowhere?$DO@ 000000018018b900     lib_gmod.obj
+ 0002:00009910       ??_C@_0BL@DCPHGOP@ILuaShared?3?3UnMountLua?$CI?$CFs?$CJ@ 000000018018b910     lib_gmod.obj
+ 0002:00009930       ??_C@_0BH@DCMGAAJB@SLOT?3ci_slot_MsgColour@ 000000018018b930     lib_gmod.obj
+ 0002:00009958       ??_C@_0BF@NOKINOKM@SLOT?3ci_slot_Require@ 000000018018b958     lib_gmod.obj
+ 0002:00009978       ??_C@_0BL@KFDBLLAM@SLOT?3ci_slot_CompileString@ 000000018018b978     lib_gmod.obj
+ 0002:00009998       ??_C@_0BF@PAIOBGLM@IFACE?3?3CompileString@ 000000018018b998     lib_gmod.obj
+ 0002:000099c0       ??_C@_0BP@BBEGGCEB@CompileString?$CIBootil?3?3Buffer?$CG?$CJ@ 000000018018b9c0     lib_gmod.obj
+ 0002:000099e8       ??_C@_0CD@NIKDNGIH@SLOT?3ci_slot_CallFunctionProtec@ 000000018018b9e8     lib_gmod.obj
+ 0002:00009a10       ??_C@_0CI@JCAKIDKD@selftest?3?5luabase?5back?5pointer?5@ 000000018018ba10     lib_gmod.obj
+ 0002:00009a40       ??_C@_0P@LAPIEMPJ@OPGLUA_GAMEDIR@ 000000018018ba40     lib_gmod.obj
+ 0002:00009a50       ??_C@_0CK@LCONMEHP@selftest?3?5GMOD_LoadBinaryModule@ 000000018018ba50     lib_gmod.obj
  0002:00009a84       ??_C@_04CHJPJONL@Slnu@     000000018018ba84     lib_gmod.obj
- 0002:00009a90       ??_C@_0BB@DGBNANMA@?$CFs?5?$CI?$CFs?$CJ?5line?5?$CFd?6@ 000000018018ba90     lib_gmod.obj
  0002:00009aa4       ??_C@_02KNHHEEKP@?5?5@     000000018018baa4     lib_gmod.obj
- 0002:00009aa8       ??_C@_0DD@OIGLKLAE@SLOT?3ci_slot_CreateConVar?$CIname?$DN@ 000000018018baa8     lib_gmod.obj
- 0002:00009ae8       ??_C@_0DA@OCKNONAD@SLOT?3ci_slot_CreateConCommand?$CIn@ 000000018018bae8     lib_gmod.obj
- 0002:00009b28       ??_C@_0BM@IFDBCPGM@SLOT?3ci_slot_CheckStringOpt@ 000000018018bb28     lib_gmod.obj
- 0002:00009b50       ??_C@_0BM@CFEBKODL@SLOT?3ci_slot_CheckNumberOpt@ 000000018018bb50     lib_gmod.obj
- 0002:00009b78       ??_C@_0CI@OBHLCPIH@SLOT?3ci_slot_RegisterMetaTable?$CI@ 000000018018bb78     lib_gmod.obj
- 0002:00009ba8       ??_C@_0BC@IDHGEKFB@SLOT?3ci_slot_dtor@ 000000018018bba8     lib_gmod.obj
- 0002:00009bc0       ??_C@_0CE@IAAOGLGN@ILuaShared?3?3Init?$CIfactory?$DN?$CFp?5ctx@ 000000018018bbc0     lib_gmod.obj
- 0002:00009bf0       ??_C@_0P@DHJOKMPC@VEngineCvar007@ 000000018018bbf0     lib_gmod.obj
- 0002:00009c08       ??_C@_0P@IPHNCBGP@VFileSystem022@ 000000018018bc08     lib_gmod.obj
- 0002:00009c20       ??_C@_0CH@PDODHNBN@ILuaShared?3?3Init?5cvar?$DN?$CFp?5filesy@ 000000018018bc20     lib_gmod.obj
- 0002:00009c50       ??_C@_0BB@DHKFNPBN@ILuaShared?3?3Init@ 000000018018bc50     lib_gmod.obj
- 0002:00009c68       ??_C@_0BF@LFKDCJBK@ILuaShared?3?3Shutdown@ 000000018018bc68     lib_gmod.obj
- 0002:00009c88       ??_C@_0BG@FAKFPODP@ILuaShared?3?3DumpStats@ 000000018018bc88     lib_gmod.obj
- 0002:00009ca8       ??_C@_0BN@LMEJEAJO@CreateLuaInterface?$CIrealm?$DN?$CFd?$CJ@ 000000018018bca8     lib_gmod.obj
- 0002:00009cd0       ??_C@_0BD@BPCOBDCH@CreateLuaInterface@ 000000018018bcd0     lib_gmod.obj
- 0002:00009ce8       ??_C@_0CC@EEBMBNIJ@ILuaShared?3?3CloseLuaInterface?$CI?$CF@ 000000018018bce8     lib_gmod.obj
- 0002:00009d10       ??_C@_0CG@PMFOGOBJ@ILuaShared?3?3GetLuaInterface?$CIrea@ 000000018018bd10     lib_gmod.obj
- 0002:00009d40       ??_C@_0CC@NGJCDBOK@ILuaShared?3?3GetLuaInterface?5?9?$DO?5@ 000000018018bd40     lib_gmod.obj
- 0002:00009d68       ??_C@_0BL@IEFCMMMB@ILuaShared?3?3LoadFile?5?9?$DO?5?$CFp@ 000000018018bd68     lib_gmod.obj
- 0002:00009d88       ??_C@_0BJ@PFLAMGGK@ILuaShared?3?3MountLua?$CI?$CFs?$CJ@ 000000018018bd88     lib_gmod.obj
- 0002:00009da8       ??_C@_03IBJHJIAF@lua@      000000018018bda8     lib_gmod.obj
- 0002:00009db0       ??_C@_07CFINCEBH@LuaMenu@  000000018018bdb0     lib_gmod.obj
- 0002:00009dc0       ??_C@_09KHHEHEPN@gamemodes@ 000000018018bdc0     lib_gmod.obj
- 0002:00009dd0       ??_C@_0CA@GBJIEEME@ILuaShared?3?3MountLuaAdd?$CI?$CFs?0?5?$CFs?$CJ@ 000000018018bdd0     lib_gmod.obj
- 0002:00009df8       ??_C@_0BL@DCPHGOP@ILuaShared?3?3UnMountLua?$CI?$CFs?$CJ@ 000000018018bdf8     lib_gmod.obj
- 0002:00009e18       ??_C@_0BP@FFCBAFAP@ILuaShared?3?3ScriptExists?5?9?$DO?5?$CFd@ 000000018018be18     lib_gmod.obj
- 0002:00009e40       ??_C@_0BL@KIHJMMIL@ILuaShared?3?3GetCache?5?9?$DO?5?$CFp@ 000000018018be40     lib_gmod.obj
- 0002:00009e60       ??_C@_0L@COKOAEPK@CV?3cv_dtor@ 000000018018be60     lib_gmod.obj
- 0002:00009e70       ??_C@_0L@HKIMIDIA@CV?3cv_Init@ 000000018018be70     lib_gmod.obj
- 0002:00009e80       ??_C@_0BD@ONHIIKBE@CV?3cv_CreateConVar@ 000000018018be80     lib_gmod.obj
- 0002:00009e98       ??_C@_0BH@DNIAKMOK@CV?3cv_CreateConCommand@ 000000018018be98     lib_gmod.obj
- 0002:00009eb8       ??_C@_0BF@PCBEKKEP@CV?3cv_DestroyManaged@ 000000018018beb8     lib_gmod.obj
- 0002:00009ed8       ??_C@_0M@KMACJOIG@CV?3cv_Cache@ 000000018018bed8     lib_gmod.obj
- 0002:00009ee8       ??_C@_0BB@DJOMENH@CV?3cv_ClearCache@ 000000018018bee8     lib_gmod.obj
- 0002:00009f00       ??_C@_0BC@JIOGCEIL@CV?3cv_SaveManaged@ 000000018018bf00     lib_gmod.obj
- 0002:00009f18       ??_C@_0BG@HFBBJEDG@CreateInterface?$CI?8?$CFs?8?$CJ@ 000000018018bf18     lib_gmod.obj
- 0002:00009f38       ??_C@_0BA@OBHPCBFP@CreateInterface@ 000000018018bf38     lib_gmod.obj
- 0002:00009f50       ??_C@_0N@NAHLMBPA@LUASHARED003@ 000000018018bf50     lib_gmod.obj
+ 0002:00009aa8       ??_C@_0BP@CEPPLPPK@?$CFs?1lua?1includes?1modules?1?$CFs?4lua@ 000000018018baa8     lib_gmod.obj
+ 0002:00009ad0       ??_C@_0BH@HOCIEBIO@CV?3cv_CreateConVar?$CI?$CFs?$CJ@ 000000018018bad0     lib_gmod.obj
+ 0002:00009ae8       ??_C@_0BF@KFFGJDO@?$CFs?1lua?1bin?1?$CFs?$CFs_?$CFs?$CFs@ 000000018018bae8     lib_gmod.obj
+ 0002:00009b00       ??_C@_0CC@NGJCDBOK@ILuaShared?3?3GetLuaInterface?5?9?$DO?5@ 000000018018bb00     lib_gmod.obj
+ 0002:00009b28       ??_C@_0BI@KDGDPDNG@Module?5not?5found?$CB?5?$CI?$CFs?$CJ?6@ 000000018018bb28     lib_gmod.obj
+ 0002:00009b50       ??_C@_0BP@CLEJPAOO@SLOT?3ci_slot_GetActualTypeName@ 000000018018bb50     lib_gmod.obj
+ 0002:00009b78       ??_C@_0BM@BFEIFECF@SLOT?3ci_slot_PreCreateTable@ 000000018018bb78     lib_gmod.obj
+ 0002:00009b98       ??_C@_0CC@EEBMBNIJ@ILuaShared?3?3CloseLuaInterface?$CI?$CF@ 000000018018bb98     lib_gmod.obj
+ 0002:00009bc0       ??_C@_0BN@OFMCLEEC@SLOT?3ci_slot_AddThreadedCall@ 000000018018bbc0     lib_gmod.obj
+ 0002:00009bf0       ??_C@_0CI@OBHLCPIH@SLOT?3ci_slot_RegisterMetaTable?$CI@ 000000018018bbf0     lib_gmod.obj
+ 0002:00009c20       ??_C@_0BB@DGBNANMA@?$CFs?5?$CI?$CFs?$CJ?5line?5?$CFd?6@ 000000018018bc20     lib_gmod.obj
+ 0002:00009c50       ??_C@_0DD@OIGLKLAE@SLOT?3ci_slot_CreateConVar?$CIname?$DN@ 000000018018bc50     lib_gmod.obj
+ 0002:00009c88       ??_C@_0BM@IFDBCPGM@SLOT?3ci_slot_CheckStringOpt@ 000000018018bc88     lib_gmod.obj
+ 0002:00009cb8       ??_C@_0BB@DHKFNPBN@ILuaShared?3?3Init@ 000000018018bcb8     lib_gmod.obj
+ 0002:00009ce8       ??_C@_0BC@IDHGEKFB@SLOT?3ci_slot_dtor@ 000000018018bce8     lib_gmod.obj
+ 0002:00009d10       ??_C@_0CE@IAAOGLGN@ILuaShared?3?3Init?$CIfactory?$DN?$CFp?5ctx@ 000000018018bd10     lib_gmod.obj
+ 0002:00009d40       ??_C@_0P@DHJOKMPC@VEngineCvar007@ 000000018018bd40     lib_gmod.obj
+ 0002:00009d68       ??_C@_0P@IPHNCBGP@VFileSystem022@ 000000018018bd68     lib_gmod.obj
+ 0002:00009d88       ??_C@_0CH@PDODHNBN@ILuaShared?3?3Init?5cvar?$DN?$CFp?5filesy@ 000000018018bd88     lib_gmod.obj
+ 0002:00009db0       ??_C@_0BL@IEFCMMMB@ILuaShared?3?3LoadFile?5?9?$DO?5?$CFp@ 000000018018bdb0     lib_gmod.obj
+ 0002:00009dd0       ??_C@_0BG@FAKFPODP@ILuaShared?3?3DumpStats@ 000000018018bdd0     lib_gmod.obj
+ 0002:00009df8       ??_C@_0BN@LMEJEAJO@CreateLuaInterface?$CIrealm?$DN?$CFd?$CJ@ 000000018018bdf8     lib_gmod.obj
+ 0002:00009e18       ??_C@_0BD@BPCOBDCH@CreateLuaInterface@ 000000018018be18     lib_gmod.obj
+ 0002:00009e48       ??_C@_0BL@HOOHKDCJ@CV?3cv_CreateConCommand?$CI?$CFs?$CJ@ 000000018018be48     lib_gmod.obj
+ 0002:00009e70       ??_C@_0CF@DHABNFHL@selftest?3?5interface?5creation?5fa@ 000000018018be70     lib_gmod.obj
+ 0002:00009e98       ??_C@_0BJ@PFLAMGGK@ILuaShared?3?3MountLua?$CI?$CFs?$CJ@ 000000018018be98     lib_gmod.obj
+ 0002:00009eb8       ??_C@_07CFINCEBH@LuaMenu@  000000018018beb8     lib_gmod.obj
+ 0002:00009ec0       ??_C@_0BF@PCBEKKEP@CV?3cv_DestroyManaged@ 000000018018bec0     lib_gmod.obj
+ 0002:00009ed8       ??_C@_09KHHEHEPN@gamemodes@ 000000018018bed8     lib_gmod.obj
+ 0002:00009ee8       ??_C@_0CE@COKEEHPD@selftest?3?5marker?5missing?5?$CItype?5@ 000000018018bee8     lib_gmod.obj
+ 0002:00009f18       ??_C@_0BP@FFCBAFAP@ILuaShared?3?3ScriptExists?5?9?$DO?5?$CFd@ 000000018018bf18     lib_gmod.obj
+ 0002:00009f50       ??_C@_0L@COKOAEPK@CV?3cv_dtor@ 000000018018bf50     lib_gmod.obj
  0002:00009f60       ??_C@_09FCOELODM@LUASHARED@ 000000018018bf60     lib_gmod.obj
- 0002:00009f70       ??_C@_0O@JBPNOGKH@LUACONVARS001@ 000000018018bf70     lib_gmod.obj
- 0002:00009f80       ??_C@_0L@JEKIMFIL@LUACONVARS@ 000000018018bf80     lib_gmod.obj
- 0002:00009f90       ??_C@_0CF@DHABNFHL@selftest?3?5interface?5creation?5fa@ 000000018018bf90     lib_gmod.obj
- 0002:00009fc0       ??_C@_0CI@JCAKIDKD@selftest?3?5luabase?5back?5pointer?5@ 000000018018bfc0     lib_gmod.obj
- 0002:00009ff0       ??_C@_0CK@LCONMEHP@selftest?3?5GMOD_LoadBinaryModule@ 000000018018bff0     lib_gmod.obj
- 0002:0000a028       ??_C@_0BD@CMHKNOAN@opglua_test_marker@ 000000018018c028     lib_gmod.obj
- 0002:0000a040       ??_C@_0BJ@ENNHILBK@selftest?3?5marker?5?$DN?5?8?$CFs?8?6@ 000000018018c040     lib_gmod.obj
- 0002:0000a060       ??_C@_0CE@COKEEHPD@selftest?3?5marker?5missing?5?$CItype?5@ 000000018018c060     lib_gmod.obj
- 0002:0000a090       ??_C@_0P@BBJBCGIA@process?9attach@ 000000018018c090     lib_gmod.obj
+ 0002:00009fa0       ??_C@_0L@JEKIMFIL@LUACONVARS@ 000000018018bfa0     lib_gmod.obj
+ 0002:00009fc0       ??_C@_0M@KMACJOIG@CV?3cv_Cache@ 000000018018bfc0     lib_gmod.obj
+ 0002:00009fd0       ??_C@_0BJ@ENNHILBK@selftest?3?5marker?5?$DN?5?8?$CFs?8?6@ 000000018018bfd0     lib_gmod.obj
+ 0002:00009ff0       ??_C@_0BB@DJOMENH@CV?3cv_ClearCache@ 000000018018bff0     lib_gmod.obj
+ 0002:0000a028       ??_C@_0BC@JIOGCEIL@CV?3cv_SaveManaged@ 000000018018c028     lib_gmod.obj
+ 0002:0000a040       ??_C@_0BG@HFBBJEDG@CreateInterface?$CI?8?$CFs?8?$CJ@ 000000018018c040     lib_gmod.obj
+ 0002:0000a060       ??_C@_0BA@OBHPCBFP@CreateInterface@ 000000018018c060     lib_gmod.obj
+ 0002:0000a070       ??_C@_0BD@CMHKNOAN@opglua_test_marker@ 000000018018c070     lib_gmod.obj
+ 0002:0000a088       ??_C@_0N@NAHLMBPA@LUASHARED003@ 000000018018c088     lib_gmod.obj
+ 0002:0000a170       ??_C@_09OCBCIEPH@lifecycle@ 000000018018c170     lib_gmod.obj
  0002:0000a198       ??_C@_07KNEGBPNO@package@  000000018018c198     lib_init.obj
  0002:0000a1a4       ??_C@_02KFNNKBCK@io@       000000018018c1a4     lib_init.obj
  0002:0000a1a8       ??_C@_02EHCHIAMF@os@       000000018018c1a8     lib_init.obj
  0002:0000a1ac       ??_C@_04CFDJAKFL@math@     000000018018c1ac     lib_init.obj
  0002:0000a1b4       ??_C@_03IGHFHLNJ@jit@      000000018018c1b4     lib_init.obj
+ 0002:0000a310       ??_C@_0BJ@HNLDGMO@SLOT?3ci_slot_PushSpecial@ 000000018018c310     lib_gmod.obj
+ 0002:0000a330       ??_C@_0BK@IIGOFNGH@SLOT?3ci_slot_PushUserType@ 000000018018c330     lib_gmod.obj
  0002:0000a34c       ??_C@_05KCHOJJD@FILE?$CK@  000000018018c34c     lib_io.obj
  0002:0000a358       ??_C@_0BL@PEFGCPAG@cannot?5close?5standard?5file@ 000000018018c358     lib_io.obj
  0002:0000a378       ??_C@_03DLDNIBIK@?$CFlf@   000000018018c378     lib_io.obj
@@ -6512,6 +6507,7 @@
  0002:0000a3f0       ??_C@_05MHOFLBOO@stdin@    000000018018c3f0     lib_io.obj
  0002:0000a3f8       ??_C@_06DJDOIFHB@stdout@   000000018018c3f8     lib_io.obj
  0002:0000a400       ??_C@_06FJGNEBG@stderr@    000000018018c400     lib_io.obj
+ 0002:0000a640       ??_C@_0CI@NDAFIGAP@SLOT?3ci_slot_PushPooledString?$CI?$CF@ 000000018018c640     lib_gmod.obj
  0002:0000a6b0       ??_C@_04NBFCGMPH@root@     000000018018c6b0     lib_jit.obj
  0002:0000a6b8       ??_C@_04GKOOIABA@loop@     000000018018c6b8     lib_jit.obj
  0002:0000a6c0       ??_C@_0P@FONHJDJF@tail?9recursion@ 000000018018c6c0     lib_jit.obj
@@ -6536,6 +6532,7 @@
  0002:0000a7fc       ??_C@_05IPMPAMGF@nexit@    000000018018c7fc     lib_jit.obj
  0002:0000a808       ??_C@_08IDKBLEPL@linktype@ 000000018018c808     lib_jit.obj
  0002:0000a820       ??_C@_0IP@MHNKICBG@?$AImaxtrace?7maxrecord?6maxirconst?$AH@ 000000018018c820     lib_jit.obj
+ 0002:0000a8b0       ??_C@_0BJ@OGJLMCLP@SLOT?3ci_slot_GetUserdata@ 000000018018c8b0     lib_gmod.obj
  0002:0000a8d0       ??_C@_07LDLFNPGN@Windows@  000000018018c8d0     lib_jit.obj
  0002:0000a8dc       ??_C@_03OLPMMCEF@x64@      000000018018c8dc     lib_jit.obj
  0002:0000a8e0       ??_C@_0BD@DNOKJOFG@LuaJIT?52?41?40?9beta3@ 000000018018c8e0     lib_jit.obj
@@ -6558,10 +6555,13 @@
  0002:0000aa28       ??_C@_0BA@FOIKENOD@vector?5too?5long@ 000000018018ca28     lib_luashared.obj
  0002:0000aa40       ??_C@_0BI@CFPLBAOH@invalid?5string?5position@ 000000018018ca40     lib_luashared.obj
  0002:0000aa60       __xmm@000000000000000f0000000000000000 000000018018ca60     lib_luashared.obj
+ 0002:0000aba8       ??_C@_0BB@LJKEKLPO@SLOT?3ci_slot_Pop@ 000000018018cba8     lib_gmod.obj
+ 0002:0000abc0       ??_C@_0BL@GKDMNINE@SLOT?3GetTable?$CIi?$DN?$CFd?5top?$DN?$CFd?$CJ@ 000000018018cbc0     lib_gmod.obj
  0002:0000abe0       __real@4005bf0a8b145769    000000018018cbe0     lib_math.obj
  0002:0000abf0       __real@400921fb54442d18    000000018018cbf0     lib_math.obj
  0002:0000ac00       ??_C@_09LGKBAKDK@tier0?4dll@ 000000018018cc00     lib_mem.obj
  0002:0000ac10       ??_C@_0M@HMDFMIIA@g_pMemAlloc@ 000000018018cc10     lib_mem.obj
+ 0002:0000acd8       ??_C@_0BG@DPFIBDPN@SLOT?3ci_slot_RawEqual@ 000000018018ccd8     lib_gmod.obj
  0002:0000acf4       ??_C@_02HODHFJCJ@?$CKt@    000000018018ccf4     lib_os.obj
  0002:0000acf8       ??_C@_03KHPNBODO@sec@      000000018018ccf8     lib_os.obj
  0002:0000acfc       ??_C@_03KLIPLJLL@min@      000000018018ccfc     lib_os.obj
@@ -6574,6 +6574,7 @@
  0002:0000ad2c       ??_C@_05HGBEJAHO@isdst@    000000018018cd2c     lib_os.obj
  0002:0000ad38       ??_C@_0CL@PFAPFEGP@?$AFctype?$AHnumeric?$AEtime?$AHcollate?$AImon@ 000000018018cd38     lib_os.obj
  0002:0000ad70       __real@3f50624dd2f1a9fc    000000018018cd70     lib_os.obj
+ 0002:0000ae18       ??_C@_0BH@MMHONNMD@Lua?5stack?5over?9popped?$CB@ 000000018018ce18     lib_gmod.obj
  0002:0000ae38       ??_C@_07KOEABFCN@loadlib@  000000018018ce38     lib_package.obj
  0002:0000ae48       ??_C@_0L@LLHGDMBK@searchpath@ 000000018018ce48     lib_package.obj
  0002:0000ae58       ??_C@_06LNOHAKGK@seeall@   000000018018ce58     lib_package.obj
@@ -6617,16 +6618,24 @@
  0002:0000b178       ??_C@_0L@GKIMPOMK@?2?6?$DL?6?$DP?6?$CB?6?9?6@ 000000018018d178     lib_package.obj
  0002:0000b188       ??_C@_06HEJKKHEK@config@   000000018018d188     lib_package.obj
  0002:0000b190       ??_C@_06IILMCCFO@loaded@   000000018018d190     lib_package.obj
+ 0002:0000b288       ??_C@_0DA@CHBKIGHN@event?5pid?$DN?$CFlu?5what?$DN?$CFs?5log?$DN?$CFs?5mo@ 000000018018d288     lib_gmod.obj
  0002:0000b2b8       ??_C@_0BC@IMEAEJPD@too?5many?5captures@ 000000018018d2b8     lib_string.obj
+ 0002:0000b4e8       ??_C@_09CNBHCFLP@?$CFs?1lua?1?$CFs@ 000000018018d4e8     lib_gmod.obj
+ 0002:0000b4f8       ??_C@_0CG@GFCKJLLO@CLuaInterface?3?3PopPath?5?9?5Overpo@ 000000018018d4f8     lib_gmod.obj
+ 0002:0000b520       ??_C@_0BF@LFKDCJBK@ILuaShared?3?3Shutdown@ 000000018018d520     lib_gmod.obj
  0002:0000b550       ??_C@_03CLCAEGCJ@new@      000000018018d550     lib_table.obj
  0002:0000b554       ??_C@_05MEHLAELG@clear@    000000018018d554     lib_table.obj
  0002:0000b560       ??_C@_09KFEEMPJN@table?4new@ 000000018018d560     lib_table.obj
  0002:0000b570       ??_C@_0M@NALGNKOK@table?4clear@ 000000018018d570     lib_table.obj
  0002:0000b588       ??_7CDefaultAccessor@@6B@  000000018018d588     convar_impl.obj
  0002:0000b5a0       ??_7IConVar@@6B@           000000018018d5a0     convar_impl.obj
- 0002:0000b5e0       ??_7ConCommandBase@@6B@    000000018018d5e0     convar_impl.obj
- 0002:0000b668       ??_7ConCommand@@6B@        000000018018d668     convar_impl.obj
- 0002:0000b710       ??_7ConVar@@6BConCommandBase@@@ 000000018018d710     convar_impl.obj
+ 0002:0000b5c8       ??_C@_0CB@FKDADCKC@SLOT?3ci_slot_CreateMetaTableTyp@ 000000018018d5c8     lib_gmod.obj
+ 0002:0000b5f0       ??_C@_0DF@FFMAFKFH@?$FLopglua?$FN?5safe?5stand?9in?5for?5?$CFs?5?$CI@ 000000018018d5f0     lib_gmod.obj
+ 0002:0000b630       ??_C@_0BK@LADILLHE@D?3?2tmp?2glua?2opglua_enable@ 000000018018d630     lib_gmod.obj
+ 0002:0000b650       ??_C@_0DB@EOEDNEAO@IFACE?3?3Init?3?5gameCallback?$DN?$CFp?5cb@ 000000018018d650     lib_gmod.obj
+ 0002:0000b688       ??_C@_0DJ@GPBBCHLC@SLOT?3GetMetaTableObjectName?5?9?$DO?5@ 000000018018d688     lib_gmod.obj
+ 0002:0000b6d0       ??_C@_0BC@MKHKJDLN@SLOT?3ci_slot_Push@ 000000018018d6d0     lib_gmod.obj
+ 0002:0000b7b0       ??_C@_0CB@JAABBMPJ@SLOT?3ci_slot_CallInternalGetBoo@ 000000018018d7b0     lib_gmod.obj
  0002:0000b7f8       ??_7ConVar@@6BIConVar@@@   000000018018d7f8     convar_impl.obj
  0002:0000b830       ??_C@_0BG@FHJDLLKG@FCVAR_NEVER_AS_STRING@ 000000018018d830     convar_impl.obj
  0002:0000b84c       ??_C@_02DPKJAMEF@?$CFd@    000000018018d84c     convar_impl.obj
@@ -6634,7 +6643,10 @@
  0002:0000b854       ??_C@_06PGALACC@?$HL?$HN?$CI?$CJ?8?3@ 000000018018d854     convar_impl.obj
  0002:0000b860       ??_C@_0FK@JGFIGFJD@CCommand?3?3Tokenize?3?5Encountered@ 000000018018d860     convar_impl.obj
  0002:0000b8d0       ??_C@_0FI@KPCNOHIM@CCommand?3?3Tokenize?3?5Encountered@ 000000018018d8d0     convar_impl.obj
- 0002:0000b948       ??_7CEmptyConVar@@6BConCommandBase@@@ 000000018018d948     convar_impl.obj
+ 0002:0000b928       ??_C@_0BG@JGOKMAJK@SLOT?3ci_slot_GetColor@ 000000018018d928     lib_gmod.obj
+ 0002:0000b9c0       ??_C@_0BM@BLJHFEAA@SLOT?3ci_slot_NewGlobalTable@ 000000018018d9c0     lib_gmod.obj
+ 0002:0000b9e8       ??_C@_0BL@HFPPPJIJ@SLOT?3ci_slot_SetMemberFast@ 000000018018d9e8     lib_gmod.obj
+ 0002:0000ba08       ??_C@_0BM@CFEBKODL@SLOT?3ci_slot_CheckNumberOpt@ 000000018018da08     lib_gmod.obj
  0002:0000ba30       ??_7CEmptyConVar@@6BIConVar@@@ 000000018018da30     convar_impl.obj
  0002:0000ba64       ??_C@_01GBGANLPD@0@        000000018018da64     convar_impl.obj
  0002:0000ba68       ??_C@_0DC@FCCBDICF@ConVarRef?5?$CFs?5doesn?8t?5point?5to?5a@ 000000018018da68     convar_impl.obj
@@ -8561,7 +8573,8 @@
  0005:000003b8       __imp_GetCommandLineA      00000001801ef3b8     kernel32:KERNEL32.dll
  0005:000003c0       __imp_GetCommandLineW      00000001801ef3c0     kernel32:KERNEL32.dll
  0005:000003c8       __imp_GetEnvironmentStringsW 00000001801ef3c8     kernel32:KERNEL32.dll
- 0005:000003d0       \177KERNEL32_NULL_THUNK_DATA 00000001801ef3d0     kernel32:KERNEL32.dll
+ 0005:000003d0       __imp_GetTickCount64       00000001801ef3d0     kernel32:KERNEL32.dll
+ 0005:000003d8       \177KERNEL32_NULL_THUNK_DATA 00000001801ef3d8     kernel32:KERNEL32.dll
  0005:000004e8       __imp_Error                00000001801ef4e8     tier0:tier0.dll
  0005:000004f0       __imp_Plat_localtime       00000001801ef4f0     tier0:tier0.dll
  0005:000004f8       __imp_?ConMsg@@YAXPEBDZZ   00000001801ef4f8     tier0:tier0.dll
@@ -12197,6 +12210,7 @@
  0000:ffe0a000       .debug$S                   0000000180000000     kernel32:KERNEL32.dll
  0000:ffe0a000       .debug$S                   0000000180000000     kernel32:KERNEL32.dll
  0000:ffe0a000       .debug$S                   0000000180000000     kernel32:KERNEL32.dll
+ 0000:ffe0a000       .debug$S                   0000000180000000     kernel32:KERNEL32.dll
  0002:ffe7e000       $unwind$_invoke_watson_if_error 0000000180000000     libucrt:pipe.obj
  0002:ffe7e000       $unwind$??1?$__crt_unique_heap_ptr@DU__crt_internal_free_policy@@@@QEAA@XZ 0000000180000000     libucrt:popen.obj
  0002:ffe7e000       $unwind$??1?$__crt_unique_heap_ptr@_WU__crt_internal_free_policy@@@@QEAA@XZ 0000000180000000     libucrt:popen.obj
@@ -14508,12 +14522,10 @@
  0001:0007dfb0       ci_slot_GetVector          000000018007efb0 f   lib_gmod.obj
  0001:0007e030       ci_slot_PushAngle          000000018007f030 f   lib_gmod.obj
  0001:0007e080       ci_slot_PushVector         000000018007f080 f   lib_gmod.obj
- 0001:0007e0d0       ci_slot_SetState           000000018007f0d0 f   lib_gmod.obj
  0001:0007e120       ci_slot_CreateMetaTable    000000018007f120 f   lib_gmod.obj
  0001:0007e270       ci_slot_PushMetaTable      000000018007f270 f   lib_gmod.obj
  0001:0007e370       ci_slot_PushUserType       000000018007f370 f   lib_gmod.obj
  0001:0007e470       ci_slot_SetUserType        000000018007f470 f   lib_gmod.obj
- 0001:0007e4d0       ci_slot_Init               000000018007f4d0 f   lib_gmod.obj
  0001:0007e800       ci_slot_Shutdown           000000018007f800 f   lib_gmod.obj
  0001:0007e840       ci_slot_Cycle              000000018007f840 f   lib_gmod.obj
  0001:0007e8a0       ci_slot_Global             000000018007f8a0 f   lib_gmod.obj
@@ -14527,6 +14539,7 @@
  0001:0007ecf0       ci_slot_CallInternalGetBool 000000018007fcf0 f   lib_gmod.obj
  0001:0007ed80       ci_slot_CallInternalGetString 000000018007fd80 f   lib_gmod.obj
  0001:0007ee20       ci_slot_CallInternalGet    000000018007fe20 f   lib_gmod.obj
+ 0001:0007eed0       gobj_state                 000000018007fed0 f   lib_gmod.obj
  0001:0007ef00       ci_slot_NewGlobalTable     000000018007ff00 f   lib_gmod.obj
  0001:0007ef60       ci_slot_NewTemporaryObject 000000018007ff60 f   lib_gmod.obj
  0001:0007f0a0       ci_slot_isUserData         00000001800800a0 f   lib_gmod.obj
@@ -14561,10 +14574,12 @@
  0001:000808a0       ci_slot_ErrorNoHalt        00000001800818a0 f   lib_gmod.obj
  0001:00080900       ci_slot_Msg                0000000180081900 f   lib_gmod.obj
  0001:00080950       ci_slot_PushPath           0000000180081950 f   lib_gmod.obj
+ 0001:00080a90       glua_log_stream            0000000180081a90 f   lib_gmod.obj
  0001:00080ae0       ci_slot_PopPath            0000000180081ae0 f   lib_gmod.obj
  0001:00080b40       ci_slot_GetPath            0000000180081b40 f   lib_gmod.obj
  0001:00080b90       ci_slot_GetColor           0000000180081b90 f   lib_gmod.obj
  0001:00080d30       ci_slot_PushColor          0000000180081d30 f   lib_gmod.obj
+ 0001:00080e90       gobj_push                  0000000180081e90 f   lib_gmod.obj
  0001:00080ef0       ci_slot_GetStack           0000000180081ef0 f   lib_gmod.obj
  0001:00080f40       ci_slot_GetInfo            0000000180081f40 f   lib_gmod.obj
  0001:00080fa0       ci_slot_GetLocal           0000000180081fa0 f   lib_gmod.obj
@@ -14648,8 +14663,6 @@
  0001:00084320       cs_GetCache                0000000180085320 f   lib_gmod.obj
  0001:00084360       cv_dtor                    0000000180085360 f   lib_gmod.obj
  0001:00084370       cv_Init                    0000000180085370 f   lib_gmod.obj
- 0001:00084380       cv_CreateConVar            0000000180085380 f   lib_gmod.obj
- 0001:000843a0       cv_CreateConCommand        00000001800853a0 f   lib_gmod.obj
  0001:000843c0       cv_DestroyManaged          00000001800853c0 f   lib_gmod.obj
  0001:000843d0       cv_Cache                   00000001800853d0 f   lib_gmod.obj
  0001:000843e0       cv_ClearCache              00000001800853e0 f   lib_gmod.obj
@@ -14669,35 +14682,26 @@
  0001:00085180       glua_log                   0000000180086180 f   lib_gmod.obj
  0001:00085280       glua_log_enabled           0000000180086280 f   lib_gmod.obj
  0001:00085310       glua_log_flush             0000000180086310 f   lib_gmod.obj
- 0001:00085380       glua_log_stream            0000000180086380 f   lib_gmod.obj
- 0001:000853e0       glua_module_ext            00000001800863e0 f   lib_gmod.obj
- 0001:000853f0       glua_module_prefix         00000001800863f0 f   lib_gmod.obj
- 0001:00085410       glua_module_suffix         0000000180086410 f   lib_gmod.obj
- 0001:00085420       glua_object_alloc          0000000180086420 f   lib_gmod.obj
- 0001:00085470       glua_open_module           0000000180086470 f   lib_gmod.obj
- 0001:000857b0       glua_open_script           00000001800867b0 f   lib_gmod.obj
- 0001:00085a10       glua_open_script_id        0000000180086a10 f   lib_gmod.obj
- 0001:00085da0       glua_pathid_index          0000000180086da0 f   lib_gmod.obj
- 0001:00085e90       glua_pcall_int             0000000180086e90 f   lib_gmod.obj
- 0001:00085f30       glua_run_ex                0000000180086f30 f   lib_gmod.obj
- 0001:000863b0       glua_script_root_add       00000001800873b0 f   lib_gmod.obj
- 0001:00086570       glua_script_root_remove    0000000180087570 f   lib_gmod.obj
- 0001:00086710       glua_try_root              0000000180087710 f   lib_gmod.obj
- 0001:000868f0       glua_type_name             00000001800878f0 f   lib_gmod.obj
- 0001:00086930       glua_vmsg                  0000000180087930 f   lib_gmod.obj
- 0001:00086a10       glua_warn_once             0000000180087a10 f   lib_gmod.obj
- 0001:00086ab0       gobj_bind_stack            0000000180087ab0 f   lib_gmod.obj
- 0001:00086b30       gobj_create                0000000180087b30 f   lib_gmod.obj
- 0001:00086ba0       gobj_destroy               0000000180087ba0 f   lib_gmod.obj
- 0001:00086c30       gobj_gettype_any           0000000180087c30 f   lib_gmod.obj
- 0001:00086c60       gobj_istable_any           0000000180087c60 f   lib_gmod.obj
- 0001:00086cc0       gobj_push                  0000000180087cc0 f   lib_gmod.obj
- 0001:00086d40       gobj_push_obj              0000000180087d40 f   lib_gmod.obj
- 0001:00086db0       gobj_setstack_any          0000000180087db0 f   lib_gmod.obj
- 0001:00086df0       gobj_state                 0000000180087df0 f   lib_gmod.obj
- 0001:00086e20       gobj_unref_any             0000000180087e20 f   lib_gmod.obj
- 0001:00086ea0       loadlib_close              0000000180087ea0 f   lib_gmod.obj
- 0001:00086f30       ns_equals                  0000000180087f30 f   lib_gmod.obj
+ 0001:00085420       glua_module_ext            0000000180086420 f   lib_gmod.obj
+ 0001:00085470       glua_module_prefix         0000000180086470 f   lib_gmod.obj
+ 0001:00085490       glua_open_module           0000000180086490 f   lib_gmod.obj
+ 0001:000857b0       glua_module_suffix         00000001800867b0 f   lib_gmod.obj
+ 0001:00085a10       glua_object_alloc          0000000180086a10 f   lib_gmod.obj
+ 0001:00085a50       glua_run_ex                0000000180086a50 f   lib_gmod.obj
+ 0001:00085f30       glua_open_script_id        0000000180086f30 f   lib_gmod.obj
+ 0001:000863b0       glua_pathid_index          00000001800873b0 f   lib_gmod.obj
+ 0001:00086570       glua_pcall_int             0000000180087570 f   lib_gmod.obj
+ 0001:00086ab0       glua_type_name             0000000180087ab0 f   lib_gmod.obj
+ 0001:00086ae0       glua_vmsg                  0000000180087ae0 f   lib_gmod.obj
+ 0001:00086ba0       glua_warn_once             0000000180087ba0 f   lib_gmod.obj
+ 0001:00086c60       gobj_create                0000000180087c60 f   lib_gmod.obj
+ 0001:00086cc0       gobj_destroy               0000000180087cc0 f   lib_gmod.obj
+ 0001:00086d40       gobj_gettype_any           0000000180087d40 f   lib_gmod.obj
+ 0001:00086e20       gobj_push_obj              0000000180087e20 f   lib_gmod.obj
+ 0001:00086ea0       gobj_setstack_any          0000000180087ea0 f   lib_gmod.obj
+ 0001:00086f50       gobj_unref_any             0000000180087f50 f   lib_gmod.obj
+ 0001:000872e0       loadlib_close              00000001800882e0 f   lib_gmod.obj
+ 0001:00087550       ns_equals                  0000000180088550 f   lib_gmod.obj
  0001:00087f80       lj_cf_io_method_close      0000000180088f80 f   lib_io.obj
  0001:00087fe0       lj_cf_io_method_read       0000000180088fe0 f   lib_io.obj
  0001:00088060       lj_cf_io_method_write      0000000180089060 f   lib_io.obj
@@ -14725,6 +14729,7 @@
  0001:00088ea0       io_file_new                0000000180089ea0 f   lib_io.obj
  0001:00088f10       io_file_open               0000000180089f10 f   lib_io.obj
  0001:00089010       io_file_read               000000018008a010 f   lib_io.obj
+ 0001:00089370       glua_log_level             000000018008a370 f   lib_gmod.obj
  0001:00089450       io_file_readall            000000018008a450 f   lib_io.obj
  0001:00089570       io_file_readlen            000000018008a570 f   lib_io.obj
  0001:000896b0       io_file_readline           000000018008a6b0 f   lib_io.obj
@@ -14747,6 +14752,7 @@
  0001:00089ef0       lj_cf_jit_flush            000000018008aef0 f   lib_jit.obj
  0001:00089f60       lj_cf_jit_status           000000018008af60 f   lib_jit.obj
  0001:0008a0c0       lj_cf_jit_attach           000000018008b0c0 f   lib_jit.obj
+ 0001:0008a210       cv_CreateConVar            000000018008b210 f   lib_gmod.obj
  0001:0008a270       lj_cf_jit_util_funcinfo    000000018008b270 f   lib_jit.obj
  0001:0008a7c0       lj_cf_jit_util_funcbc      000000018008b7c0 f   lib_jit.obj
  0001:0008a8d0       lj_cf_jit_util_funck       000000018008b8d0 f   lib_jit.obj
@@ -14797,6 +14803,7 @@
  0001:0008d680       ??$_Emplace_back_with_unused_capacity@AEBQEAUGmodLuaFile@?A0x1afd4df9@@@?$vector@PEAUGmodLuaFile@?A0x1afd4df9@@V?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@@std@@AEAAAEAPEAUGmodLuaFile@?A0x1afd4df9@@AEBQEAU23@@Z 000000018008e680 f   lib_luashared.obj
  0001:0008d750       ??$_Emplace_one_at_back@AEBQEAUGmodLuaFile@?A0x1afd4df9@@@?$vector@PEAUGmodLuaFile@?A0x1afd4df9@@V?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@@std@@AEAAAEAPEAUGmodLuaFile@?A0x1afd4df9@@AEBQEAU23@@Z 000000018008e750 f   lib_luashared.obj
  0001:0008d870       ??$_Emplace_reallocate@AEBQEAUGmodLuaFile@?A0x1afd4df9@@@?$vector@PEAUGmodLuaFile@?A0x1afd4df9@@V?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@@std@@AEAAPEAPEAUGmodLuaFile@?A0x1afd4df9@@QEAPEAU23@AEBQEAU23@@Z 000000018008e870 f   lib_luashared.obj
+ 0001:0008deb0       gobj_bind_stack            000000018008eeb0 f   lib_gmod.obj
  0001:0008e190       ??$_Get_unwrapped@AEBQEAPEAUGmodLuaFile@?A0x1afd4df9@@@std@@YA?A_TAEBQEAPEAUGmodLuaFile@?A0x1afd4df9@@@Z 000000018008f190 f   lib_luashared.obj
  0001:00090ab0       ??$_To_address@PEAPEAUGmodLuaFile@?A0x1afd4df9@@@std@@YA?A_PAEBQEAPEAUGmodLuaFile@?A0x1afd4df9@@@Z 0000000180091ab0 f   lib_luashared.obj
  0001:00090b90       ??$_Unfancy@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@YAPEAPEAUGmodLuaFile@?A0x1afd4df9@@PEAPEAU12@@Z 0000000180091b90 f   lib_luashared.obj
@@ -14832,6 +14839,7 @@
  0001:00093b40       ?allocate@?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@QEAAPEAPEAUGmodLuaFile@?A0x1afd4df9@@_K@Z 0000000180094b40 f   lib_luashared.obj
  0001:00094060       ?ascii_iequal@?A0x1afd4df9@@YAHPEBD0@Z 0000000180095060 f   lib_luashared.obj
  0001:000940f0       ?ascii_iprefix@?A0x1afd4df9@@YA_NPEBD0@Z 00000001800950f0 f   lib_luashared.obj
+ 0001:000942f0       gobj_istable_any           00000001800952f0 f   lib_gmod.obj
  0001:000944c0       ?base_table@?A0x1afd4df9@@YAPEAPEAXXZ 00000001800954c0 f   lib_luashared.obj
  0001:00094500       ?cache_key@?A0x1afd4df9@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBD@Z 0000000180095500 f   lib_luashared.obj
  0001:000947a0       ?cache_lookup@?A0x1afd4df9@@YAPEAUGmodLuaFile@1@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z 00000001800957a0 f   lib_luashared.obj
@@ -14849,6 +14857,7 @@
  0001:00095630       ?lower_ascii@?A0x1afd4df9@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV23@@Z 0000000180096630 f   lib_luashared.obj
  0001:000956c0       ?max_size@?$_Default_allocator_traits@V?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@@std@@SA_KAEBV?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@2@@Z 00000001800966c0 f   lib_luashared.obj
  0001:00095720       ?max_size@?$vector@PEAUGmodLuaFile@?A0x1afd4df9@@V?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@@std@@QEBA_KXZ 0000000180096720 f   lib_luashared.obj
+ 0001:000958c0       cv_CreateConCommand        00000001800968c0 f   lib_gmod.obj
  0001:00095920       ?mount_calls@@YAXPEBD0H@Z  0000000180096920 f   lib_luashared.obj
  0001:000959a0       ?normalise_path@?A0x1afd4df9@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBD@Z 00000001800969a0 f   lib_luashared.obj
  0001:000961e0       ?own_table@?A0x1afd4df9@@YAPEAPEAXXZ 00000001800971e0 f   lib_luashared.obj
@@ -14856,6 +14865,8 @@
  0001:000964e0       ?read_script@?A0x1afd4df9@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0AEAV23@PEAI@Z 00000001800974e0 f   lib_luashared.obj
  0001:00096710       ?same_name@?A0x1afd4df9@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0@Z 0000000180097710 f   lib_luashared.obj
  0001:00096780       ?size@?$vector@PEAUGmodLuaFile@?A0x1afd4df9@@V?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@@std@@QEBA_KXZ 0000000180097780 f   lib_luashared.obj
+ 0001:00098420       glua_script_root_add       0000000180099420 f   lib_gmod.obj
+ 0001:00098cb0       glua_log_heartbeat         0000000180099cb0 f   lib_gmod.obj
  0001:00099760       lj_ffh_math_abs            000000018009a760 f   lib_math.obj
  0001:00099780       lj_ffh_math_sqrt           000000018009a780 f   lib_math.obj
  0001:000997a0       lj_ffh_math_log            000000018009a7a0 f   lib_math.obj
@@ -14875,6 +14886,7 @@
  0001:0009a540       lj_cf_os_clock             000000018009b540 f   lib_os.obj
  0001:0009a590       lj_cf_os_date              000000018009b590 f   lib_os.obj
  0001:0009a990       lj_cf_os_time              000000018009b990 f   lib_os.obj
+ 0001:0009ac40       glua_log_v                 000000018009bc40 f   lib_gmod.obj
  0001:0009acf0       lj_cf_os_difftime          000000018009bcf0 f   lib_os.obj
  0001:0009ad60       lj_cf_os_setlocale         000000018009bd60 f   lib_os.obj
  0001:0009ae50       difftime                   000000018009be50 f   lib_os.obj
@@ -14983,6 +14995,11 @@
  0001:000a0570       setgcVraw                  00000001800a1570 f   lib_table.obj
  0001:000a0590       setstrV                    00000001800a1590 f   lib_table.obj
  0001:000a05b0       sort_comp                  00000001800a15b0 f   lib_table.obj
+ 0001:000a1320       glua_open_script           00000001800a2320 f   lib_gmod.obj
+ 0001:000a1710       ci_slot_SetState           00000001800a2710 f   lib_gmod.obj
+ 0001:000a2b00       glua_script_root_remove    00000001800a3b00 f   lib_gmod.obj
+ 0001:000a3750       glua_try_root              00000001800a4750 f   lib_gmod.obj
+ 0001:000a3e50       ci_slot_Init               00000001800a4e50 f   lib_gmod.obj
  0001:000a4d90       ?CopyToMaxChars@@YA_NPEADHPEBDH@Z 00000001800a5d90 f   tier1:strtools.cpp.33.o
  0001:000a4e40       ?FastToLower@@YAHD@Z       00000001800a5e40 f   tier1:strtools.cpp.33.o
  0001:000a5d24       $LN33                      00000001800a6d24     tier1:strtools.cpp.33.o
@@ -16548,25 +16565,25 @@
  0001:0017d450       ?dtor$4@?0??normalise_path@?A0x1afd4df9@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBD@Z@4HA 000000018017e450 f   lib_luashared.obj
  0001:0017d460       ?dtor$1@?0???0CEmptyConVar@@QEAA@XZ@4HA 000000018017e460 f   convar_impl.obj
  0001:0017d470       ?dtor$2@?0???0CEmptyConVar@@QEAA@XZ@4HA 000000018017e470 f   convar_impl.obj
+ 0001:0017d480       ?dtor$0@?0???0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z@4HA 000000018017e480 f   convar_impl.obj
  0001:0017d490       ?dtor$0@?0???0ConCommand@@QEAA@PEBDP6AXAEBVCCommand@@@Z0HP6AH0QEAY0EA@D@Z@Z@4HA 000000018017e490 f   convar_impl.obj
  0001:0017d4a0       ?dtor$0@?0???0ConCommand@@QEAA@PEBDP6AXXZ0HP6AH0QEAY0EA@D@Z@Z@4HA 000000018017e4a0 f   convar_impl.obj
  0001:0017d4b0       ?dtor$0@?0???0ConCommand@@QEAA@PEBDPEAVICommandCallback@@0HPEAVICommandCompletionCallback@@@Z@4HA 000000018017e4b0 f   convar_impl.obj
  0001:0017d4c0       ?dtor$0@?0???0ConVar@@QEAA@PEBD0H0@Z@4HA 000000018017e4c0 f   convar_impl.obj
  0001:0017d4d0       ?dtor$1@?0???0ConVar@@QEAA@PEBD0H0@Z@4HA 000000018017e4d0 f   convar_impl.obj
+ 0001:0017d4e0       ?dtor$1@?0???0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z@4HA 000000018017e4e0 f   convar_impl.obj
  0001:0017d4f0       ?dtor$0@?0???0ConVar@@QEAA@PEBD0H0P6AXPEAVIConVar@@0M@Z@Z@4HA 000000018017e4f0 f   convar_impl.obj
  0001:0017d500       ?dtor$1@?0???0ConVar@@QEAA@PEBD0H0P6AXPEAVIConVar@@0M@Z@Z@4HA 000000018017e500 f   convar_impl.obj
+ 0001:0017d510       ?dtor$0@?0???0ConVar@@QEAA@PEBD0H@Z@4HA 000000018017e510 f   convar_impl.obj
  0001:0017d520       ?dtor$0@?0???0ConVar@@QEAA@PEBD0H0_NM1M1M1MP6AXPEAVIConVar@@0M@Z@Z@4HA 000000018017e520 f   convar_impl.obj
  0001:0017d530       ?dtor$1@?0???0ConVar@@QEAA@PEBD0H0_NM1M1M1MP6AXPEAVIConVar@@0M@Z@Z@4HA 000000018017e530 f   convar_impl.obj
+ 0001:0017d540       ?dtor$1@?0???0ConVar@@QEAA@PEBD0H@Z@4HA 000000018017e540 f   convar_impl.obj
  0001:0017d550       ?dtor$0@?0???0ConVar@@QEAA@PEBD0H0_NM1M@Z@4HA 000000018017e550 f   convar_impl.obj
  0001:0017d560       ?dtor$1@?0???0ConVar@@QEAA@PEBD0H0_NM1M@Z@4HA 000000018017e560 f   convar_impl.obj
- 0001:0017d580       ?dtor$0@?0???0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z@4HA 000000018017e580 f   convar_impl.obj
- 0001:0017d590       ?dtor$1@?0???0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z@4HA 000000018017e590 f   convar_impl.obj
- 0001:0017d5b0       ?dtor$0@?0???0ConVar@@QEAA@PEBD0H@Z@4HA 000000018017e5b0 f   convar_impl.obj
- 0001:0017d5c0       ?dtor$1@?0???0ConVar@@QEAA@PEBD0H@Z@4HA 000000018017e5c0 f   convar_impl.obj
- 0001:0017d5e0       ?dtor$1@?0???__Es_EmptyConVar@@YAXXZ@4HA 000000018017e5e0 f   convar_impl.obj
- 0001:0017d5f0       ?dtor$2@?0???__Es_EmptyConVar@@YAXXZ@4HA 000000018017e5f0 f   convar_impl.obj
- 0001:0017d610       ?dtor$0@?0??AutoCompleteSuggest@ConCommand@@UEAAHPEBDAEAV?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@@Z@4HA 000000018017e610 f   convar_impl.obj
- 0001:0017d620       ?dtor$0@?0??Tokenize@CCommand@@QEAA_NPEBDPEAUcharacterset_t@@@Z@4HA 000000018017e620 f   convar_impl.obj
+ 0001:0017d570       ?dtor$1@?0???__Es_EmptyConVar@@YAXXZ@4HA 000000018017e570 f   convar_impl.obj
+ 0001:0017d580       ?dtor$2@?0???__Es_EmptyConVar@@YAXXZ@4HA 000000018017e580 f   convar_impl.obj
+ 0001:0017d590       ?dtor$0@?0??AutoCompleteSuggest@ConCommand@@UEAAHPEBDAEAV?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@@Z@4HA 000000018017e590 f   convar_impl.obj
+ 0001:0017d5a0       ?dtor$0@?0??Tokenize@CCommand@@QEAA_NPEBDPEAUcharacterset_t@@@Z@4HA 000000018017e5a0 f   convar_impl.obj
  0001:0017d630       ?dtor$0@?0??BGetLocalFormattedDateAndTime@@YA_N_JPEADH1H@Z@4HA 000000018017e630 f   tier1:strtools.cpp.33.o
  0001:0017d640       ?dtor$1@?0??BGetLocalFormattedDateAndTime@@YA_N_JPEADH1H@Z@4HA 000000018017e640 f   tier1:strtools.cpp.33.o
  0001:0017d650       ?dtor$0@?0??V_StripAndPreserveHTMLCore@@YAXPEAVCUtlBuffer@@PEBDPEAPEBDI2II@Z@4HA 000000018017e650 f   tier1:strtools.cpp.33.o
@@ -16732,8 +16749,9 @@
  0002:000059c0       lj_lib_cf_debug            00000001801879c0     lib_debug.obj
  0002:00005a40       lj_lib_init_debug          0000000180187a40     lib_debug.obj
  0002:00006080       glua_callback_vtable       0000000180188080     lib_gmod.obj
- 0002:000063b0       glua_shared_vtable         00000001801883b0     lib_gmod.obj
- 0002:00006450       glua_convars_vtable        0000000180188450     lib_gmod.obj
+ 0002:000063a8       ?stripped@?5??ci_slot_Init@@9@9 00000001801883a8     lib_gmod.obj
+ 0002:000063d0       glua_shared_vtable         00000001801883d0     lib_gmod.obj
+ 0002:00006470       glua_convars_vtable        0000000180188470     lib_gmod.obj
  0002:0000a0b0       lj_lib_load                000000018018c0b0     lib_init.obj
  0002:0000a160       lj_lib_preload             000000018018c160     lib_init.obj
  0002:0000a1c0       lj_lib_cf_io_method        000000018018c1c0     lib_io.obj
@@ -18916,306 +18934,306 @@
  0002:000314fc       $unwind$gc_Msg             00000001801b34fc     lib_gmod.obj
  0002:00031504       $unwind$gc_MsgColour       00000001801b3504     lib_gmod.obj
  0002:0003150c       $unwind$gobj_bind_stack    00000001801b350c     lib_gmod.obj
- 0002:00031520       $unwind$glua_log_enabled   00000001801b3520     lib_gmod.obj
- 0002:00031528       $unwind$glua_log_stream    00000001801b3528     lib_gmod.obj
- 0002:00031530       $unwind$glua_boot_marker   00000001801b3530     lib_gmod.obj
- 0002:00031548       $chain$0$glua_boot_marker  00000001801b3548     lib_gmod.obj
- 0002:00031560       $chain$2$glua_boot_marker  00000001801b3560     lib_gmod.obj
- 0002:0003157c       $chain$3$glua_boot_marker  00000001801b357c     lib_gmod.obj
- 0002:00031590       $chain$4$glua_boot_marker  00000001801b3590     lib_gmod.obj
- 0002:000315a4       $unwind$glua_log           00000001801b35a4     lib_gmod.obj
- 0002:000315ac       $chain$0$glua_log          00000001801b35ac     lib_gmod.obj
- 0002:000315c4       $chain$1$glua_log          00000001801b35c4     lib_gmod.obj
- 0002:000315dc       $chain$2$glua_log          00000001801b35dc     lib_gmod.obj
- 0002:000315f0       $chain$3$glua_log          00000001801b35f0     lib_gmod.obj
- 0002:00031604       $unwind$glua_log_flush     00000001801b3604     lib_gmod.obj
- 0002:0003160c       $unwind$gobj_UnReference   00000001801b360c     lib_gmod.obj
- 0002:00031614       $unwind$gobj_GetType       00000001801b3614     lib_gmod.obj
- 0002:0003161c       $chain$1$gobj_GetType      00000001801b361c     lib_gmod.obj
- 0002:00031638       $chain$2$gobj_GetType      00000001801b3638     lib_gmod.obj
- 0002:0003164c       $unwind$gobj_create        00000001801b364c     lib_gmod.obj
- 0002:00031654       $unwind$gobj_destroy       00000001801b3654     lib_gmod.obj
- 0002:0003165c       $unwind$gobj_unref_any     00000001801b365c     lib_gmod.obj
- 0002:00031664       $unwind$gobj_istable_any   00000001801b3664     lib_gmod.obj
- 0002:0003166c       $unwind$ci_slot_Top        00000001801b366c     lib_gmod.obj
- 0002:00031674       $unwind$ci_slot_Push       00000001801b3674     lib_gmod.obj
- 0002:00031684       $unwind$ci_slot_Pop        00000001801b3684     lib_gmod.obj
- 0002:00031698       $unwind$ci_slot_GetTable   00000001801b3698     lib_gmod.obj
- 0002:000316a8       $unwind$ci_slot_GetField   00000001801b36a8     lib_gmod.obj
- 0002:000316bc       $unwind$ci_slot_SetField   00000001801b36bc     lib_gmod.obj
- 0002:000316d0       $unwind$ci_slot_CreateTable 00000001801b36d0     lib_gmod.obj
- 0002:000316d8       $unwind$ci_slot_SetTable   00000001801b36d8     lib_gmod.obj
- 0002:000316e8       $unwind$ci_slot_SetMetaTable 00000001801b36e8     lib_gmod.obj
- 0002:000316f8       $unwind$ci_slot_GetMetaTable 00000001801b36f8     lib_gmod.obj
- 0002:00031708       $unwind$ci_slot_Call       00000001801b3708     lib_gmod.obj
- 0002:0003171c       $unwind$ci_slot_PCall      00000001801b371c     lib_gmod.obj
- 0002:00031734       $unwind$ci_slot_Equal      00000001801b3734     lib_gmod.obj
- 0002:00031748       $unwind$ci_slot_RawEqual   00000001801b3748     lib_gmod.obj
- 0002:0003175c       $unwind$ci_slot_Insert     00000001801b375c     lib_gmod.obj
- 0002:0003176c       $unwind$ci_slot_Remove     00000001801b376c     lib_gmod.obj
- 0002:0003177c       $unwind$ci_slot_Next       00000001801b377c     lib_gmod.obj
- 0002:0003178c       $unwind$ci_slot_NewUserdata 00000001801b378c     lib_gmod.obj
- 0002:0003179c       $unwind$ci_slot_ThrowError 00000001801b379c     lib_gmod.obj
- 0002:000317ac       $unwind$ci_slot_CheckType  00000001801b37ac     lib_gmod.obj
- 0002:000317c4       $unwind$ci_slot_ArgError   00000001801b37c4     lib_gmod.obj
- 0002:000317d8       $unwind$ci_slot_RawGet     00000001801b37d8     lib_gmod.obj
- 0002:000317e8       $unwind$ci_slot_RawSet     00000001801b37e8     lib_gmod.obj
- 0002:000317f8       $unwind$ci_slot_GetString  00000001801b37f8     lib_gmod.obj
- 0002:0003180c       $unwind$ci_slot_GetNumber  00000001801b380c     lib_gmod.obj
- 0002:0003181c       $unwind$ci_slot_GetBool    00000001801b381c     lib_gmod.obj
- 0002:0003182c       $unwind$ci_slot_GetCFunction 00000001801b382c     lib_gmod.obj
- 0002:0003183c       $unwind$ci_slot_GetUserdata 00000001801b383c     lib_gmod.obj
- 0002:0003184c       $unwind$ci_slot_PushNil    00000001801b384c     lib_gmod.obj
- 0002:00031854       $unwind$ci_slot_PushString 00000001801b3854     lib_gmod.obj
- 0002:00031868       $unwind$ci_slot_PushNumber 00000001801b3868     lib_gmod.obj
- 0002:00031878       $unwind$ci_slot_PushBool   00000001801b3878     lib_gmod.obj
- 0002:00031888       $unwind$ci_slot_PushUserdata 00000001801b3888     lib_gmod.obj
- 0002:00031898       $unwind$ci_slot_ReferenceCreate 00000001801b3898     lib_gmod.obj
- 0002:000318a0       $unwind$ci_slot_ReferenceFree 00000001801b38a0     lib_gmod.obj
- 0002:000318b0       $unwind$ci_slot_ReferencePush 00000001801b38b0     lib_gmod.obj
- 0002:000318c0       $unwind$ci_slot_PushSpecial 00000001801b38c0     lib_gmod.obj
- 0002:000318d0       $unwind$ci_slot_IsType     00000001801b38d0     lib_gmod.obj
- 0002:000318e4       $unwind$ci_slot_GetType    00000001801b38e4     lib_gmod.obj
- 0002:000318f4       $unwind$ci_slot_GetTypeName 00000001801b38f4     lib_gmod.obj
- 0002:000318fc       $unwind$ci_slot_CreateMetaTableType 00000001801b38fc     lib_gmod.obj
- 0002:00031910       $unwind$ci_slot_CheckString 00000001801b3910     lib_gmod.obj
- 0002:00031920       $unwind$ci_slot_CheckNumber 00000001801b3920     lib_gmod.obj
- 0002:00031930       $unwind$ci_slot_ObjLen     00000001801b3930     lib_gmod.obj
- 0002:00031940       $unwind$ci_slot_GetAngle   00000001801b3940     lib_gmod.obj
- 0002:00031950       $unwind$ci_slot_GetVector  00000001801b3950     lib_gmod.obj
- 0002:00031960       $unwind$ci_push_typed      00000001801b3960     lib_gmod.obj
- 0002:00031980       $unwind$ci_slot_PushAngle  00000001801b3980     lib_gmod.obj
- 0002:00031990       $unwind$ci_slot_PushVector 00000001801b3990     lib_gmod.obj
- 0002:000319a0       $unwind$ci_slot_SetState   00000001801b39a0     lib_gmod.obj
- 0002:000319b0       $unwind$ci_slot_CreateMetaTable 00000001801b39b0     lib_gmod.obj
- 0002:000319cc       $unwind$ci_slot_PushMetaTable 00000001801b39cc     lib_gmod.obj
- 0002:000319dc       $unwind$ci_slot_PushUserType 00000001801b39dc     lib_gmod.obj
- 0002:000319f4       $unwind$ci_slot_SetUserType 00000001801b39f4     lib_gmod.obj
- 0002:00031a08       $unwind$ci_slot_Init       00000001801b3a08     lib_gmod.obj
- 0002:00031a1c       $chain$2$ci_slot_Init      00000001801b3a1c     lib_gmod.obj
- 0002:00031a38       $chain$3$ci_slot_Init      00000001801b3a38     lib_gmod.obj
- 0002:00031a4c       $unwind$ci_slot_Shutdown   00000001801b3a4c     lib_gmod.obj
- 0002:00031a54       $unwind$ci_slot_Cycle      00000001801b3a54     lib_gmod.obj
- 0002:00031a5c       $unwind$ci_slot_Global     00000001801b3a5c     lib_gmod.obj
- 0002:00031a64       $unwind$ci_slot_GetObject  00000001801b3a64     lib_gmod.obj
- 0002:00031a78       $unwind$ci_slot_LuaError   00000001801b3a78     lib_gmod.obj
- 0002:00031a8c       $unwind$ci_slot_TypeError  00000001801b3a8c     lib_gmod.obj
- 0002:00031aa0       $unwind$ci_slot_CallInternal 00000001801b3aa0     lib_gmod.obj
- 0002:00031abc       $chain$3$ci_slot_CallInternal 00000001801b3abc     lib_gmod.obj
- 0002:00031ad4       $chain$4$ci_slot_CallInternal 00000001801b3ad4     lib_gmod.obj
- 0002:00031ae8       $unwind$ci_slot_CallInternalNoReturns 00000001801b3ae8     lib_gmod.obj
- 0002:00031af8       $unwind$ci_slot_CallInternalGetBool 00000001801b3af8     lib_gmod.obj
- 0002:00031b0c       $unwind$ci_slot_CallInternalGetString 00000001801b3b0c     lib_gmod.obj
- 0002:00031b20       $unwind$ci_slot_CallInternalGet 00000001801b3b20     lib_gmod.obj
- 0002:00031b34       $unwind$ci_slot_NewGlobalTable 00000001801b3b34     lib_gmod.obj
- 0002:00031b44       $unwind$ci_slot_NewTemporaryObject 00000001801b3b44     lib_gmod.obj
- 0002:00031b5c       $unwind$ci_slot_isUserData 00000001801b3b5c     lib_gmod.obj
- 0002:00031b6c       $unwind$ci_slot_GetMetaTableObjectName 00000001801b3b6c     lib_gmod.obj
- 0002:00031b84       $unwind$ci_slot_GetMetaTableObjectIndex 00000001801b3b84     lib_gmod.obj
- 0002:00031b94       $unwind$ci_slot_GetReturn  00000001801b3b94     lib_gmod.obj
- 0002:00031ba4       $unwind$ci_slot_IsServer   00000001801b3ba4     lib_gmod.obj
- 0002:00031bac       $unwind$ci_slot_IsClient   00000001801b3bac     lib_gmod.obj
- 0002:00031bb4       $unwind$ci_slot_IsMenu     00000001801b3bb4     lib_gmod.obj
- 0002:00031bbc       $unwind$ci_slot_DestroyObject 00000001801b3bbc     lib_gmod.obj
- 0002:00031bcc       $unwind$ci_slot_CreateObject 00000001801b3bcc     lib_gmod.obj
- 0002:00031bd4       $unwind$ci_slot_SetMemberStrObj 00000001801b3bd4     lib_gmod.obj
- 0002:00031bec       $chain$0$ci_slot_SetMemberStrObj 00000001801b3bec     lib_gmod.obj
- 0002:00031c04       $chain$1$ci_slot_SetMemberStrObj 00000001801b3c04     lib_gmod.obj
- 0002:00031c18       $unwind$ci_slot_SetMemberStr 00000001801b3c18     lib_gmod.obj
- 0002:00031c2c       $chain$0$ci_slot_SetMemberStr 00000001801b3c2c     lib_gmod.obj
- 0002:00031c44       $chain$1$ci_slot_SetMemberStr 00000001801b3c44     lib_gmod.obj
- 0002:00031c58       $unwind$ci_slot_SetMemberNumObj 00000001801b3c58     lib_gmod.obj
- 0002:00031c6c       $chain$0$ci_slot_SetMemberNumObj 00000001801b3c6c     lib_gmod.obj
- 0002:00031c84       $chain$1$ci_slot_SetMemberNumObj 00000001801b3c84     lib_gmod.obj
- 0002:00031c98       $unwind$ci_slot_SetMemberNum 00000001801b3c98     lib_gmod.obj
- 0002:00031ca8       $unwind$ci_slot_SetMemberObjObj 00000001801b3ca8     lib_gmod.obj
- 0002:00031cbc       $chain$0$ci_slot_SetMemberObjObj 00000001801b3cbc     lib_gmod.obj
- 0002:00031cd4       $chain$1$ci_slot_SetMemberObjObj 00000001801b3cd4     lib_gmod.obj
- 0002:00031ce8       $unwind$ci_slot_GetNewTable 00000001801b3ce8     lib_gmod.obj
- 0002:00031cf8       $unwind$ci_slot_FindOnObjectsMetaTable 00000001801b3cf8     lib_gmod.obj
- 0002:00031d0c       $unwind$ci_slot_FindObjectOnTable 00000001801b3d0c     lib_gmod.obj
- 0002:00031d20       $unwind$ci_slot_SetMemberFast 00000001801b3d20     lib_gmod.obj
- 0002:00031d38       $unwind$ci_slot_RunString  00000001801b3d38     lib_gmod.obj
- 0002:00031d50       $unwind$ci_slot_IsEqual    00000001801b3d50     lib_gmod.obj
- 0002:00031d6c       $unwind$ci_slot_Error      00000001801b3d6c     lib_gmod.obj
- 0002:00031d7c       $unwind$ci_slot_GetStringOrError 00000001801b3d7c     lib_gmod.obj
- 0002:00031d8c       $unwind$ci_slot_RunLuaModule 00000001801b3d8c     lib_gmod.obj
- 0002:00031d9c       $unwind$ci_slot_FindAndRunScript 00000001801b3d9c     lib_gmod.obj
- 0002:00031dc4       $unwind$ci_slot_SetPathID  00000001801b3dc4     lib_gmod.obj
- 0002:00031dd4       $unwind$ci_slot_GetPathID  00000001801b3dd4     lib_gmod.obj
- 0002:00031ddc       $unwind$ci_slot_ErrorNoHalt 00000001801b3ddc     lib_gmod.obj
- 0002:00031de4       $unwind$ci_slot_Msg        00000001801b3de4     lib_gmod.obj
- 0002:00031dec       $unwind$ci_slot_PushPath   00000001801b3dec     lib_gmod.obj
- 0002:00031e08       $chain$0$ci_slot_PushPath  00000001801b3e08     lib_gmod.obj
- 0002:00031e20       $chain$1$ci_slot_PushPath  00000001801b3e20     lib_gmod.obj
- 0002:00031e34       $chain$2$ci_slot_PushPath  00000001801b3e34     lib_gmod.obj
- 0002:00031e4c       $unwind$ci_slot_PopPath    00000001801b3e4c     lib_gmod.obj
- 0002:00031e54       $unwind$ci_slot_GetPath    00000001801b3e54     lib_gmod.obj
- 0002:00031e5c       $unwind$ci_slot_GetColor   00000001801b3e5c     lib_gmod.obj
- 0002:00031e78       $unwind$ci_slot_PushColor  00000001801b3e78     lib_gmod.obj
- 0002:00031e8c       $unwind$ci_slot_GetStack   00000001801b3e8c     lib_gmod.obj
- 0002:00031ea0       $unwind$ci_slot_GetInfo    00000001801b3ea0     lib_gmod.obj
- 0002:00031eb4       $unwind$ci_slot_GetLocal   00000001801b3eb4     lib_gmod.obj
- 0002:00031ec8       $unwind$ci_slot_GetUpvalue 00000001801b3ec8     lib_gmod.obj
- 0002:00031edc       $unwind$ci_slot_RunStringEx 00000001801b3edc     lib_gmod.obj
- 0002:00031ef4       $unwind$ci_slot_GetDataString 00000001801b3ef4     lib_gmod.obj
- 0002:00031f0c       $unwind$ci_slot_ErrorFromLua 00000001801b3f0c     lib_gmod.obj
- 0002:00031f14       $unwind$ci_slot_GetCurrentLocation 00000001801b3f14     lib_gmod.obj
- 0002:00031f34       $unwind$ci_slot_MsgColour  00000001801b3f34     lib_gmod.obj
- 0002:00031f4c       $unwind$ci_slot_GetCurrentFile 00000001801b3f4c     lib_gmod.obj
- 0002:00031f5c       $unwind$ci_slot_CompileString 00000001801b3f5c     lib_gmod.obj
- 0002:00031f64       $unwind$ci_slot_CallFunctionProtected 00000001801b3f64     lib_gmod.obj
- 0002:00031f80       $unwind$ci_slot_Require    00000001801b3f80     lib_gmod.obj
- 0002:00031f9c       $chain$1$ci_slot_Require   00000001801b3f9c     lib_gmod.obj
- 0002:00031fb8       $chain$2$ci_slot_Require   00000001801b3fb8     lib_gmod.obj
- 0002:00031fcc       $unwind$ci_slot_GetActualTypeName 00000001801b3fcc     lib_gmod.obj
- 0002:00031fdc       $unwind$ci_slot_PreCreateTable 00000001801b3fdc     lib_gmod.obj
- 0002:00031ff0       $unwind$ci_slot_PushPooledString 00000001801b3ff0     lib_gmod.obj
- 0002:00032000       $unwind$ci_slot_AddThreadedCall 00000001801b4000     lib_gmod.obj
- 0002:00032008       $unwind$ci_slot_AppendStackTrace 00000001801b4008     lib_gmod.obj
- 0002:00032028       $chain$0$ci_slot_AppendStackTrace 00000001801b4028     lib_gmod.obj
- 0002:00032040       $chain$1$ci_slot_AppendStackTrace 00000001801b4040     lib_gmod.obj
- 0002:00032054       $unwind$ci_slot_CreateConVar 00000001801b4054     lib_gmod.obj
- 0002:00032068       $unwind$ci_slot_CreateConCommand 00000001801b4068     lib_gmod.obj
- 0002:0003207c       $unwind$ci_slot_CheckStringOpt 00000001801b407c     lib_gmod.obj
- 0002:00032090       $unwind$ci_slot_CheckNumberOpt 00000001801b4090     lib_gmod.obj
- 0002:000320a4       $unwind$ci_slot_RegisterMetaTable 00000001801b40a4     lib_gmod.obj
- 0002:000320c0       $unwind$ci_slot_dtor       00000001801b40c0     lib_gmod.obj
- 0002:000320c8       $unwind$gobj_Set           00000001801b40c8     lib_gmod.obj
- 0002:000320e0       $chain$0$gobj_Set          00000001801b40e0     lib_gmod.obj
- 0002:000320f8       $chain$1$gobj_Set          00000001801b40f8     lib_gmod.obj
- 0002:0003210c       $unwind$gobj_GetString     00000001801b410c     lib_gmod.obj
- 0002:00032114       $chain$0$gobj_GetString    00000001801b4114     lib_gmod.obj
- 0002:0003212c       $chain$1$gobj_GetString    00000001801b412c     lib_gmod.obj
- 0002:00032140       $unwind$gobj_GetFloat      00000001801b4140     lib_gmod.obj
- 0002:00032148       $chain$0$gobj_GetFloat     00000001801b4148     lib_gmod.obj
- 0002:00032160       $chain$1$gobj_GetFloat     00000001801b4160     lib_gmod.obj
- 0002:00032174       $unwind$gobj_GetInt        00000001801b4174     lib_gmod.obj
- 0002:0003217c       $unwind$gobj_GetUserData   00000001801b417c     lib_gmod.obj
- 0002:00032184       $chain$0$gobj_GetUserData  00000001801b4184     lib_gmod.obj
- 0002:0003219c       $chain$1$gobj_GetUserData  00000001801b419c     lib_gmod.obj
- 0002:000321b0       $unwind$gobj_isNil         00000001801b41b0     lib_gmod.obj
- 0002:000321b8       $unwind$gobj_isTable       00000001801b41b8     lib_gmod.obj
- 0002:000321c0       $unwind$gobj_isString      00000001801b41c0     lib_gmod.obj
- 0002:000321c8       $unwind$gobj_isNumber      00000001801b41c8     lib_gmod.obj
- 0002:000321d0       $unwind$gobj_isFunction    00000001801b41d0     lib_gmod.obj
- 0002:000321d8       $unwind$gobj_isUserData    00000001801b41d8     lib_gmod.obj
- 0002:000321e0       $unwind$gobj_SetMemberStr  00000001801b41e0     lib_gmod.obj
- 0002:000321f0       $unwind$gobj_SetMemberStrObj 00000001801b41f0     lib_gmod.obj
- 0002:00032204       $chain$0$gobj_SetMemberStrObj 00000001801b4204     lib_gmod.obj
- 0002:0003221c       $chain$1$gobj_SetMemberStrObj 00000001801b421c     lib_gmod.obj
- 0002:00032230       $unwind$gobj_SetMemberStrNum 00000001801b4230     lib_gmod.obj
- 0002:00032244       $unwind$gobj_SetMemberStrBool 00000001801b4244     lib_gmod.obj
- 0002:00032258       $unwind$gobj_SetMemberStrStr 00000001801b4258     lib_gmod.obj
- 0002:0003226c       $unwind$gobj_SetMemberStrFn 00000001801b426c     lib_gmod.obj
- 0002:00032280       $unwind$gobj_GetMemberBool 00000001801b4280     lib_gmod.obj
- 0002:00032294       $unwind$gobj_GetMemberInt  00000001801b4294     lib_gmod.obj
- 0002:000322a8       $unwind$gobj_GetMemberFloat 00000001801b42a8     lib_gmod.obj
- 0002:000322bc       $unwind$gobj_GetMemberStr  00000001801b42bc     lib_gmod.obj
- 0002:000322d0       $unwind$gobj_SetMemberNum  00000001801b42d0     lib_gmod.obj
- 0002:000322e0       $unwind$gobj_SetMemberNumVal 00000001801b42e0     lib_gmod.obj
- 0002:000322f4       $unwind$gobj_SetMemberNumObj 00000001801b42f4     lib_gmod.obj
- 0002:00032308       $chain$0$gobj_SetMemberNumObj 00000001801b4308     lib_gmod.obj
- 0002:00032320       $chain$1$gobj_SetMemberNumObj 00000001801b4320     lib_gmod.obj
- 0002:00032334       $unwind$gobj_SetMemberObjObj 00000001801b4334     lib_gmod.obj
- 0002:00032348       $chain$0$gobj_SetMemberObjObj 00000001801b4348     lib_gmod.obj
- 0002:00032360       $chain$1$gobj_SetMemberObjObj 00000001801b4360     lib_gmod.obj
- 0002:00032374       $unwind$gobj_SetFromGlobal 00000001801b4374     lib_gmod.obj
- 0002:0003237c       $chain$1$gobj_SetFromGlobal 00000001801b437c     lib_gmod.obj
- 0002:00032398       $chain$2$gobj_SetFromGlobal 00000001801b4398     lib_gmod.obj
- 0002:000323ac       $unwind$gobj_Init          00000001801b43ac     lib_gmod.obj
- 0002:000323b4       $unwind$gobj_GetBool0      00000001801b43b4     lib_gmod.obj
- 0002:000323bc       $unwind$gobj_GetDouble     00000001801b43bc     lib_gmod.obj
- 0002:000323c4       $unwind$gobj_GetStringLen  00000001801b43c4     lib_gmod.obj
- 0002:000323d4       $unwind$glua_warn_once     00000001801b43d4     lib_gmod.obj
- 0002:000323dc       $unwind$loadlib_close      00000001801b43dc     lib_gmod.obj
- 0002:000323ec       $unwind$glua_open_module   00000001801b43ec     lib_gmod.obj
- 0002:0003240c       $unwind$GMOD_LoadBinaryModule 00000001801b440c     lib_gmod.obj
- 0002:0003241c       $unwind$glua_pcall_int     00000001801b441c     lib_gmod.obj
- 0002:00032430       $unwind$glua_run_ex        00000001801b4430     lib_gmod.obj
- 0002:00032458       $unwind$glua_game_root     00000001801b4458     lib_gmod.obj
- 0002:0003246c       $unwind$glua_open_script_id 00000001801b446c     lib_gmod.obj
- 0002:00032490       $chain$0$glua_open_script_id 00000001801b4490     lib_gmod.obj
- 0002:000324a8       $chain$1$glua_open_script_id 00000001801b44a8     lib_gmod.obj
- 0002:000324bc       $unwind$glua_open_script   00000001801b44bc     lib_gmod.obj
- 0002:000324dc       $chain$1$glua_open_script  00000001801b44dc     lib_gmod.obj
- 0002:000324f8       $chain$2$glua_open_script  00000001801b44f8     lib_gmod.obj
- 0002:0003250c       $unwind$opglua_read_script 00000001801b450c     lib_gmod.obj
- 0002:00032528       $chain$3$opglua_read_script 00000001801b4528     lib_gmod.obj
- 0002:00032548       $chain$4$opglua_read_script 00000001801b4548     lib_gmod.obj
- 0002:0003255c       $chain$5$opglua_read_script 00000001801b455c     lib_gmod.obj
- 0002:0003257c       $chain$6$opglua_read_script 00000001801b457c     lib_gmod.obj
- 0002:00032590       $unwind$glua_pathid_index  00000001801b4590     lib_gmod.obj
- 0002:000325a8       $unwind$glua_script_root_add 00000001801b45a8     lib_gmod.obj
- 0002:000325b0       $chain$3$glua_script_root_add 00000001801b45b0     lib_gmod.obj
- 0002:000325d4       $chain$4$glua_script_root_add 00000001801b45d4     lib_gmod.obj
- 0002:000325e8       $unwind$glua_script_root_remove 00000001801b45e8     lib_gmod.obj
- 0002:000325fc       $chain$0$glua_script_root_remove 00000001801b45fc     lib_gmod.obj
- 0002:00032614       $chain$1$glua_script_root_remove 00000001801b4614     lib_gmod.obj
- 0002:00032628       $unwind$glua_dir_exists    00000001801b4628     lib_gmod.obj
- 0002:00032630       $unwind$glua_content_root  00000001801b4630     lib_gmod.obj
- 0002:00032638       $chain$0$glua_content_root 00000001801b4638     lib_gmod.obj
- 0002:00032650       $chain$1$glua_content_root 00000001801b4650     lib_gmod.obj
- 0002:00032664       $unwind$glua_try_root      00000001801b4664     lib_gmod.obj
- 0002:00032684       $unwind$opglua_read_script_id 00000001801b4684     lib_gmod.obj
- 0002:000326a0       $chain$1$opglua_read_script_id 00000001801b46a0     lib_gmod.obj
- 0002:000326bc       $chain$2$opglua_read_script_id 00000001801b46bc     lib_gmod.obj
- 0002:000326d0       $chain$3$opglua_read_script_id 00000001801b46d0     lib_gmod.obj
- 0002:000326ec       $chain$4$opglua_read_script_id 00000001801b46ec     lib_gmod.obj
- 0002:00032700       $unwind$opglua_script_exists_id 00000001801b4700     lib_gmod.obj
- 0002:0003271c       $unwind$opglua_script_isdir_id 00000001801b471c     lib_gmod.obj
- 0002:00032744       $unwind$glua_find_seen     00000001801b4744     lib_gmod.obj
- 0002:00032758       $unwind$glua_emit_dir      00000001801b4758     lib_gmod.obj
- 0002:00032778       $chain$1$glua_emit_dir     00000001801b4778     lib_gmod.obj
- 0002:00032794       $chain$2$glua_emit_dir     00000001801b4794     lib_gmod.obj
- 0002:000327a8       $unwind$opglua_find_scripts 00000001801b47a8     lib_gmod.obj
- 0002:000327c8       $chain$1$opglua_find_scripts 00000001801b47c8     lib_gmod.obj
- 0002:000327e4       $chain$2$opglua_find_scripts 00000001801b47e4     lib_gmod.obj
- 0002:000327fc       $chain$3$opglua_find_scripts 00000001801b47fc     lib_gmod.obj
- 0002:00032810       $unwind$opglua_script_exists 00000001801b4810     lib_gmod.obj
- 0002:00032828       $unwind$glua_vmsg          00000001801b4828     lib_gmod.obj
- 0002:00032844       $unwind$opglua_lua_error_report 00000001801b4844     lib_gmod.obj
- 0002:0003285c       $chain$0$opglua_lua_error_report 00000001801b485c     lib_gmod.obj
- 0002:00032874       $chain$1$opglua_lua_error_report 00000001801b4874     lib_gmod.obj
- 0002:00032888       $unwind$glua_dirname_of    00000001801b4888     lib_gmod.obj
- 0002:000328a0       $unwind$glua_game_dir      00000001801b48a0     lib_gmod.obj
- 0002:000328b0       $unwind$glua_load_binary_module 00000001801b48b0     lib_gmod.obj
- 0002:000328c4       $unwind$glua_file_exists   00000001801b48c4     lib_gmod.obj
- 0002:000328cc       $unwind$cs_Init            00000001801b48cc     lib_gmod.obj
- 0002:000328e0       $chain$0$cs_Init           00000001801b48e0     lib_gmod.obj
- 0002:000328f8       $chain$1$cs_Init           00000001801b48f8     lib_gmod.obj
- 0002:0003290c       $unwind$cs_Shutdown        00000001801b490c     lib_gmod.obj
- 0002:00032920       $unwind$cs_CreateLuaInterface 00000001801b4920     lib_gmod.obj
- 0002:00032934       $unwind$cs_CloseLuaInterface 00000001801b4934     lib_gmod.obj
- 0002:00032944       $chain$0$cs_CloseLuaInterface 00000001801b4944     lib_gmod.obj
- 0002:0003295c       $chain$1$cs_CloseLuaInterface 00000001801b495c     lib_gmod.obj
- 0002:00032970       $unwind$cs_GetLuaInterface 00000001801b4970     lib_gmod.obj
- 0002:00032980       $unwind$cs_LoadFile        00000001801b4980     lib_gmod.obj
- 0002:00032988       $unwind$cs_MountLuaAdd     00000001801b4988     lib_gmod.obj
- 0002:00032998       $chain$2$cs_MountLuaAdd    00000001801b4998     lib_gmod.obj
- 0002:000329b8       $chain$3$cs_MountLuaAdd    00000001801b49b8     lib_gmod.obj
- 0002:000329d0       $chain$4$cs_MountLuaAdd    00000001801b49d0     lib_gmod.obj
- 0002:000329e4       $chain$5$cs_MountLuaAdd    00000001801b49e4     lib_gmod.obj
- 0002:000329f8       $unwind$cs_MountLua        00000001801b49f8     lib_gmod.obj
- 0002:00032a08       $unwind$cs_UnMountLua      00000001801b4a08     lib_gmod.obj
- 0002:00032a10       $chain$1$cs_UnMountLua     00000001801b4a10     lib_gmod.obj
- 0002:00032a2c       $chain$2$cs_UnMountLua     00000001801b4a2c     lib_gmod.obj
- 0002:00032a44       $chain$3$cs_UnMountLua     00000001801b4a44     lib_gmod.obj
- 0002:00032a5c       $chain$4$cs_UnMountLua     00000001801b4a5c     lib_gmod.obj
- 0002:00032a70       $chain$5$cs_UnMountLua     00000001801b4a70     lib_gmod.obj
- 0002:00032a84       $chain$6$cs_UnMountLua     00000001801b4a84     lib_gmod.obj
- 0002:00032a98       $unwind$cs_ScriptExists    00000001801b4a98     lib_gmod.obj
- 0002:00032aa0       $unwind$cs_GetCache        00000001801b4aa0     lib_gmod.obj
- 0002:00032aa8       $unwind$cv_CreateConVar    00000001801b4aa8     lib_gmod.obj
- 0002:00032ab0       $unwind$cv_CreateConCommand 00000001801b4ab0     lib_gmod.obj
- 0002:00032ab8       $unwind$ns_equals          00000001801b4ab8     lib_gmod.obj
- 0002:00032ac0       $unwind$CreateInterface    00000001801b4ac0     lib_gmod.obj
- 0002:00032ad0       $unwind$opglua_selftest    00000001801b4ad0     lib_gmod.obj
- 0002:00032ae0       $chain$1$opglua_selftest   00000001801b4ae0     lib_gmod.obj
- 0002:00032afc       $chain$3$opglua_selftest   00000001801b4afc     lib_gmod.obj
- 0002:00032b18       $chain$4$opglua_selftest   00000001801b4b18     lib_gmod.obj
- 0002:00032b30       $chain$5$opglua_selftest   00000001801b4b30     lib_gmod.obj
- 0002:00032b44       $unwind$DllMain            00000001801b4b44     lib_gmod.obj
+ 0002:0003151c       $unwind$ci_slot_GetNumber  00000001801b351c     lib_gmod.obj
+ 0002:00031528       $unwind$glua_log_enabled   00000001801b3528     lib_gmod.obj
+ 0002:00031530       $unwind$glua_log_stream    00000001801b3530     lib_gmod.obj
+ 0002:00031538       $unwind$ci_slot_CheckType  00000001801b3538     lib_gmod.obj
+ 0002:0003154c       $unwind$ci_slot_SetState   00000001801b354c     lib_gmod.obj
+ 0002:00031560       $unwind$glua_log           00000001801b3560     lib_gmod.obj
+ 0002:00031568       $chain$2$glua_log_heartbeat 00000001801b3568     lib_gmod.obj
+ 0002:0003157c       $chain$0$glua_log          00000001801b357c     lib_gmod.obj
+ 0002:00031590       $chain$1$glua_log          00000001801b3590     lib_gmod.obj
+ 0002:000315a4       $unwind$DllMain            00000001801b35a4     lib_gmod.obj
+ 0002:000315ac       $chain$3$glua_log          00000001801b35ac     lib_gmod.obj
+ 0002:000315c4       $unwind$glua_log_v         00000001801b35c4     lib_gmod.obj
+ 0002:000315cc       $chain$2$glua_log_v        00000001801b35cc     lib_gmod.obj
+ 0002:000315dc       $chain$0$glua_log_v        00000001801b35dc     lib_gmod.obj
+ 0002:000315f0       $chain$1$glua_log_v        00000001801b35f0     lib_gmod.obj
+ 0002:00031604       $chain$3$glua_log_v        00000001801b3604     lib_gmod.obj
+ 0002:00031614       $unwind$?Grow@?$CUtlMemory@VCUtlString@@H@@QEAAXH@Z 00000001801b3614     convar_impl.obj
+ 0002:0003161c       $chain$0$glua_log_heartbeat 00000001801b361c     lib_gmod.obj
+ 0002:00031630       $unwind$??__Fs_EmptyConVar@@YAXXZ 00000001801b3630     convar_impl.obj
+ 0002:00031638       $chain$1$glua_log_heartbeat 00000001801b3638     lib_gmod.obj
+ 0002:0003164c       $chain$3$glua_log_heartbeat 00000001801b364c     lib_gmod.obj
+ 0002:0003165c       $chain$5$glua_log_heartbeat 00000001801b365c     lib_gmod.obj
+ 0002:0003166c       $unwind$glua_log_flush     00000001801b366c     lib_gmod.obj
+ 0002:00031674       $unwind$gobj_UnReference   00000001801b3674     lib_gmod.obj
+ 0002:00031684       $unwind$gobj_GetType       00000001801b3684     lib_gmod.obj
+ 0002:0003168c       $chain$1$gobj_GetType      00000001801b368c     lib_gmod.obj
+ 0002:000316a8       $chain$2$gobj_GetType      00000001801b36a8     lib_gmod.obj
+ 0002:000316bc       $unwind$gobj_create        00000001801b36bc     lib_gmod.obj
+ 0002:000316c4       $unwind$ci_slot_PushNumber 00000001801b36c4     lib_gmod.obj
+ 0002:000316d0       $unwind$gobj_destroy       00000001801b36d0     lib_gmod.obj
+ 0002:000316d8       $unwind$gobj_unref_any     00000001801b36d8     lib_gmod.obj
+ 0002:000316e8       $unwind$gobj_istable_any   00000001801b36e8     lib_gmod.obj
+ 0002:000316f0       $unwind$??$CopyConstruct@VCUtlString@@@@YAPEAVCUtlString@@PEAV0@AEBV0@@Z 00000001801b36f0     convar_impl.obj
+ 0002:000316f8       $unwind$ci_slot_Top        00000001801b36f8     lib_gmod.obj
+ 0002:00031708       $unwind$ci_slot_Push       00000001801b3708     lib_gmod.obj
+ 0002:0003171c       $unwind$ci_slot_Pop        00000001801b371c     lib_gmod.obj
+ 0002:00031734       $unwind$ci_slot_GetTable   00000001801b3734     lib_gmod.obj
+ 0002:00031748       $unwind$ci_slot_GetField   00000001801b3748     lib_gmod.obj
+ 0002:0003175c       $unwind$ci_slot_SetField   00000001801b375c     lib_gmod.obj
+ 0002:0003176c       $unwind$ci_slot_CreateTable 00000001801b376c     lib_gmod.obj
+ 0002:0003177c       $unwind$ci_slot_SetTable   00000001801b377c     lib_gmod.obj
+ 0002:0003178c       $unwind$ci_slot_SetMetaTable 00000001801b378c     lib_gmod.obj
+ 0002:0003179c       $unwind$ci_slot_GetMetaTable 00000001801b379c     lib_gmod.obj
+ 0002:000317ac       $unwind$ci_slot_Call       00000001801b37ac     lib_gmod.obj
+ 0002:000317c4       $unwind$ci_slot_PCall      00000001801b37c4     lib_gmod.obj
+ 0002:000317d8       $unwind$ci_slot_Equal      00000001801b37d8     lib_gmod.obj
+ 0002:000317e8       $unwind$ci_slot_RawEqual   00000001801b37e8     lib_gmod.obj
+ 0002:000317f8       $unwind$ci_slot_Insert     00000001801b37f8     lib_gmod.obj
+ 0002:0003180c       $unwind$ci_slot_Remove     00000001801b380c     lib_gmod.obj
+ 0002:0003181c       $unwind$ci_slot_Next       00000001801b381c     lib_gmod.obj
+ 0002:0003182c       $unwind$ci_slot_NewUserdata 00000001801b382c     lib_gmod.obj
+ 0002:0003183c       $unwind$ci_slot_ThrowError 00000001801b383c     lib_gmod.obj
+ 0002:00031848       $unwind$ci_slot_PushVector 00000001801b3848     lib_gmod.obj
+ 0002:00031854       $unwind$ci_slot_ArgError   00000001801b3854     lib_gmod.obj
+ 0002:00031868       $unwind$ci_slot_RawGet     00000001801b3868     lib_gmod.obj
+ 0002:00031878       $unwind$ci_slot_RawSet     00000001801b3878     lib_gmod.obj
+ 0002:00031888       $unwind$ci_slot_GetString  00000001801b3888     lib_gmod.obj
+ 0002:000318a0       $unwind$ci_slot_GetBool    00000001801b38a0     lib_gmod.obj
+ 0002:000318b0       $unwind$ci_slot_GetCFunction 00000001801b38b0     lib_gmod.obj
+ 0002:000318c0       $unwind$ci_slot_GetUserdata 00000001801b38c0     lib_gmod.obj
+ 0002:000318d0       $unwind$ci_slot_PushNil    00000001801b38d0     lib_gmod.obj
+ 0002:000318d8       $unwind$ci_slot_SetPathID  00000001801b38d8     lib_gmod.obj
+ 0002:000318e4       $unwind$ci_slot_PushString 00000001801b38e4     lib_gmod.obj
+ 0002:000318fc       $unwind$ci_slot_PushBool   00000001801b38fc     lib_gmod.obj
+ 0002:00031910       $unwind$ci_slot_PushUserdata 00000001801b3910     lib_gmod.obj
+ 0002:00031920       $unwind$ci_slot_ReferenceCreate 00000001801b3920     lib_gmod.obj
+ 0002:00031930       $unwind$ci_slot_ReferenceFree 00000001801b3930     lib_gmod.obj
+ 0002:00031940       $unwind$ci_slot_ReferencePush 00000001801b3940     lib_gmod.obj
+ 0002:00031950       $unwind$ci_slot_PushSpecial 00000001801b3950     lib_gmod.obj
+ 0002:00031960       $unwind$ci_slot_IsType     00000001801b3960     lib_gmod.obj
+ 0002:00031970       $unwind$ci_slot_Cycle      00000001801b3970     lib_gmod.obj
+ 0002:00031980       $unwind$ci_slot_GetType    00000001801b3980     lib_gmod.obj
+ 0002:00031990       $unwind$ci_slot_GetTypeName 00000001801b3990     lib_gmod.obj
+ 0002:000319a0       $unwind$ci_slot_CreateMetaTableType 00000001801b39a0     lib_gmod.obj
+ 0002:000319b0       $unwind$ci_slot_CheckString 00000001801b39b0     lib_gmod.obj
+ 0002:000319bc       $unwind$ci_slot_Global     00000001801b39bc     lib_gmod.obj
+ 0002:000319cc       $unwind$ci_slot_CheckNumber 00000001801b39cc     lib_gmod.obj
+ 0002:000319dc       $unwind$ci_slot_ObjLen     00000001801b39dc     lib_gmod.obj
+ 0002:000319e8       $unwind$ci_slot_GetActualTypeName 00000001801b39e8     lib_gmod.obj
+ 0002:000319f4       $unwind$ci_slot_GetAngle   00000001801b39f4     lib_gmod.obj
+ 0002:00031a08       $unwind$ci_slot_GetVector  00000001801b3a08     lib_gmod.obj
+ 0002:00031a1c       $unwind$ci_push_typed      00000001801b3a1c     lib_gmod.obj
+ 0002:00031a38       $unwind$ci_slot_PushAngle  00000001801b3a38     lib_gmod.obj
+ 0002:00031a44       $chain$0$ci_slot_SetState  00000001801b3a44     lib_gmod.obj
+ 0002:00031a64       $chain$1$ci_slot_SetState  00000001801b3a64     lib_gmod.obj
+ 0002:00031a78       $chain$2$ci_slot_SetState  00000001801b3a78     lib_gmod.obj
+ 0002:00031a8c       $chain$3$ci_slot_SetState  00000001801b3a8c     lib_gmod.obj
+ 0002:00031aa0       $chain$4$ci_slot_SetState  00000001801b3aa0     lib_gmod.obj
+ 0002:00031ab0       $unwind$cs_GetLuaInterface 00000001801b3ab0     lib_gmod.obj
+ 0002:00031abc       $chain$5$ci_slot_SetState  00000001801b3abc     lib_gmod.obj
+ 0002:00031acc       $chain$6$ci_slot_SetState  00000001801b3acc     lib_gmod.obj
+ 0002:00031ae8       $chain$7$ci_slot_SetState  00000001801b3ae8     lib_gmod.obj
+ 0002:00031af8       $unwind$ci_slot_NewTemporaryObject 00000001801b3af8     lib_gmod.obj
+ 0002:00031b0c       $unwind$ci_slot_PushMetaTable 00000001801b3b0c     lib_gmod.obj
+ 0002:00031b20       $unwind$ci_slot_PushUserType 00000001801b3b20     lib_gmod.obj
+ 0002:00031b34       $unwind$ci_slot_SetUserType 00000001801b3b34     lib_gmod.obj
+ 0002:00031b44       $unwind$ci_slot_Init       00000001801b3b44     lib_gmod.obj
+ 0002:00031b54       $chain$1$ci_slot_Init      00000001801b3b54     lib_gmod.obj
+ 0002:00031b6c       $chain$2$ci_slot_Init      00000001801b3b6c     lib_gmod.obj
+ 0002:00031b84       $chain$3$ci_slot_Init      00000001801b3b84     lib_gmod.obj
+ 0002:00031b94       $chain$4$ci_slot_Init      00000001801b3b94     lib_gmod.obj
+ 0002:00031ba4       $unwind$ci_slot_Shutdown   00000001801b3ba4     lib_gmod.obj
+ 0002:00031bac       $unwind$ci_slot_SetMemberNumObj 00000001801b3bac     lib_gmod.obj
+ 0002:00031bbc       $unwind$ci_slot_GetObject  00000001801b3bbc     lib_gmod.obj
+ 0002:00031bd4       $unwind$ci_slot_TypeError  00000001801b3bd4     lib_gmod.obj
+ 0002:00031bec       $unwind$ci_slot_CallInternal 00000001801b3bec     lib_gmod.obj
+ 0002:00031c04       $chain$3$ci_slot_CallInternal 00000001801b3c04     lib_gmod.obj
+ 0002:00031c18       $chain$4$ci_slot_CallInternal 00000001801b3c18     lib_gmod.obj
+ 0002:00031c2c       $unwind$ci_slot_CallInternalNoReturns 00000001801b3c2c     lib_gmod.obj
+ 0002:00031c38       $unwind$ci_slot_GetMetaTableObjectIndex 00000001801b3c38     lib_gmod.obj
+ 0002:00031c44       $unwind$ci_slot_CallInternalGetBool 00000001801b3c44     lib_gmod.obj
+ 0002:00031c58       $unwind$ci_slot_CallInternalGetString 00000001801b3c58     lib_gmod.obj
+ 0002:00031c6c       $unwind$ci_slot_CallInternalGet 00000001801b3c6c     lib_gmod.obj
+ 0002:00031c84       $unwind$ci_slot_NewGlobalTable 00000001801b3c84     lib_gmod.obj
+ 0002:00031c90       $chain$1$ci_slot_SetMemberStrObj 00000001801b3c90     lib_gmod.obj
+ 0002:00031ca8       $unwind$ci_slot_isUserData 00000001801b3ca8     lib_gmod.obj
+ 0002:00031cb4       $unwind$ci_slot_GetMetaTableObjectName 00000001801b3cb4     lib_gmod.obj
+ 0002:00031cc8       $unwind$cv_CreateConCommand 00000001801b3cc8     lib_gmod.obj
+ 0002:00031cdc       $unwind$ns_equals          00000001801b3cdc     lib_gmod.obj
+ 0002:00031ce8       $unwind$ci_slot_GetReturn  00000001801b3ce8     lib_gmod.obj
+ 0002:00031cf8       $unwind$ci_slot_IsServer   00000001801b3cf8     lib_gmod.obj
+ 0002:00031d00       $unwind$?GrowVector@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@IEAAXH@Z 00000001801b3d00     convar_impl.obj
+ 0002:00031d0c       $unwind$ci_slot_IsClient   00000001801b3d0c     lib_gmod.obj
+ 0002:00031d14       $unwind$glua_game_dir      00000001801b3d14     lib_gmod.obj
+ 0002:00031d20       $unwind$ci_slot_IsMenu     00000001801b3d20     lib_gmod.obj
+ 0002:00031d28       $chain$1$ci_slot_SetMemberObjObj 00000001801b3d28     lib_gmod.obj
+ 0002:00031d38       $unwind$ci_slot_DestroyObject 00000001801b3d38     lib_gmod.obj
+ 0002:00031d50       $unwind$ci_slot_CreateObject 00000001801b3d50     lib_gmod.obj
+ 0002:00031d58       $chain$0$ci_slot_SetMemberStrObj 00000001801b3d58     lib_gmod.obj
+ 0002:00031d6c       $chain$0$ci_slot_SetMemberNumObj 00000001801b3d6c     lib_gmod.obj
+ 0002:00031d8c       $unwind$ci_slot_GetNewTable 00000001801b3d8c     lib_gmod.obj
+ 0002:00031d9c       $unwind$ci_slot_SetMemberStr 00000001801b3d9c     lib_gmod.obj
+ 0002:00031dac       $chain$1$ci_slot_SetMemberStr 00000001801b3dac     lib_gmod.obj
+ 0002:00031dc0       $chain$0$ci_slot_SetMemberStr 00000001801b3dc0     lib_gmod.obj
+ 0002:00031dd4       $unwind$ci_slot_SetMemberFast 00000001801b3dd4     lib_gmod.obj
+ 0002:00031dec       $chain$1$ci_slot_SetMemberNumObj 00000001801b3dec     lib_gmod.obj
+ 0002:00031dfc       $unwind$??_GCEmptyConVar@@UEAAPEAXI@Z 00000001801b3dfc     convar_impl.obj
+ 0002:00031e08       $unwind$ci_slot_SetMemberNum 00000001801b3e08     lib_gmod.obj
+ 0002:00031e20       $unwind$ci_slot_SetMemberObjObj 00000001801b3e20     lib_gmod.obj
+ 0002:00031e30       $chain$1$ci_slot_PushPath  00000001801b3e30     lib_gmod.obj
+ 0002:00031e40       $unwind$ci_slot_PopPath    00000001801b3e40     lib_gmod.obj
+ 0002:00031e48       $unwind$ci_slot_RunStringEx 00000001801b3e48     lib_gmod.obj
+ 0002:00031e5c       $unwind$ci_slot_FindOnObjectsMetaTable 00000001801b3e5c     lib_gmod.obj
+ 0002:00031e78       $unwind$ci_slot_FindObjectOnTable 00000001801b3e78     lib_gmod.obj
+ 0002:00031e8c       $unwind$ci_slot_Msg        00000001801b3e8c     lib_gmod.obj
+ 0002:00031ea0       $unwind$ci_slot_RunString  00000001801b3ea0     lib_gmod.obj
+ 0002:00031eb4       $chain$2$ci_slot_PushPath  00000001801b3eb4     lib_gmod.obj
+ 0002:00031ec8       $unwind$ci_slot_Error      00000001801b3ec8     lib_gmod.obj
+ 0002:00031ed4       $unwind$ci_slot_CallFunctionProtected 00000001801b3ed4     lib_gmod.obj
+ 0002:00031ef4       $unwind$ci_slot_RunLuaModule 00000001801b3ef4     lib_gmod.obj
+ 0002:00031f00       $unwind$ci_slot_GetCurrentLocation 00000001801b3f00     lib_gmod.obj
+ 0002:00031f1c       $unwind$ci_slot_ErrorNoHalt 00000001801b3f1c     lib_gmod.obj
+ 0002:00031f24       $unwind$ci_slot_PreCreateTable 00000001801b3f24     lib_gmod.obj
+ 0002:00031f34       $unwind$ci_slot_GetPathID  00000001801b3f34     lib_gmod.obj
+ 0002:00031f3c       $unwind$gobj_Set           00000001801b3f3c     lib_gmod.obj
+ 0002:00031f50       $unwind$ci_slot_dtor       00000001801b3f50     lib_gmod.obj
+ 0002:00031f64       $unwind$ci_slot_PushPath   00000001801b3f64     lib_gmod.obj
+ 0002:00031f80       $chain$0$ci_slot_PushPath  00000001801b3f80     lib_gmod.obj
+ 0002:00031f94       $unwind$ci_slot_CheckNumberOpt 00000001801b3f94     lib_gmod.obj
+ 0002:00031fa4       $unwind$ci_slot_AddThreadedCall 00000001801b3fa4     lib_gmod.obj
+ 0002:00031fac       $chain$0$gobj_SetMemberNumObj 00000001801b3fac     lib_gmod.obj
+ 0002:00031fc0       $unwind$ci_slot_GetDataString 00000001801b3fc0     lib_gmod.obj
+ 0002:00031fdc       $unwind$ci_slot_GetPath    00000001801b3fdc     lib_gmod.obj
+ 0002:00031ff0       $unwind$ci_slot_GetColor   00000001801b3ff0     lib_gmod.obj
+ 0002:00032008       $unwind$ci_slot_GetStack   00000001801b4008     lib_gmod.obj
+ 0002:00032018       $unwind$gobj_GetMemberFloat 00000001801b4018     lib_gmod.obj
+ 0002:00032028       $unwind$ci_slot_GetInfo    00000001801b4028     lib_gmod.obj
+ 0002:00032040       $unwind$ci_slot_GetLocal   00000001801b4040     lib_gmod.obj
+ 0002:00032054       $unwind$ci_slot_GetUpvalue 00000001801b4054     lib_gmod.obj
+ 0002:00032070       $unwind$ci_slot_CheckStringOpt 00000001801b4070     lib_gmod.obj
+ 0002:00032080       $chain$2$gobj_SetFromGlobal 00000001801b4080     lib_gmod.obj
+ 0002:00032090       $unwind$ci_slot_ErrorFromLua 00000001801b4090     lib_gmod.obj
+ 0002:00032098       $unwind$ci_slot_MsgColour  00000001801b4098     lib_gmod.obj
+ 0002:000320ac       $unwind$ci_slot_AppendStackTrace 00000001801b40ac     lib_gmod.obj
+ 0002:000320c8       $unwind$ci_slot_GetCurrentFile 00000001801b40c8     lib_gmod.obj
+ 0002:000320e0       $unwind$ci_slot_CompileString 00000001801b40e0     lib_gmod.obj
+ 0002:000320e8       $chain$6$opglua_read_script 00000001801b40e8     lib_gmod.obj
+ 0002:000320f8       $unwind$ci_slot_PushPooledString 00000001801b40f8     lib_gmod.obj
+ 0002:00032104       $chain$1$glua_script_root_remove 00000001801b4104     lib_gmod.obj
+ 0002:00032114       $chain$1$ci_slot_Require   00000001801b4114     lib_gmod.obj
+ 0002:0003212c       $chain$2$ci_slot_Require   00000001801b412c     lib_gmod.obj
+ 0002:0003213c       $chain$0$gobj_SetMemberObjObj 00000001801b413c     lib_gmod.obj
+ 0002:00032150       $unwind$gobj_SetMemberStrStr 00000001801b4150     lib_gmod.obj
+ 0002:00032160       $unwind$gobj_GetMemberBool 00000001801b4160     lib_gmod.obj
+ 0002:00032170       $unwind$glua_game_root     00000001801b4170     lib_gmod.obj
+ 0002:00032184       $chain$0$ci_slot_AppendStackTrace 00000001801b4184     lib_gmod.obj
+ 0002:0003219c       $chain$1$ci_slot_AppendStackTrace 00000001801b419c     lib_gmod.obj
+ 0002:000321ac       $unwind$ci_slot_CreateConCommand 00000001801b41ac     lib_gmod.obj
+ 0002:000321bc       $chain$0$glua_script_root_remove 00000001801b41bc     lib_gmod.obj
+ 0002:000321d0       $unwind$gobj_SetMemberStrObj 00000001801b41d0     lib_gmod.obj
+ 0002:000321e0       $unwind$cs_Shutdown        00000001801b41e0     lib_gmod.obj
+ 0002:000321f0       $chain$0$gobj_Set          00000001801b41f0     lib_gmod.obj
+ 0002:00032204       $chain$1$gobj_Set          00000001801b4204     lib_gmod.obj
+ 0002:0003221c       $unwind$gobj_GetString     00000001801b421c     lib_gmod.obj
+ 0002:00032230       $chain$0$gobj_GetString    00000001801b4230     lib_gmod.obj
+ 0002:00032244       $chain$1$gobj_GetString    00000001801b4244     lib_gmod.obj
+ 0002:00032258       $unwind$gobj_GetFloat      00000001801b4258     lib_gmod.obj
+ 0002:0003226c       $chain$0$gobj_GetFloat     00000001801b426c     lib_gmod.obj
+ 0002:00032280       $chain$1$gobj_GetFloat     00000001801b4280     lib_gmod.obj
+ 0002:00032294       $unwind$gobj_GetInt        00000001801b4294     lib_gmod.obj
+ 0002:000322a8       $unwind$gobj_GetUserData   00000001801b42a8     lib_gmod.obj
+ 0002:000322bc       $chain$0$gobj_GetUserData  00000001801b42bc     lib_gmod.obj
+ 0002:000322d0       $chain$1$gobj_GetUserData  00000001801b42d0     lib_gmod.obj
+ 0002:000322e0       $unwind$gobj_isNil         00000001801b42e0     lib_gmod.obj
+ 0002:000322f4       $unwind$gobj_isTable       00000001801b42f4     lib_gmod.obj
+ 0002:00032308       $unwind$gobj_isString      00000001801b4308     lib_gmod.obj
+ 0002:00032310       $unwind$gobj_SetMemberStrNum 00000001801b4310     lib_gmod.obj
+ 0002:00032320       $unwind$gobj_isNumber      00000001801b4320     lib_gmod.obj
+ 0002:00032334       $unwind$gobj_isFunction    00000001801b4334     lib_gmod.obj
+ 0002:00032348       $unwind$gobj_isUserData    00000001801b4348     lib_gmod.obj
+ 0002:00032350       $chain$1$cs_CloseLuaInterface 00000001801b4350     lib_gmod.obj
+ 0002:00032360       $unwind$gobj_SetMemberStr  00000001801b4360     lib_gmod.obj
+ 0002:0003236c       $chain$5$cs_MountLuaAdd    00000001801b436c     lib_gmod.obj
+ 0002:0003237c       $chain$0$gobj_SetMemberStrObj 00000001801b437c     lib_gmod.obj
+ 0002:00032398       $chain$1$gobj_SetMemberStrObj 00000001801b4398     lib_gmod.obj
+ 0002:000323a8       $unwind$gobj_SetMemberStrBool 00000001801b43a8     lib_gmod.obj
+ 0002:000323c4       $unwind$gobj_SetMemberStrFn 00000001801b43c4     lib_gmod.obj
+ 0002:000323dc       $unwind$gobj_GetMemberInt  00000001801b43dc     lib_gmod.obj
+ 0002:000323ec       $unwind$glua_open_script_id 00000001801b43ec     lib_gmod.obj
+ 0002:0003240c       $unwind$gobj_GetMemberStr  00000001801b440c     lib_gmod.obj
+ 0002:0003241c       $unwind$gobj_SetMemberNum  00000001801b441c     lib_gmod.obj
+ 0002:00032430       $unwind$gobj_SetMemberNumVal 00000001801b4430     lib_gmod.obj
+ 0002:00032444       $chain$2$opglua_find_scripts 00000001801b4444     lib_gmod.obj
+ 0002:00032458       $unwind$gobj_SetMemberNumObj 00000001801b4458     lib_gmod.obj
+ 0002:00032468       $unwind$glua_dirname_of    00000001801b4468     lib_gmod.obj
+ 0002:0003247c       $unwind$opglua_script_exists 00000001801b447c     lib_gmod.obj
+ 0002:00032490       $chain$1$gobj_SetMemberNumObj 00000001801b4490     lib_gmod.obj
+ 0002:000324a8       $unwind$gobj_SetMemberObjObj 00000001801b44a8     lib_gmod.obj
+ 0002:000324c4       $chain$1$glua_open_script_id 00000001801b44c4     lib_gmod.obj
+ 0002:000324dc       $chain$1$gobj_SetMemberObjObj 00000001801b44dc     lib_gmod.obj
+ 0002:000324f8       $unwind$gobj_SetFromGlobal 00000001801b44f8     lib_gmod.obj
+ 0002:00032500       $chain$0$cs_CloseLuaInterface 00000001801b4500     lib_gmod.obj
+ 0002:00032514       $unwind$cs_CreateLuaInterface 00000001801b4514     lib_gmod.obj
+ 0002:00032530       $chain$3$opglua_read_script_id 00000001801b4530     lib_gmod.obj
+ 0002:00032548       $unwind$gobj_Init          00000001801b4548     lib_gmod.obj
+ 0002:0003255c       $unwind$gobj_GetBool0      00000001801b455c     lib_gmod.obj
+ 0002:00032568       $unwind$cs_MountLuaAdd     00000001801b4568     lib_gmod.obj
+ 0002:0003257c       $unwind$gobj_GetDouble     00000001801b457c     lib_gmod.obj
+ 0002:00032590       $unwind$gobj_GetStringLen  00000001801b4590     lib_gmod.obj
+ 0002:0003259c       $unwind$cs_UnMountLua      00000001801b459c     lib_gmod.obj
+ 0002:000325b0       $unwind$loadlib_close      00000001801b45b0     lib_gmod.obj
+ 0002:000325bc       $unwind$glua_find_seen     00000001801b45bc     lib_gmod.obj
+ 0002:000325cc       $chain$1$opglua_find_scripts 00000001801b45cc     lib_gmod.obj
+ 0002:000325e4       $chain$2$glua_emit_dir     00000001801b45e4     lib_gmod.obj
+ 0002:000325fc       $unwind$glua_pcall_int     00000001801b45fc     lib_gmod.obj
+ 0002:0003260c       $chain$0$glua_open_script_id 00000001801b460c     lib_gmod.obj
+ 0002:00032628       $chain$4$opglua_read_script_id 00000001801b4628     lib_gmod.obj
+ 0002:00032638       $chain$2$cs_UnMountLua     00000001801b4638     lib_gmod.obj
+ 0002:0003264c       $chain$3$opglua_find_scripts 00000001801b464c     lib_gmod.obj
+ 0002:0003265c       $chain$1$cs_UnMountLua     00000001801b465c     lib_gmod.obj
+ 0002:00032674       $unwind$cs_CloseLuaInterface 00000001801b4674     lib_gmod.obj
+ 0002:00032684       $chain$1$glua_open_script  00000001801b4684     lib_gmod.obj
+ 0002:000326a0       $chain$2$glua_open_script  00000001801b46a0     lib_gmod.obj
+ 0002:000326b0       $unwind$opglua_read_script 00000001801b46b0     lib_gmod.obj
+ 0002:000326d0       $chain$3$opglua_read_script 00000001801b46d0     lib_gmod.obj
+ 0002:000326ec       $chain$4$opglua_read_script 00000001801b46ec     lib_gmod.obj
+ 0002:00032700       $chain$5$opglua_read_script 00000001801b4700     lib_gmod.obj
+ 0002:00032724       $unwind$glua_pathid_index  00000001801b4724     lib_gmod.obj
+ 0002:00032758       $unwind$glua_script_root_add 00000001801b4758     lib_gmod.obj
+ 0002:00032778       $unwind$glua_try_root      00000001801b4778     lib_gmod.obj
+ 0002:00032794       $chain$4$glua_script_root_add 00000001801b4794     lib_gmod.obj
+ 0002:000327a8       $unwind$glua_script_root_remove 00000001801b47a8     lib_gmod.obj
+ 0002:000327b8       $chain$3$cs_UnMountLua     00000001801b47b8     lib_gmod.obj
+ 0002:000327d0       $chain$1$opglua_selftest   00000001801b47d0     lib_gmod.obj
+ 0002:000327ec       $chain$4$cs_UnMountLua     00000001801b47ec     lib_gmod.obj
+ 0002:000327fc       $unwind$glua_dir_exists    00000001801b47fc     lib_gmod.obj
+ 0002:00032810       $unwind$glua_content_root  00000001801b4810     lib_gmod.obj
+ 0002:00032818       $chain$5$cs_UnMountLua     00000001801b4818     lib_gmod.obj
+ 0002:00032828       $chain$0$glua_content_root 00000001801b4828     lib_gmod.obj
+ 0002:00032844       $chain$1$glua_content_root 00000001801b4844     lib_gmod.obj
+ 0002:00032854       $unwind$opglua_read_script_id 00000001801b4854     lib_gmod.obj
+ 0002:0003286c       $unwind$opglua_script_exists_id 00000001801b486c     lib_gmod.obj
+ 0002:00032888       $chain$1$opglua_read_script_id 00000001801b4888     lib_gmod.obj
+ 0002:000328a0       $chain$2$opglua_read_script_id 00000001801b48a0     lib_gmod.obj
+ 0002:000328b0       $unwind$opglua_script_isdir_id 00000001801b48b0     lib_gmod.obj
+ 0002:000328dc       $chain$1$glua_emit_dir     00000001801b48dc     lib_gmod.obj
+ 0002:000328f8       $unwind$cs_ScriptExists    00000001801b48f8     lib_gmod.obj
+ 0002:0003291c       $unwind$cs_MountLua        00000001801b491c     lib_gmod.obj
+ 0002:00032934       $chain$3$opglua_selftest   00000001801b4934     lib_gmod.obj
+ 0002:0003296c       $unwind$opglua_selftest    00000001801b496c     lib_gmod.obj
+ 0002:00032984       $chain$0$?InternalSetIntValue@ConVar@@EEAAXH@Z 00000001801b4984     convar_impl.obj
+ 0002:00032998       $unwind$glua_vmsg          00000001801b4998     lib_gmod.obj
+ 0002:000329b8       $unwind$opglua_lua_error_report 00000001801b49b8     lib_gmod.obj
+ 0002:000329d0       $chain$0$opglua_lua_error_report 00000001801b49d0     lib_gmod.obj
+ 0002:000329e4       $chain$1$opglua_lua_error_report 00000001801b49e4     lib_gmod.obj
+ 0002:00032a10       $unwind$glua_load_binary_module 00000001801b4a10     lib_gmod.obj
+ 0002:00032a2c       $unwind$glua_file_exists   00000001801b4a2c     lib_gmod.obj
+ 0002:00032a34       $chain$6$cs_UnMountLua     00000001801b4a34     lib_gmod.obj
+ 0002:00032a44       $unwind$cs_Init            00000001801b4a44     lib_gmod.obj
+ 0002:00032a5c       $chain$0$cs_Init           00000001801b4a5c     lib_gmod.obj
+ 0002:00032a70       $chain$1$cs_Init           00000001801b4a70     lib_gmod.obj
+ 0002:00032a80       $unwind$cv_CreateConVar    00000001801b4a80     lib_gmod.obj
+ 0002:00032a90       $unwind$cs_LoadFile        00000001801b4a90     lib_gmod.obj
+ 0002:00032ab8       $unwind$CreateInterface    00000001801b4ab8     lib_gmod.obj
+ 0002:00032ad0       $unwind$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801b4ad0     convar_impl.obj
+ 0002:00032ae0       $chain$2$cs_MountLuaAdd    00000001801b4ae0     lib_gmod.obj
+ 0002:00032afc       $chain$3$cs_MountLuaAdd    00000001801b4afc     lib_gmod.obj
+ 0002:00032b18       $chain$4$cs_MountLuaAdd    00000001801b4b18     lib_gmod.obj
+ 0002:00032b28       $chain$5$opglua_selftest   00000001801b4b28     lib_gmod.obj
+ 0002:00032b38       $unwind$cs_GetCache        00000001801b4b38     lib_gmod.obj
  0002:00032b4c       $unwind$luaL_openlibs      00000001801b4b4c     lib_init.obj
  0002:00032b5c       $unwind$luaopen_io         00000001801b4b5c     lib_io.obj
  0002:00032b74       $unwind$io_tofilep         00000001801b4b74     lib_io.obj
@@ -19831,18 +19849,21 @@
  0002:000357e7       $cppxdata$??0ConVar@@QEAA@PEBD0H0P6AXPEAVIConVar@@0M@Z@Z 00000001801b77e7     convar_impl.obj
  0002:000357f0       $stateUnwindMap$??0ConVar@@QEAA@PEBD0H0P6AXPEAVIConVar@@0M@Z@Z 00000001801b77f0     convar_impl.obj
  0002:000357fd       $ip2state$??0ConVar@@QEAA@PEBD0H0P6AXPEAVIConVar@@0M@Z@Z 00000001801b77fd     convar_impl.obj
- 0002:00035804       $unwind$??0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 00000001801b7804     convar_impl.obj
+ 0002:00035804       $unwind$??__Es_EmptyConVar@@YAXXZ 00000001801b7804     convar_impl.obj
+ 0002:00035814       $unwind$ci_slot_PushColor  00000001801b7814     lib_gmod.obj
  0002:00035827       $cppxdata$??0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 00000001801b7827     convar_impl.obj
  0002:00035830       $stateUnwindMap$??0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 00000001801b7830     convar_impl.obj
  0002:0003583d       $ip2state$??0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 00000001801b783d     convar_impl.obj
- 0002:00035844       $unwind$??0ConVar@@QEAA@PEBD0H0_NM1M1M1MP6AXPEAVIConVar@@0M@Z@Z 00000001801b7844     convar_impl.obj
+ 0002:00035854       $unwind$ci_slot_CreateConVar 00000001801b7854     lib_gmod.obj
  0002:00035867       $cppxdata$??0ConVar@@QEAA@PEBD0H0_NM1M1M1MP6AXPEAVIConVar@@0M@Z@Z 00000001801b7867     convar_impl.obj
  0002:00035870       $stateUnwindMap$??0ConVar@@QEAA@PEBD0H0_NM1M1M1MP6AXPEAVIConVar@@0M@Z@Z 00000001801b7870     convar_impl.obj
  0002:0003587d       $ip2state$??0ConVar@@QEAA@PEBD0H0_NM1M1M1MP6AXPEAVIConVar@@0M@Z@Z 00000001801b787d     convar_impl.obj
  0002:00035884       $unwind$??1ConVar@@UEAA@XZ 00000001801b7884     convar_impl.obj
- 0002:00035894       $unwind$?ChangeStringValue@ConVar@@UEAAXPEBDM@Z 00000001801b7894     convar_impl.obj
+ 0002:00035890       $unwind$?InsertBefore@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAHHAEBQ6AXPEAVIConVar@@PEBDM@Z@Z 00000001801b7890     convar_impl.obj
+ 0002:000358a4       $unwind$??0?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAA@HH@Z 00000001801b78a4     convar_impl.obj
+ 0002:000358ac       $unwind$?Init@ConVarRef@@QEAAXPEBD_N@Z 00000001801b78ac     convar_impl.obj
  0002:000358c0       $unwind$?Create@ConVar@@UEAAXPEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 00000001801b78c0     convar_impl.obj
- 0002:000358d8       $unwind$?InstallChangeCallback@ConVar@@QEAAXP6AXPEAVIConVar@@PEBDM@Z@Z 00000001801b78d8     convar_impl.obj
+ 0002:000358d4       $unwind$?InstallChangeCallback@ConVar@@QEAAXP6AXPEAVIConVar@@PEBDM@Z@Z 00000001801b78d4     convar_impl.obj
  0002:000358e8       $unwind$?InternalSetValue@ConVar@@EEAAXPEBD@Z 00000001801b78e8     convar_impl.obj
  0002:00035900       $chain$0$?InternalSetValue@ConVar@@EEAAXPEBD@Z 00000001801b7900     convar_impl.obj
  0002:00035918       $chain$1$?InternalSetValue@ConVar@@EEAAXPEBD@Z 00000001801b7918     convar_impl.obj
@@ -19850,48 +19871,40 @@
  0002:00035940       $chain$0$?InternalSetFloatValue@ConVar@@EEAAXM_N@Z 00000001801b7940     convar_impl.obj
  0002:00035958       $chain$1$?InternalSetFloatValue@ConVar@@EEAAXM_N@Z 00000001801b7958     convar_impl.obj
  0002:0003596c       $unwind$?InternalSetIntValue@ConVar@@EEAAXH@Z 00000001801b796c     convar_impl.obj
- 0002:00035984       $chain$0$?InternalSetIntValue@ConVar@@EEAAXH@Z 00000001801b7984     convar_impl.obj
- 0002:0003599c       $chain$1$?InternalSetIntValue@ConVar@@EEAAXH@Z 00000001801b799c     convar_impl.obj
- 0002:000359b0       $unwind$??0?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAA@HH@Z 00000001801b79b0     convar_impl.obj
+ 0002:00035990       $unwind$?GrowVector@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@IEAAXH@Z 00000001801b7990     convar_impl.obj
+ 0002:000359a4       $unwind$??_GConVar@@UEAAPEAXI@Z 00000001801b79a4     convar_impl.obj
  0002:000359b8       $unwind$??1?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAA@XZ 00000001801b79b8     convar_impl.obj
- 0002:000359c8       $unwind$?InsertBefore@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAHHAEBQ6AXPEAVIConVar@@PEBDM@Z@Z 00000001801b79c8     convar_impl.obj
+ 0002:000359d0       $unwind$?Grow@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAAXH@Z 00000001801b79d0     convar_impl.obj
  0002:000359e0       $unwind$?Purge@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@QEAAXXZ 00000001801b79e0     convar_impl.obj
- 0002:000359e8       $unwind$?GrowVector@?$CUtlVector@P6AXPEAVIConVar@@PEBDM@ZV?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@@@IEAAXH@Z 00000001801b79e8     convar_impl.obj
+ 0002:000359e8       $unwind$?ConVar_Unregister@@YAXXZ 00000001801b79e8     convar_impl.obj
  0002:000359f8       $unwind$??0?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAA@HH@Z 00000001801b79f8     convar_impl.obj
- 0002:00035a00       $unwind$??1?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAA@XZ 00000001801b7a00     convar_impl.obj
- 0002:00035a08       $unwind$?Grow@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAAXH@Z 00000001801b7a08     convar_impl.obj
- 0002:00035a10       $unwind$?Purge@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAAXXZ 00000001801b7a10     convar_impl.obj
- 0002:00035a18       $unwind$??_GConVar@@UEAAPEAXI@Z 00000001801b7a18     convar_impl.obj
- 0002:00035a28       $unwind$??0ConVarRef@@QEAA@PEBD@Z 00000001801b7a28     convar_impl.obj
- 0002:00035a30       $unwind$??0ConVarRef@@QEAA@PEBD_N@Z 00000001801b7a30     convar_impl.obj
- 0002:00035a38       $unwind$?Init@ConVarRef@@QEAAXPEBD_N@Z 00000001801b7a38     convar_impl.obj
- 0002:00035a50       $unwind$?ConVar_Unregister@@YAXXZ 00000001801b7a50     convar_impl.obj
+ 0002:00035a00       $unwind$??0ConVarRef@@QEAA@PEBD@Z 00000001801b7a00     convar_impl.obj
+ 0002:00035a08       $unwind$?InsertBefore@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@QEAAHHAEBVCUtlString@@@Z 00000001801b7a08     convar_impl.obj
+ 0002:00035a20       $unwind$??0ConVarRef@@QEAA@PEBD_N@Z 00000001801b7a20     convar_impl.obj
+ 0002:00035a28       $chain$3$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801b7a28     convar_impl.obj
+ 0002:00035a48       $unwind$??1CUtlBuffer@@QEAA@XZ 00000001801b7a48     convar_impl.obj
  0002:00035a58       $unwind$?ConVar_PrintFlags@@YAXPEBVConCommandBase@@@Z 00000001801b7a58     convar_impl.obj
- 0002:00035a68       $unwind$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801b7a68     convar_impl.obj
- 0002:00035a7c       $chain$3$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801b7a7c     convar_impl.obj
- 0002:00035aa0       $chain$4$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801b7aa0     convar_impl.obj
+ 0002:00035a70       $unwind$?Purge@?$CUtlMemory@EH@@QEAAXXZ 00000001801b7a70     convar_impl.obj
+ 0002:00035a84       $unwind$glua_log_level     00000001801b7a84     lib_gmod.obj
+ 0002:00035aa8       $chain$2$glua_log          00000001801b7aa8     lib_gmod.obj
  0002:00035ab8       $chain$7$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801b7ab8     convar_impl.obj
  0002:00035ad8       $chain$8$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801b7ad8     convar_impl.obj
  0002:00035af0       $chain$9$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801b7af0     convar_impl.obj
  0002:00035b04       $chain$10$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801b7b04     convar_impl.obj
  0002:00035b18       $unwind$??1?$CUtlMemory@EH@@QEAA@XZ 00000001801b7b18     convar_impl.obj
- 0002:00035b20       $unwind$?Purge@?$CUtlMemory@EH@@QEAAXXZ 00000001801b7b20     convar_impl.obj
- 0002:00035b28       $unwind$??1CUtlBuffer@@QEAA@XZ 00000001801b7b28     convar_impl.obj
+ 0002:00035b20       $unwind$glua_log_heartbeat 00000001801b7b20     lib_gmod.obj
  0002:00035b30       $unwind$?RegisterConCommandBase@CDefaultAccessor@@UEAA_NPEAVConCommandBase@@@Z 00000001801b7b30     convar_impl.obj
- 0002:00035b38       $unwind$?InsertBefore@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@QEAAHHAEBVCUtlString@@@Z 00000001801b7b38     convar_impl.obj
- 0002:00035b50       $unwind$?GrowVector@?$CUtlVector@VCUtlString@@V?$CUtlMemory@VCUtlString@@H@@@@IEAAXH@Z 00000001801b7b50     convar_impl.obj
- 0002:00035b60       $unwind$?Grow@?$CUtlMemory@VCUtlString@@H@@QEAAXH@Z 00000001801b7b60     convar_impl.obj
- 0002:00035b68       $unwind$??0CEmptyConVar@@QEAA@XZ 00000001801b7b68     convar_impl.obj
+ 0002:00035b40       $unwind$ci_slot_CreateMetaTable 00000001801b7b40     lib_gmod.obj
+ 0002:00035b58       $unwind$ci_slot_LuaError   00000001801b7b58     lib_gmod.obj
+ 0002:00035b68       $unwind$ci_slot_SetMemberStrObj 00000001801b7b68     lib_gmod.obj
  0002:00035b7e       $cppxdata$??0CEmptyConVar@@QEAA@XZ 00000001801b7b7e     convar_impl.obj
  0002:00035b87       $stateUnwindMap$??0CEmptyConVar@@QEAA@XZ 00000001801b7b87     convar_impl.obj
  0002:00035b94       $ip2state$??0CEmptyConVar@@QEAA@XZ 00000001801b7b94     convar_impl.obj
- 0002:00035b9c       $unwind$??_GCEmptyConVar@@UEAAPEAXI@Z 00000001801b7b9c     convar_impl.obj
- 0002:00035bac       $unwind$??__Es_EmptyConVar@@YAXXZ 00000001801b7bac     convar_impl.obj
+ 0002:00035b9c       $unwind$glua_boot_marker   00000001801b7b9c     lib_gmod.obj
  0002:00035bbd       $cppxdata$??__Es_EmptyConVar@@YAXXZ 00000001801b7bbd     convar_impl.obj
  0002:00035bc6       $stateUnwindMap$??__Es_EmptyConVar@@YAXXZ 00000001801b7bc6     convar_impl.obj
  0002:00035bd2       $ip2state$??__Es_EmptyConVar@@YAXXZ 00000001801b7bd2     convar_impl.obj
- 0002:00035bd8       $unwind$??__Fs_EmptyConVar@@YAXXZ 00000001801b7bd8     convar_impl.obj
- 0002:00035be0       $unwind$??$CopyConstruct@VCUtlString@@@@YAPEAVCUtlString@@PEAV0@AEBV0@@Z 00000001801b7be0     convar_impl.obj
+ 0002:00035bd8       $chain$4$glua_log_heartbeat 00000001801b7bd8     lib_gmod.obj
  0002:00035be8       $unwind$?ConnectTier1Libraries@@YAXPEAP6APEAXPEBDPEAH@ZH@Z 00000001801b7be8     tier1:tier1.cpp.33.o
  0002:00035bf0       $chain$0$?ConnectTier1Libraries@@YAXPEAP6APEAXPEBDPEAH@ZH@Z 00000001801b7bf0     tier1:tier1.cpp.33.o
  0002:00035c08       $chain$2$?ConnectTier1Libraries@@YAXPEAP6APEAXPEBDPEAH@ZH@Z 00000001801b7c08     tier1:tier1.cpp.33.o
@@ -20525,6 +20538,7 @@
  0002:00038980       $unwind$?fin$1@?0??FrameUnwindToState@__FrameHandler4@@SAXPEA_KPEAU_xDISPATCHER_CONTEXT@@PEAUFuncInfo4@FH4@@H@Z@4HA 00000001801ba980     libvcruntime:frame.obj
  0002:00038988       $unwind$?GetHandlerSearchState@__FrameHandler4@@SAHPEA_KPEAU_xDISPATCHER_CONTEXT@@PEAUFuncInfo4@FH4@@@Z 00000001801ba988     libvcruntime:frame.obj
  0002:00038998       $unwind$?CxxCallCatchBlock@__FrameHandler4@@SAPEAXPEAU_EXCEPTION_RECORD@@@Z 00000001801ba998     libvcruntime:frame.obj
+ 0002:000389f4       $unwind$??1?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAA@XZ 00000001801ba9f4     convar_impl.obj
  0002:00038a00       $unwind$?filt$0@?0??CxxCallCatchBlock@__FrameHandler4@@SAPEAXPEAU_EXCEPTION_RECORD@@@Z@4HA 00000001801baa00     libvcruntime:frame.obj
  0002:00038a08       $unwind$?fin$1@?0??CxxCallCatchBlock@__FrameHandler4@@SAPEAXPEAU_EXCEPTION_RECORD@@@Z@4HA 00000001801baa08     libvcruntime:frame.obj
  0002:00038a18       $unwind$??0bad_exception@std@@QEAA@AEBV01@@Z 00000001801baa18     libvcruntime:frame.obj
@@ -22912,6 +22926,29 @@
  0002:000436e8       $unwind$__GSHandlerCheck_SEH_noexcept 00000001801c56e8     LIBCMT:gshandlerseh_noexcept.obj
  0002:000436f8       $unwind$_local_unwind      00000001801c56f8     libvcruntime:jmpuwind.obj
  0002:00043700       $unwind$__C_specific_handler_noexcept 00000001801c5700     libvcruntime:chandler_noexcept.obj
+ 0002:0004370c       $chain$1$?InternalSetIntValue@ConVar@@EEAAXH@Z 00000001801c570c     convar_impl.obj
+ 0002:0004371c       $unwind$??0CEmptyConVar@@QEAA@XZ 00000001801c571c     convar_impl.obj
+ 0002:00043734       $unwind$?Purge@?$CUtlMemory@P6AXPEAVIConVar@@PEBDM@ZH@@QEAAXXZ 00000001801c5734     convar_impl.obj
+ 0002:0004373c       $chain$4$?ConVar_PrintDescription@@YAXPEBVConCommandBase@@@Z 00000001801c573c     convar_impl.obj
+ 0002:00043750       $unwind$ci_slot_GetStringOrError 00000001801c5750     lib_gmod.obj
+ 0002:0004375c       $unwind$ci_slot_Require    00000001801c575c     lib_gmod.obj
+ 0002:00043774       $unwind$glua_warn_once     00000001801c5774     lib_gmod.obj
+ 0002:0004377c       $chain$4$opglua_selftest   00000001801c577c     lib_gmod.obj
+ 0002:00043790       $unwind$GMOD_LoadBinaryModule 00000001801c5790     lib_gmod.obj
+ 0002:0004379c       $unwind$glua_run_ex        00000001801c579c     lib_gmod.obj
+ 0002:000437d4       $unwind$??0ConVar@@QEAA@PEBD0H0_NM1MP6AXPEAVIConVar@@0M@Z@Z 00000001801c57d4     convar_impl.obj
+ 0002:000437f4       $unwind$??0ConVar@@QEAA@PEBD0H0_NM1M1M1MP6AXPEAVIConVar@@0M@Z@Z 00000001801c57f4     convar_impl.obj
+ 0002:00043814       $unwind$?ChangeStringValue@ConVar@@UEAAXPEBDM@Z 00000001801c5814     convar_impl.obj
+ 0002:0004383c       $chain$0$ci_slot_SetMemberObjObj 00000001801c583c     lib_gmod.obj
+ 0002:00043850       $unwind$ci_slot_IsEqual    00000001801c5850     lib_gmod.obj
+ 0002:00043868       $unwind$ci_slot_FindAndRunScript 00000001801c5868     lib_gmod.obj
+ 0002:0004388c       $unwind$ci_slot_RegisterMetaTable 00000001801c588c     lib_gmod.obj
+ 0002:000438a4       $chain$1$gobj_SetFromGlobal 00000001801c58a4     lib_gmod.obj
+ 0002:000438bc       $unwind$glua_open_module   00000001801c58bc     lib_gmod.obj
+ 0002:000438d8       $unwind$glua_open_script   00000001801c58d8     lib_gmod.obj
+ 0002:000438f4       $chain$3$glua_script_root_add 00000001801c58f4     lib_gmod.obj
+ 0002:00043914       $unwind$glua_emit_dir      00000001801c5914     lib_gmod.obj
+ 0002:00043930       $unwind$opglua_find_scripts 00000001801c5930     lib_gmod.obj
  0002:00044ed0       .edata                     00000001801c6ed0     lua51.exp
  0002:00044ef8       rgpv                       00000001801c6ef8     lua51.exp
  0002:00045424       rgszName                   00000001801c7424     lua51.exp
@@ -23252,7 +23289,7 @@
  0003:00000048       ?vec2_invalid@@3VVector2D@@B 00000001801ca048     lib_convar.obj
  0003:00000060       glua_typename_table        00000001801ca060     lib_gmod.obj
  0003:000001c0       glua_pooled_strings        00000001801ca1c0     lib_gmod.obj
- 0003:00000ba8       ?state@?1??glua_log_enabled@@9@9 00000001801caba8     lib_gmod.obj
+ 0003:00000ba8       ?state@?1??glua_log_level@@9@9 00000001801caba8     lib_gmod.obj
  0003:00000bb0       ?subroots@?5??glua_open_script@@9@9 00000001801cabb0     lib_gmod.obj
  0003:00000e23       ?g_fs_usable@?A0x1afd4df9@@3_NA 00000001801cae23     lib_luashared.obj
  0003:00000e30       ?vec2_invalid@@3VVector2D@@B 00000001801cae30     convar_impl.obj
@@ -23296,24 +23333,28 @@
  0003:00005630       ?vec2_origin@@3VVector2D@@B 00000001801cf630     lib_convar.obj
  0003:00005640       ?f@?1??glua_log_stream@@9@9 00000001801cf640     lib_gmod.obj
  0003:00005648       ?tried@?1??glua_log_stream@@9@9 00000001801cf648     lib_gmod.obj
- 0003:0000564c       ?tried@?1??glua_boot_marker@@9@9 00000001801cf64c     lib_gmod.obj
- 0003:00005650       ?lines@?1??glua_log@@9@9   00000001801cf650     lib_gmod.obj
- 0003:00005654       ?seenCount@?1??glua_warn_once@@9@9 00000001801cf654     lib_gmod.obj
- 0003:00005658       ?zero@?1??ci_slot_GetAngle@@9@9 00000001801cf658     lib_gmod.obj
- 0003:00005664       ?tried@?1??glua_game_root@@9@9 00000001801cf664     lib_gmod.obj
- 0003:00005668       ?zero@?1??ci_slot_GetVector@@9@9 00000001801cf668     lib_gmod.obj
- 0003:00005674       glua_script_root_count     00000001801cf674     lib_gmod.obj
- 0003:00005678       glua_pathid_count          00000001801cf678     lib_gmod.obj
- 0003:0000567c       ?tried@?1??glua_content_root@@9@9 00000001801cf67c     lib_gmod.obj
- 0003:00005680       ?seen@?1??glua_warn_once@@9@9 00000001801cf680     lib_gmod.obj
- 0003:00005700       ?root@?1??glua_game_root@@9@9 00000001801cf700     lib_gmod.obj
- 0003:00005900       glua_script_roots          00000001801cf900     lib_gmod.obj
- 0003:0000dd00       glua_pathid_names          00000001801d7d00     lib_gmod.obj
- 0003:0000df80       ?buf@?1??glua_content_root@@9@9 00000001801d7f80     lib_gmod.obj
- 0003:0000e180       ?buf@?1??ci_slot_GetCurrentLocation@@9@9 00000001801d8180     lib_gmod.obj
- 0003:0000e380       ?fallback@?1??glua_game_dir@@9@9 00000001801d8380     lib_gmod.obj
- 0003:0000e580       ?shared_singleton@?1??CreateInterface@@9@9 00000001801d8580     lib_gmod.obj
- 0003:0000e610       ?convars_singleton@?1??CreateInterface@@9@9 00000001801d8610     lib_gmod.obj
+ 0003:0000564c       ?seenCount@?1??glua_boot_marker@@9@9 00000001801cf64c     lib_gmod.obj
+ 0003:00005650       ?seen@?1??glua_boot_marker@@9@9 00000001801cf650     lib_gmod.obj
+ 0003:00005710       ?lines@?1??glua_log@@9@9   00000001801cf710     lib_gmod.obj
+ 0003:00005714       ?tried@?2??glua_log_heartbeat@@9@9 00000001801cf714     lib_gmod.obj
+ 0003:00005718       ?last@?1??glua_log_heartbeat@@9@9 00000001801cf718     lib_gmod.obj
+ 0003:00005720       ?getmem@?2??glua_log_heartbeat@@9@9 00000001801cf720     lib_gmod.obj
+ 0003:00005728       ?zero@?1??ci_slot_GetAngle@@9@9 00000001801cf728     lib_gmod.obj
+ 0003:00005734       ?seenCount@?1??glua_warn_once@@9@9 00000001801cf734     lib_gmod.obj
+ 0003:00005738       ?zero@?1??ci_slot_GetVector@@9@9 00000001801cf738     lib_gmod.obj
+ 0003:00005744       ?tried@?1??glua_game_root@@9@9 00000001801cf744     lib_gmod.obj
+ 0003:00005748       glua_script_root_count     00000001801cf748     lib_gmod.obj
+ 0003:0000574c       glua_pathid_count          00000001801cf74c     lib_gmod.obj
+ 0003:00005750       ?seen@?1??glua_warn_once@@9@9 00000001801cf750     lib_gmod.obj
+ 0003:000057d0       ?root@?1??glua_game_root@@9@9 00000001801cf7d0     lib_gmod.obj
+ 0003:000059d0       glua_script_roots          00000001801cf9d0     lib_gmod.obj
+ 0003:0000ddd0       glua_pathid_names          00000001801d7dd0     lib_gmod.obj
+ 0003:0000e050       ?buf@?1??glua_content_root@@9@9 00000001801d8050     lib_gmod.obj
+ 0003:0000e250       ?tried@?1??glua_content_root@@9@9 00000001801d8250     lib_gmod.obj
+ 0003:0000e260       ?buf@?1??ci_slot_GetCurrentLocation@@9@9 00000001801d8260     lib_gmod.obj
+ 0003:0000e460       ?fallback@?1??glua_game_dir@@9@9 00000001801d8460     lib_gmod.obj
+ 0003:0000e660       ?shared_singleton@?1??CreateInterface@@9@9 00000001801d8660     lib_gmod.obj
+ 0003:0000e6f0       ?convars_singleton@?1??CreateInterface@@9@9 00000001801d86f0     lib_gmod.obj
  0003:00010290       ?g_cache@?A0x1afd4df9@@3V?$vector@PEAUGmodLuaFile@?A0x1afd4df9@@V?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@@std@@A 00000001801da290     lib_luashared.obj
  0003:000102a8       ?g_fs@?A0x1afd4df9@@3PEAXEA 00000001801da2a8     lib_luashared.obj
  0003:000102b0       ?g_fs_base@?A0x1afd4df9@@3PEAXEA 00000001801da2b0     lib_luashared.obj

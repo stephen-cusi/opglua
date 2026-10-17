@@ -70,15 +70,29 @@ ILuaConVars 与游戏、二进制模块消费的 C 导出。构建产物 `src\lu
 
 ## 当前未解决（下一步从这里开始）
 
-1. **客户端域（realm=1）/ 服务器域（realm=0）从未创建**（症状：进图黑屏、Q 菜单不出、
-   `+menu` 未知命令；菜单域正常）。线索：① 与原版导出表 diff 缺 `cvar`（数据导出）与
-   `?AdvancedLuaErrorReporter@@YAHPEAUlua_State@@@Z`（游戏按名动态取用）；
-   ② 需反汇编 client.dll / server.dll 里 "LUASHARED003" 引用点，确认它们调
-   CreateLuaInterface 用的槽位是否与 engine.dll 一致。
+1. **进图黑屏 / Q 菜单不出**。三个 realm 现在都创建成功（菜单、客户端、
+   服务器），脚本经引擎文件系统正常加载且无报错，但画面仍然是黑的。下一步方向：
+   ① `Cycle`（slot 57）必须真的泵送 `AddThreadedCall` 队列——现在实现是清空丢弃，
+   客户端每张图调用一次；② 逐槽核对 `CLuaInterface` 132 个槽的行为（不只是签名），
+   优先 `GetPooledString`/`PushPooledString`、`CallInternal*` 族、`GetReturn`、
+   `NewTemporaryObject`；③ GMod 的 C 侧库（file/sql/net/util/draw）在本 DLL 里
+   完全没实现，客户端域起来后会成片失败。
 2. **workshop 地图启动卡死**：`Couldn't write cache/map_pack.bsp` 后无响应；普通地图可
    完整跑完退出。排查引擎文件系统优先读路径在 BSP 挂载期的重入。
-3. **GMod C 侧库未实现**：DLL 只注册标准 LuaJIT 库；file/sql/net/util/draw 等 C 库缺失
-   （hook/timer 等靠游戏内容仓的 lua 文件）。客户端域起来后要补。
+3. **日志量**：`glua_log` 已分两级——lifecycle（旗标文件/`OPGLUA_LOG` 任意值）只记
+   生命周期事件与内存心跳，verbose（`OPGLUA_LOG=verbose` 或旗标文件写 verbose）才记
+   每次槽调用。**不要把 verbose 留在游戏运行中**：一次地图加载 120 万行，游戏会卡死。
+
+## 结构档案
+
+`docs/lua_shared_structure.md` 是原版对象模型、两个虚表、Init 启动序列的整理版
+（白盒措辞、无地址）。逐槽名字表与函数正文在本地取证目录
+`D:\tmp\dec\lua_shared.dll\`（`CLuaInterface.vtable_slots.txt`、
+`ILuaBase_slot_map.txt`、`lua_State_layout.txt`、`ILuaShared_contract.txt`）。
+定位方法：**用 RTTI 求 vtable 才是权威**——`CLuaInterface` = 132 槽、
+`CLuaShared` = 19 槽、`CLuaConVars` = 8 槽；.rdata 里还有一张同尺寸的
+`CLuaInterface_Debug` 表，别把两张搞混（否则摸到的是另一套实现）。
+
 
 ## 工具与既有脚本
 

@@ -42,8 +42,14 @@ Working:
 
 In development:
 
-- The client and server Lua realms (scripts inside a running map).
 - The GMod-standard C-side libraries (`file`, `sql`, `net`, `util`, ...).
+- The threaded-call queue behind `AddThreadedCall`, and the remaining
+  `CLuaInterface` slots that differ from the reference in behaviour rather
+  than in signature.
+
+`docs/lua_shared_structure.md` describes the reference object model, both
+virtual tables and the boot sequence, and tracks how far this implementation
+follows them.
 
 ## Build (Windows x64, MSVC)
 
