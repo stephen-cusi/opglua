@@ -87,9 +87,6 @@ src/
 
 Each script prints PASS/FAIL lines and exits non-zero on failure.
 
-`AGENTS.md` documents the interface contracts, build rules and known open
-issues for contributors and automated agents.
-
 ## License
 
 Upstream LuaJIT code stays MIT (see the file headers and the upstream history
