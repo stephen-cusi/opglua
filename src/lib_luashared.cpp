@@ -950,6 +950,33 @@ extern "C" void opglua_stdstring_assign( void *dest, const char *data, unsigned 
   }
 }
 
+/* Append bytes to a string the engine owns.  Used by the bytecode dumper,
+** which writes into a caller-supplied buffer through this layout. */
+extern "C" int opglua_stdstring_append( void *dest, const char *data, size_t len )
+{
+  GmodStdStringRef *s = (GmodStdStringRef *)dest;
+  char *grown;
+  size_t want;
+  if ( dest == NULL || data == NULL ) return 0;
+  want = s->size + len;
+  if ( want + 1 > ( s->res >= 16 ? s->res : 16 ) ) {
+    grown = (char *)opglua_mem_alloc( want + 1 );
+    if ( grown == NULL ) return 0;
+    if ( s->size > 0 ) memcpy( grown, ( s->res >= 16 && s->bx.ptr != NULL )
+                                         ? s->bx.ptr : s->bx.buf, s->size );
+    if ( s->res >= 16 && s->bx.ptr != NULL ) opglua_mem_free( s->bx.ptr );
+    s->bx.ptr = grown;
+    s->res = want;
+  }
+  memcpy( ( s->res >= 16 && s->bx.ptr != NULL ) ? s->bx.ptr + s->size
+                                                : s->bx.buf + s->size,
+          data, len );
+  s->size = want;
+  if ( s->res >= 16 && s->bx.ptr != NULL ) s->bx.ptr[s->size] = '\0';
+  else s->bx.buf[s->size] = '\0';
+  return 1;
+}
+
 /* ------------------------------------------------------------------------ */
 /* Lua error reporter.                                                      */
 /*                                                                          */

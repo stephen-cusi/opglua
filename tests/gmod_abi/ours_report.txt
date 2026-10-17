@@ -4,7 +4,7 @@ shared.init|skipped
 getiface.before|nonnull=0
 create.iface|nonnull=1
 getiface.after|matches=1
-iface.init|ok=1 created=1 objs=2
+iface.init|ok=1 created=1 objs=3
 state|nonnull=1
 state.luabase|matches=1
 == stack ==
@@ -98,12 +98,14 @@ lang.tinsert|ok=1
 lang.strfind|ok=1
 lang.tconcat|ok=1
 lang.pcall|ok=1
-@probe:1: attempt to call global 'Vector' (a nil value)
+ERR|probe:1: attempt to call global 'Vector' (a nil value)
 stack traceback:
-	@probe:1: in main chunklang.vec|ok=0
-@probe:1: attempt to call field 'Rand' (a nil value)
+	probe:1: in main chunk
+lang.vec|ok=0
+ERR|probe:1: attempt to call field 'Rand' (a nil value)
 stack traceback:
-	@probe:1: in main chunklang.mathrand|ok=0
+	probe:1: in main chunk
+lang.mathrand|ok=0
 lang.stringfmt|ok=1
 lang.goto_break|ok=1
 lang.metatable|ok=1
@@ -131,16 +133,29 @@ ref.first_positive|1
 ref.distinct|1
 ref.push_value|ref-a
 == errors ==
-@probe:1: attempt to index local 't' (a nil value)
+ERR|probe:1: attempt to index local 't' (a nil value)
 stack traceback:
-	@probe:1: in main chunkerrors.runtime|ok=0
-@probe:1: '=' expected near 'is'errors.compile|ok=0
-@probe:1: explicit
+	probe:1: in main chunk
+errors.runtime|ok=0
+MSG|[server] probe:1: '=' expected near 'is'
+
+errors.compile|ok=0
+ERR|probe:1: explicit
 stack traceback:
 	[C]: in function 'error'
-	@probe:1: in main chunkerrors.explicit|ok=0
-top.after_errors|0
-cycle.top_after|0
+	probe:1: in main chunk
+errors.explicit|ok=0
+top.after_errors|1 EXPECTED 0
+ERR|Server Lua Stack Leak [1]!
+[1]> string probe:1: '=' expected near 'is' 
+
+ERR|Server Lua Stack Leak [1]!
+[1]> string probe:1: '=' expected near 'is' 
+
+ERR|Server Lua Stack Leak [1]!
+[1]> string probe:1: '=' expected near 'is' 
+
+cycle.top_after|1 EXPECTED 0
 shutdown|done
-host.objects|created=34 destroyed=0 msgs=0 errs=0
-failures|0
+host.objects|created=3 destroyed=0 msgs=1 errs=7
+failures|2

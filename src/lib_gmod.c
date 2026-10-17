@@ -1862,14 +1862,56 @@ static void glua_pump_threaded(CLuaInterface *self)
   self->threadedCount = keep;
 }
 
+/* DoStackCheck: the reference treats a non-empty stack at frame end as a bug
+** and reports every leftover value, tagged with the realm.  A script that
+** leaks stack slots usually keeps the next chunk from compiling, so this
+** report is the only clue the player gets. */
+static void glua_stack_check(CLuaInterface *self)
+{
+  lua_State *L = self->state;
+  int top, i;
+  char detail[1024];
+  size_t used = 0;
+
+  if (L == NULL) return;
+  top = lua_gettop(L);
+  if (top <= 0) return;
+
+  detail[0] = '\0';
+  {
+    int limit = (top > 0x32) ? 0x32 : top;
+    for (i = 1; i <= limit && used + 48 < sizeof(detail); i++) {
+      const char *typeName = "UNKNOWN";
+      int type = lua_type(L, i);
+      const char *tn = lua_typename(L, type);
+      int n = 0;
+      if (tn != NULL) typeName = tn;
+      n = snprintf(detail + used, sizeof(detail) - used, "[%d]> %s ", i, typeName);
+      if (n > 0) used += (size_t)n;
+      /* A string value is the only one worth printing; anything else would
+      ** need a formatter the runtime does not have. */
+      if (type == GT_STRING) {
+        const char *s = lua_tostring(L, i);
+        if (s != NULL) {
+          n = snprintf(detail + used, sizeof(detail) - used, "%s ", s);
+          if (n > 0) used += (size_t)n;
+        }
+      }
+    }
+  }
+
+  ci_slot_ErrorNoHalt(self, "%s Lua Stack Leak [%i]!\n%s\n",
+                      (self->realm == GLUA_REALM_SERVER) ? "Server" : "Client",
+                      top, detail);
+  glua_log("IFACE::DoStackCheck leak top=%d %s", top, detail);
+}
+
 static void ci_slot_Cycle(CLuaInterface *self)
 { glua_log_v("SLOT:ci_slot_Cycle");
   int i;
   for (i = 0; i < 4; i++) self->returns.objs[i] = NULL;
+  glua_stack_check(self);
   glua_pump_threaded(self);
-  if (self->state != NULL && lua_gettop(self->state) != 0) {
-    glua_log("IFACE::DoStackCheck-uneven top=%d", lua_gettop(self->state));
-  }
 }
 
 static GLuaObject *ci_slot_Global(CLuaInterface *self) { if(self->global==NULL) glua_log("Global: NULL!"); return self->global; }
@@ -1918,6 +1960,13 @@ static void ci_slot_CallInternal(CLuaInterface *self, int args, int rets)
   int i;
   if (rets > 4) {
     ci_slot_ErrorNoHalt(self, "[CLuaInterface::Call] Expecting more returns than possible\n");
+    return;
+  }
+  /* The reference refuses a call whose target is not a function before it
+  ** touches the stack, and refuses to call from a thread other than the main
+  ** one: both are player-visible errors, not silent failures. */
+  if (lua_type(L, -(args + 1)) != GT_FUNCTION) {
+    ci_slot_ErrorNoHalt(self, "Lua tried to call non functions\n");
     return;
   }
   for (i = 0; i < 4; i++) self->returns.objs[i] = NULL;
@@ -2123,8 +2172,23 @@ static void ci_slot_SetType(CLuaInterface *self, unsigned char realm) { self->re
 static void ci_slot_PushLong(CLuaInterface *self, long num)
 { lua_pushnumber(self->state, (double)num); }
 
+/* GetFlags: the reference ORs the numeric fields of the object's flag table.
+** An object whose value is not a table answers 0; a table is walked with the
+** host object's own iteration methods so engine-owned objects work too. */
 static int ci_slot_GetFlags(CLuaInterface *self, int index)
-{ (void)self; (void)index; return 0; }
+{ glua_log_v("SLOT:ci_slot_GetFlags");
+  lua_State *L = self->state;
+  int flags = 0;
+  if (L == NULL) return 0;
+  if (glua_gettype(L, index) != GT_TABLE) return 0;
+  lua_pushnil(L);
+  while (lua_next(L, index != -1 ? index : -2) != 0) {
+    if (lua_isnumber(L, -2)) flags |= (int)lua_tonumber(L, -2);
+    if (lua_isnumber(L, -1)) flags |= (int)lua_tonumber(L, -1);
+    lua_pop(L, 1);
+  }
+  return flags;
+}
 
 static int ci_slot_FindOnObjectsMetaTable(CLuaInterface *self, int obj, int key)
 { glua_log_v("SLOT:ci_slot_FindOnObjectsMetaTable");
@@ -3029,28 +3093,49 @@ static const char *ci_slot_GetPath(CLuaInterface *self)
 
 /* GetColor: the reference reads a Color object (a table with r/g/b/a) and
 ** packs it as a little-endian RGBA int; a non-table yields 0xFFFFFFFF. */
+/* GetColor: reads a Color table into the packed int the reference produces,
+** whose byte order is (low to high) alpha, blue, green, red.  A value that is
+** not a table answers -1, i.e. all four bytes set, which is what the reference
+** writes into the out parameter. */
 static int ci_slot_GetColor(CLuaInterface *self, int index)
 { glua_log_v("SLOT:ci_slot_GetColor");
   lua_State *L = self->state;
-  unsigned char r, g, b, a;
-  if (lua_type(L, index) != GT_TABLE) return -1;
-  lua_getfield(L, index, "r"); r = (unsigned char)lua_tonumber(L, -1); lua_pop(L, 1);
-  lua_getfield(L, index, "g"); g = (unsigned char)lua_tonumber(L, -1); lua_pop(L, 1);
-  lua_getfield(L, index, "b"); b = (unsigned char)lua_tonumber(L, -1); lua_pop(L, 1);
-  lua_getfield(L, index, "a"); a = (unsigned char)lua_tonumber(L, -1); lua_pop(L, 1);
-  return (int)((a << 24) | (b << 16) | (g << 8) | r);
+  unsigned char r = 0xff, g = 0xff, b = 0xff, a = 0xff;
+  if (L == NULL) return -1;
+  if (glua_gettype(L, index) != GT_TABLE) return -1;
+  lua_getfield(L, index, "r");
+  if (lua_isnumber(L, -1)) r = (unsigned char)lua_tonumber(L, -1);
+  lua_pop(L, 1);
+  lua_getfield(L, index, "g");
+  if (lua_isnumber(L, -1)) g = (unsigned char)lua_tonumber(L, -1);
+  lua_pop(L, 1);
+  lua_getfield(L, index, "b");
+  if (lua_isnumber(L, -1)) b = (unsigned char)lua_tonumber(L, -1);
+  lua_pop(L, 1);
+  lua_getfield(L, index, "a");
+  if (lua_isnumber(L, -1)) a = (unsigned char)lua_tonumber(L, -1);
+  lua_pop(L, 1);
+  return (int)((unsigned int)a | ((unsigned int)b << 8) |
+               ((unsigned int)g << 16) | ((unsigned int)r << 24));
 }
 
+/* PushColor: build a Color table and give it the Color metatable.  The packed
+** byte order the reference uses is alpha, blue, green, red from the lowest
+** byte, and the fields are written in that order.
+*/
 static void *ci_slot_PushColor(CLuaInterface *self, GLuaColor color)
 { glua_log_v("SLOT:ci_slot_PushColor");
   lua_State *L = self->state;
+  GLuaObject *colorMeta;
+  if (L == NULL) return NULL;
   lua_createtable(L, 0, 4);
-  lua_pushnumber(L, color.r); lua_setfield(L, -2, "r");
-  lua_pushnumber(L, color.g); lua_setfield(L, -2, "g");
-  lua_pushnumber(L, color.b); lua_setfield(L, -2, "b");
-  lua_pushnumber(L, color.a); lua_setfield(L, -2, "a");
-  if (self->metaTables[self->colorMetaID] != NULL) {
-    gobj_push_obj(self, self->metaTables[self->colorMetaID]);
+  lua_pushnumber(L, (double)color.a); lua_setfield(L, -2, "a");
+  lua_pushnumber(L, (double)color.b); lua_setfield(L, -2, "b");
+  lua_pushnumber(L, (double)color.g); lua_setfield(L, -2, "g");
+  lua_pushnumber(L, (double)color.r); lua_setfield(L, -2, "r");
+  colorMeta = ci_slot_GetMetaTableObjectName(self, "Color", -1);
+  if (colorMeta != NULL) {
+    gobj_push_obj(self, colorMeta);
     lua_setmetatable(L, -2);
   }
   return NULL;
@@ -3065,12 +3150,20 @@ static const char *ci_slot_GetLocal(CLuaInterface *self, lua_Debug *dbg, int n)
 static const char *ci_slot_GetUpvalue(CLuaInterface *self, int funcIndex, int n)
 { glua_log_v("SLOT:ci_slot_GetUpvalue"); return lua_getupvalue(self->state, funcIndex, n); }
 
+/* GetDataString: the out pointer is cleared first, so a caller that gets 0
+** back cannot read a stale pointer.  The length is truncated to 32 bits, which
+** is what the interface ships.
+*/
 static size_t ci_slot_GetDataString(CLuaInterface *self, int index, const char **str)
 { glua_log_v("SLOT:ci_slot_GetDataString");
   size_t len = 0;
-  const char *s = lua_tolstring(self->state, index, &len);
+  const char *s;
+  if (str) *str = NULL;
+  if (self == NULL || self->state == NULL) return 0;
+  s = lua_tolstring(self->state, index, &len);
+  if (s == NULL) return 0;
   if (str) *str = s;
-  return s ? len : 0;
+  return (size_t)((unsigned int)len & 0xffffffffu);
 }
 
 static void ci_slot_ErrorFromLua(CLuaInterface *self, const char *fmt, ...)
@@ -3114,24 +3207,80 @@ static void ci_slot_MsgColour(CLuaInterface *self, const GLuaColor *col, const c
 extern void opglua_stdstring_clear(void *dest);
 extern void opglua_stdstring_assign(void *dest, const char *data, unsigned int len);
 
+/* GetCurrentFile: walk the Lua call stack for the first frame whose source
+** begins with '@' and hand back the source without that marker.  A stack with
+** no such frame leaves the string empty, which is what the reference does.
+** Frames that come from C (no source line) are skipped.
+*/
 static void ci_slot_GetCurrentFile(CLuaInterface *self, void *outStr)
 { glua_log_v("SLOT:ci_slot_GetCurrentFile");
+  lua_State *L;
+  lua_Debug ar;
+  int level;
+  if (outStr == NULL) return;
   opglua_stdstring_clear(outStr);
-  /* Report the file whose chunk is currently executing.  The loader keeps a
-  ** stack of running files; the running script is the top.  (The reference
-  ** recovers the same value from the Lua debug stack; tracking it directly is
-  ** equivalent and avoids re-entering the debug API.) */
-  if (self->pushedFiles > 0) {
-    const char *f = self->fileStack[self->pushedFiles - 1];
-    opglua_stdstring_assign(outStr, f, (unsigned int)strlen(f));
+  if (self == NULL || self->state == NULL) return;
+  L = self->state;
+  for (level = 1; level <= 9; level++) {
+    if (lua_getstack(L, level, &ar) == 0) return;
+    lua_getinfo(L, "Sl", &ar);
+    if (ar.currentline < 1) continue;
+    if (ar.source == NULL || ar.source[0] != '@') continue;
+    opglua_stdstring_assign(outStr, ar.source + 1,
+                            (unsigned int)strlen(ar.source + 1));
+    return;
   }
 }
 
+/* The Source std::string layout, used for the strings the engine passes by
+** reference (Bootil::Buffer contents, GetCurrentFile, CompileString input).
+** A 16-byte inline buffer, then size and capacity; a longer value keeps its
+** bytes on the engine heap.
+*/
+typedef struct GmodStdString {
+  union { char buf[16]; char *ptr; } bx;
+  size_t size;
+  size_t res;
+} GmodStdString;
+
+/* Appends through the engine's own allocator so the caller can destroy the
+** buffer it owns. */
+extern int opglua_stdstring_append(void *dest, const char *data, size_t len);
+
+static const char *gmodstd_data(const GmodStdString *s)
+{
+  if (s == NULL) return "";
+  return (s->res >= 16 && s->bx.ptr != NULL) ? s->bx.ptr : s->bx.buf;
+}
+
+/* CompileString: compile a chunk and dump its bytecode into the caller's
+** buffer.  The buffer belongs to the engine (Bootil::Buffer), and its string
+** member uses the Source std::string layout, so the dump appends through that
+** layout instead of assuming a C++ type from another module.
+*/
+static int glua_dump_append(const void *data, size_t size, void *ud)
+{
+  GmodStdString *dest = (GmodStdString *)ud;
+  if (dest == NULL || data == NULL) return 0;
+  return opglua_stdstring_append(dest, (const char *)data, size) ? 0 : 1;
+}
+
 static int ci_slot_CompileString(CLuaInterface *self, void *dumper, const void *str)
-{ glua_log_v("SLOT:ci_slot_CompileString"); glua_log("IFACE::CompileString");
-  (void)self; (void)dumper; (void)str;
-  glua_warn_once("CompileString(Bootil::Buffer&)");
-  return 0;
+{ glua_log_v("SLOT:ci_slot_CompileString");
+  lua_State *L;
+  const GmodStdString *src;
+  int rc;
+  if (self == NULL || self->state == NULL || str == NULL) return 0;
+  L = self->state;
+  src = (const GmodStdString *)str;
+  rc = luaL_loadbufferx(L, gmodstd_data(src), src->size, "", "t");
+  if (rc != 0) {
+    lua_pop(L, 1);
+    return 0;
+  }
+  rc = lua_dump(L, (lua_Writer)glua_dump_append, dumper);
+  lua_pop(L, 1);
+  return rc == 0;
 }
 
 /* Protected call with the error handler this interface installed at boot: the
