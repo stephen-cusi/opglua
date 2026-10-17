@@ -37,3 +37,24 @@ extern "C" void *glua_convars_create_concommand( const char *name, const char *h
   FnCommandCompletionCallback comp = (FnCommandCompletionCallback)completion;
   return (void *)new ConCommand( name, cb, help, flags, comp );
 }
+
+/* Diagnostic variant: report whether the engine cvar system is bound before the
+** object is built, and hand the caller the pointer it produced. */
+extern "C" void glua_convars_create_convar_probe( const char *name, const char *def,
+                                                  const char *help, int flags, void **out )
+{
+  ConVar *cv;
+  if ( out != NULL ) *out = NULL;
+  if ( g_pCVar == NULL ) {
+    if ( out != NULL ) *out = NULL;
+    return;
+  }
+  cv = new ConVar( name ? name : "", def ? def : "", flags, help ? help : "" );
+  if ( cv != NULL && cv->GetName() == NULL ) {
+    /* Registration leaves the base object linked into the engine list; a name
+    ** that vanished means the object was not stored. */
+    if ( out != NULL ) *out = NULL;
+    return;
+  }
+  if ( out != NULL ) *out = cv;
+}

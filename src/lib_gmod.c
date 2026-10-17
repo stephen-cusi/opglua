@@ -328,10 +328,53 @@ static void gc_DestroyLuaObject(GLuaGameCallback *cb, GLuaObject *obj)
   (void)cb; (void)obj;                    /* freed by the object vtable */
 }
 
+/* Report through the HOST callback, not this process's stdout: the engine owns
+** the console and the error queue, and anything written elsewhere is invisible
+** to the player and to console.log.  A host callback that leaves a slot NULL
+** falls back to the default sink below, which is only used by standalone runs.
+**
+** Callback slots: 2 ErrorPrint(text, bool), 3 Msg(text, bool),
+** 4 MsgColour(text, Color).
+*/
+enum { CB_SLOT_ERRORPRINT = 2, CB_SLOT_MSG = 3, CB_SLOT_MSGCOLOUR = 4 };
+
+static void glua_report(CLuaInterface *self, const char *text, int err)
+{
+  void *cb;
+  if (self == NULL || text == NULL) return;
+  cb = self->gameCallback;
+  if (cb != NULL) {
+    void **vt = *(void ***)cb;
+    int slot = err ? CB_SLOT_ERRORPRINT : CB_SLOT_MSG;
+    if (vt != NULL && vt[slot] != NULL) {
+      ((void (*)(void *, const char *, int))vt[slot])(cb, text, 1);
+      return;
+    }
+  }
+  fputs(text, err ? stderr : stdout);
+  fflush(err ? stderr : stdout);
+}
+
+static void glua_report_colour(CLuaInterface *self, const char *text, const void *color)
+{
+  void *cb;
+  if (self == NULL || text == NULL) return;
+  cb = self->gameCallback;
+  if (cb != NULL) {
+    void **vt = *(void ***)cb;
+    if (vt != NULL && vt[CB_SLOT_MSGCOLOUR] != NULL) {
+      ((void (*)(void *, const char *, const void *))vt[CB_SLOT_MSGCOLOUR])(cb, text, color);
+      return;
+    }
+  }
+  fputs(text, stdout);
+  fflush(stdout);
+}
+
 static void gc_ErrorPrint(GLuaGameCallback *cb, const char *error, bool print)
 {
   (void)cb;
-  if (print) { fputs(error, stdout); fflush(stdout); }
+  if (print) { fputs(error, stderr); fflush(stderr); }
 }
 
 static void gc_Msg(GLuaGameCallback *cb, const char *msg, bool useless)
@@ -2701,76 +2744,96 @@ int opglua_script_exists(const char *name)
   return opglua_script_exists_id(name, NULL);
 }
 
+extern int opglua_luashared_readscript(const char *path, const char *pathID,
+                                        bool isClient, bool isServer,
+                                        char **dataOut, char *chunkOut, size_t chunkSize);
+
+/* FindAndRunScript: resolve a script through the shared script cache and run
+** the bytes that cache recorded.
+**
+** The reference resolves through ILuaShared::LoadFile rather than reading the
+** disk itself, bumps the per-realm load counters the cache object carries,
+** writes the caller's marker into the entry, and runs the recorded bytes using
+** the cache's own name as the chunk name.  The order matters: an include made
+** by the running script reaches the same cache entry, and the marker is what
+** the loader heuristics read.
+**
+** Two spellings are tried: the name as given, then the path stack prefix plus
+** the name.  A name without an extension gets ".lua" appended; a name with any
+** other extension is refused before a lookup happens.
+*/
 static int ci_slot_FindAndRunScript(CLuaInterface *self, const char *fn, bool run,
-                                    bool showErrors, const char *str, bool noReturns)
-{ glua_log_v("SLOT:ci_slot_FindAndRunScript"); glua_log("IFACE::FindAndRunScript(%s)", fn?fn:"(null)");
-  lua_State *L = self->state;
+                                    bool showErrors, const char *marker, bool noReturns)
+{ glua_log_v("SLOT:ci_slot_FindAndRunScript");
   char norm[512];
-  char full[1024];
-  size_t len;
-  FILE *f;
-  char *buf;
-  long size;
-  int ok;
+  char pathID[64];
+  char candidate[1024];
+  char chunk[512];
+  char *buf = NULL;
+  const char *prefix;
+  int n;
+  int attempt;
+  int ok = 0;
   size_t i;
-  (void)str;
-  if (fn == NULL) return 0;
+
+  if (self == NULL || fn == NULL) return 0;
+  glua_log("IFACE::FindAndRunScript(%s)", fn);
+
   snprintf(norm, sizeof(norm), "%s", fn);
   for (i = 0; norm[i]; i++) if (norm[i] == '\\') norm[i] = '/';
-  len = strlen(norm);
-  if (len < 4 || glua_stricmp(norm + len - 4, ".lua") != 0) {
-    if (showErrors) ci_slot_ErrorNoHalt(self, "Couldn't include file '%s' - Not a .lua file!\n", fn);
+
+  {
+    const char *dot = NULL;
+    size_t len = strlen(norm);
+    for (i = len; i > 0; i--) {
+      if (norm[i - 1] == '.') { dot = norm + i - 1; break; }
+      if (norm[i - 1] == '/') break;
+    }
+    if (dot == NULL) {
+      if (len + 4 < sizeof(norm)) memcpy(norm + len, ".lua", 5);
+    } else if (glua_stricmp(dot, ".lua") != 0) {
+      if (showErrors) ci_slot_ErrorNoHalt(self, "Couldn't include file '%s' - Not a .lua file!\n", fn);
+      return 0;
+    }
+  }
+
+  snprintf(pathID, sizeof(pathID), "%s", self->pathID);
+  prefix = ci_slot_GetPath(self);
+
+  for (attempt = 0; attempt < 2 && !ok; attempt++) {
+    if (attempt == 0 || prefix == NULL || prefix[0] == '\0') {
+      if (attempt == 1) break;
+      snprintf(candidate, sizeof(candidate), "%s", norm);
+    } else {
+      snprintf(candidate, sizeof(candidate), "%s/%s", prefix, norm);
+    }
+    chunk[0] = '\0';
+    n = opglua_luashared_readscript(candidate, pathID[0] ? pathID : NULL,
+                                    (self->realm == GLUA_REALM_CLIENT),
+                                    (self->realm == GLUA_REALM_SERVER),
+                                    &buf, chunk, sizeof(chunk));
+    if (n > 0 && buf != NULL) ok = 1;
+    else if (buf != NULL) { free(buf); buf = NULL; }
+  }
+
+  if (!ok) {
+    glua_log("IFACE::FindAndRunScript MISS '%s'", norm);
+    if (showErrors) ci_slot_ErrorNoHalt(self, "Couldn't include file '%s' - File not found or is empty\n", fn);
     return 0;
   }
-  full[0] = '\0';
-  buf = NULL;
-  size = 0;
-  /* The engine's file system answers first: its search paths carry the mounted
-  ** packs and every root the mount slots recorded.  The local walk below is
-  ** the fallback for anything it does not see. */
-  {
-    const char *pid = (self && self->pathID[0]) ? self->pathID : NULL;
-    int n = opglua_luashared_readfile(norm, pid, &buf);
-    if (n > 0) {
-      size = (long)n;
-      snprintf(full, sizeof(full), "%s", norm);
-      glua_log("IFACE::FindAndRunScript resolved (engine fs) '%s'", full);
-    }
-  }
-  if (buf == NULL) {
-    f = glua_open_script_id(self, norm, (self && self->pathID[0]) ? self->pathID : NULL, full, sizeof(full));
-    if (f == NULL) {
-      glua_log("IFACE::FindAndRunScript OPEN-FAIL '%s'", norm);
-      if (showErrors) ci_slot_ErrorNoHalt(self, "Couldn't include file '%s' - File not found or is empty\n", fn);
-      return 0;
-    }
-    glua_log("IFACE::FindAndRunScript resolved '%s'", full);
-    fseek(f, 0, SEEK_END);
-    size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    if (size <= 0) {
-      fclose(f);
-      if (showErrors) ci_slot_ErrorNoHalt(self, "Not running script %s - it's too short.\n", fn);
-      return 0;
-    }
-    buf = (char *)malloc((size_t)size + 1);
-    if (buf == NULL) { fclose(f); return 0; }
-    if (fread(buf, 1, (size_t)size, f) != (size_t)size) { fclose(f); free(buf); return 0; }
-    buf[size] = '\0';
-    fclose(f);
-  }
-  /* Push this file's directory so nested include() resolves relative to it,
-  ** and record the running file (GetCurrentFile); pop both after the run. */
-  ci_slot_PushPath(self, full);
+
+  glua_log("IFACE::FindAndRunScript got '%s' chunk '%s' len=%d", candidate, chunk, n);
+
+  ci_slot_PushPath(self, candidate);
   if (self->pushedFiles < 16) {
-    snprintf(self->fileStack[self->pushedFiles], sizeof(self->fileStack[0]), "%s", norm);
+    snprintf(self->fileStack[self->pushedFiles], sizeof(self->fileStack[0]), "%s", chunk);
     self->pushedFiles++;
   }
-  ok = glua_run_ex(self, fn, NULL, buf, run, showErrors, false, noReturns);
+  ok = glua_run_ex(self, chunk, "", buf, run, showErrors, true, noReturns);
   if (self->pushedFiles > 0) self->pushedFiles--;
   ci_slot_PopPath(self);
   free(buf);
-  (void)L;
+  (void)marker;
   return ok;
 }
 
@@ -2788,11 +2851,7 @@ static void glua_vmsg(CLuaInterface *self, const char *fmt, va_list ap, int errH
   char buf[4096];
   vsnprintf(buf, sizeof(buf), fmt, ap);
   glua_log("LUA_MSG(err=%d): %s", errHalt, buf);
-  if (errHalt) {
-    gc_ErrorPrint(&self->callback, buf, true);
-  } else {
-    gc_Msg(&self->callback, buf, true);
-  }
+  glua_report(self, buf, errHalt);
 }
 
 /* Lua error reporter: assemble the message and the traceback the way the
@@ -2826,7 +2885,7 @@ int opglua_lua_error_report(lua_State *L)
   glua_log("AdvancedLuaErrorReporter: %s", trace);
   glua_log_flush();
   if (self != NULL && self->state == L) {
-    gc_Msg(&self->callback, trace, true);
+    glua_report(self, trace, 0);
   }
   return 0;
 }
@@ -2975,7 +3034,7 @@ static void ci_slot_MsgColour(CLuaInterface *self, const GLuaColor *col, const c
   va_start(ap, fmt);
   vsnprintf(buf, sizeof(buf), fmt, ap);
   va_end(ap);
-  gc_MsgColour(&self->callback, buf, col);
+  glua_report_colour(self, buf, col);
 }
 
 /* Implemented in lib_luashared.cpp: fill a caller std::string& out param. */

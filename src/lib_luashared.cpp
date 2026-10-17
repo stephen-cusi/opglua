@@ -968,3 +968,55 @@ int AdvancedLuaErrorReporter( lua_State *L )
 {
   return opglua_lua_error_report( L );
 }
+
+/* Script load for FindAndRunScript: resolve through the cache the way the
+** reference does, bump the per-realm load counters the cache object carries,
+** and hand back the chunk name and the bytes together so the caller runs
+** exactly what was recorded.
+**
+** chunkOut  : "<name without a leading '!'>"  (the caller wraps it in '@')
+** dataOut   : malloc'd script body, caller frees
+** returns   : byte count, or 0 when the script does not resolve
+*/
+extern "C" int opglua_luashared_readscript( const char *path, const char *pathID,
+                                            bool isClient, bool isServer,
+                                            char **dataOut, char *chunkOut,
+                                            size_t chunkSize )
+{
+  std::string name, bytes;
+  GmodLuaFile *file;
+  if ( dataOut != NULL ) *dataOut = NULL;
+  if ( chunkOut != NULL && chunkSize > 0 ) chunkOut[0] = '\0';
+  if ( path == NULL || path[0] == '\0' ) return 0;
+
+  name.assign( path );
+  {
+    std::string pid;
+    if ( pathID != NULL && pathID[0] != '\0' ) pid.assign( pathID );
+    file = (GmodLuaFile *)opglua_luashared_loadfile( &name,
+               pid.empty() ? NULL : (const void *)&pid, false, isClient );
+  }
+  if ( file == NULL ) return 0;
+
+  /* The reference counts loads per realm on the cache object itself. */
+  if ( isClient ) file->timesloadedclient++;
+  if ( isServer ) file->timesloadedserver++;
+
+  bytes = file->contents;
+  {
+    const char *src = file->name.c_str();
+    if ( chunkOut != NULL && chunkSize > 0 ) {
+      if ( src[0] == '!' ) src++;
+      snprintf( chunkOut, chunkSize, "%s", src );
+    }
+  }
+  if ( bytes.empty() ) return 0;
+  {
+    char *buf = (char *)malloc( bytes.size() + 1 );
+    if ( buf == NULL ) return 0;
+    memcpy( buf, bytes.data(), bytes.size() );
+    buf[bytes.size()] = '\0';
+    if ( dataOut != NULL ) *dataOut = buf; else free( buf );
+  }
+  return (int)bytes.size();
+}
