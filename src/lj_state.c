@@ -283,6 +283,10 @@ lua_State *lj_state_new(lua_State *L)
   setmrefr(L1->glref, L->glref);
   setgcrefr(L1->env, L->env);
   stack_init(L1, L);  /* init stack */
+  L1->gm_reserved[0] = NULL;
+  L1->gm_reserved[1] = NULL;
+  L1->gm_reserved[2] = NULL;
+  L1->luabase = L->luabase;
   lua_assert(iswhite(obj2gco(L1)));
   return L1;
 }

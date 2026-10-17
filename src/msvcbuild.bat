@@ -90,9 +90,17 @@ rem C++ bridge for the engine ConVar/ConCommand implementation (see lib_convar.c
 %CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
    /I "%SRCENG%\public" /I "%SRCENG%\public\tier1" /I "%SRCENG%\public\tier0" /I "%SRCENG%" ^
    /I "..\..\gmodcommon\include" ^
+   /Fo:convar_impl.obj "%SRCENG%\tier1\convar.cpp"
+@if errorlevel 1 goto :BAD
+%CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
+   /I "%SRCENG%\public" /I "%SRCENG%\public\tier1" /I "%SRCENG%\public\tier0" /I "%SRCENG%" ^
+   /I "..\..\gmodcommon\include" ^
    /Fo:lib_luashared.obj lib_luashared.cpp
 @if errorlevel 1 goto :BAD
-%LJLINK% /DLL /MAP /DEBUG /PDB:%LJDLLNAME%.pdb /out:%LJDLLNAME% lj_*.obj lib_*.obj ^
+%CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
+   /Fo:lib_mem.obj lib_mem.cpp
+@if errorlevel 1 goto :BAD
+%LJLINK% /DLL /MAP /DEBUG /PDB:%LJDLLNAME%.pdb /out:%LJDLLNAME% lj_*.obj lib_*.obj convar_impl.obj ^
    "%SRCENG%\build\tier1\tier1.lib" "%SRCENG%\build\tier0\tier0.lib"
 @if errorlevel 1 goto :BAD
 @goto :MTDLL

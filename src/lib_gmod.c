@@ -33,6 +33,9 @@
 #else
 #include <dlfcn.h>
 #include <strings.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
 #define glua_stricmp strcasecmp
 #endif
 
@@ -123,6 +126,8 @@ typedef struct CLuaInterface {
   char pathID[32];                      /* +0x18 path id string */
   char pathStack[16][260];              /* include dir stack (GetPath/PushPath) */
   int pushedPaths;                      /* path stack depth */
+  char fileStack[16][260];              /* currently-running file stack */
+  int pushedFiles;                      /* file stack depth */
 
   GLuaReturn returns;                   /* GetReturn slots */
   int tempIndex;                        /* NewTemporaryObject ring cursor */
@@ -180,6 +185,10 @@ extern const glua_vfn glua_interface_vtable[132];
 static int glua_gettype(lua_State *L, int idx)
 {
   int t = lua_type(L, idx);
+  /* An absent index yields LUA_TNONE (-1); the reference reports that as 0
+  ** (Nil).  The engine relies on this: e.g. AddCSLuaFile's no-argument guard
+  ** is GetType(1) == 0. */
+  if (t < 0) return 0;
   if (t == GT_USERDATA) {
     GLuaUserData *ud = (GLuaUserData *)lua_touserdata(L, idx);
     if (ud != NULL && ud->type >= 9)
@@ -366,21 +375,33 @@ static void gobj_bind_stack(CLuaInterface *self, GLuaObject *obj, int stackIndex
 extern const glua_vfn glua_object_vtable[93];
 extern const glua_vfn glua_interface_vtable[132];
 
-/* Bring-up log.  Enabled by defining OPGLUA_LOG; writes call traces to a
-** fixed path so the engine's use of the interface can be observed. */
+/* Bring-up log.  Compiled in with OPGLUA_LOG but OFF at runtime unless the
+** OPGLUA_LOG environment variable is set to a non-zero value.  Every slot call
+** writes a line, so leaving it on during normal play turns the render path into
+** a synchronous disk writer and the game stops responding. */
 #if defined(OPGLUA_LOG)
+static int glua_log_enabled(void)
+{
+  static int state = -1;
+  if (state < 0) {
+    const char *v = getenv("OPGLUA_LOG");
+    state = (v != NULL && v[0] != '\0' && v[0] != '0') ? 1 : 0;
+  }
+  return state;
+}
+
 static void glua_log(const char *fmt, ...)
 {
   static FILE *f = NULL;
   static int tried = 0;
   va_list ap;
+  if (!glua_log_enabled()) return;
   if (!tried) { tried = 1; f = fopen("D:\\tmp\\glua\\opglua.log", "a"); }
   if (f == NULL) return;
   va_start(ap, fmt);
   vfprintf(f, fmt, ap);
   va_end(ap);
   fputc('\n', f);
-  fflush(f);
 }
 #else
 #define glua_log(...) ((void)0)
@@ -554,6 +575,7 @@ static void *ci_slot_GetUserdata(CLuaInterface *self, int idx) { glua_log("SLOT:
 static void ci_slot_PushNil(CLuaInterface *self) { glua_log("SLOT:ci_slot_PushNil"); lua_pushnil(self->state); }
 static void ci_slot_PushString(CLuaInterface *self, const char *val, unsigned int len)
 { glua_log("SLOT:ci_slot_PushString");
+  if (val == NULL) val = "";
   if (len != 0) lua_pushlstring(self->state, val, len);
   else lua_pushstring(self->state, val);
 }
@@ -602,10 +624,8 @@ static void ci_slot_CreateMetaTableType(CLuaInterface *self, const char *name, i
       if (self->metaTables[type] != NULL)
         gobj_setstack_any(self, self->metaTables[type], -1);
     }
-    lua_pop(L, 1);
-  } else {
-    lua_pop(L, 1);
   }
+  /* The metatable is left on top of the stack (-1) per GMod ABI contract. */
 }
 
 static const char *ci_slot_CheckString(CLuaInterface *self, int idx)
@@ -654,27 +674,21 @@ static void ci_slot_SetState(CLuaInterface *self, lua_State *L) { glua_log("SLOT
 static int ci_slot_CreateMetaTable(CLuaInterface *self, const char *name)
 { glua_log("SLOT:ci_slot_CreateMetaTable");
   lua_State *L = self->state;
-  int id = self->metaIDCounter++;
+  int id = self->metaIDCounter;
   if (luaL_newmetatable_type(L, name, id)) {
-    lua_pushnumber(L, (double)id);
-    lua_setfield(L, -2, "MetaID");
-    lua_pushstring(L, name);
-    lua_setfield(L, -2, "MetaName");
-    lua_pushvalue(L, -1);
-    lua_setfield(L, LUA_REGISTRYINDEX, name);
     if (id >= 0 && id < 255) {
       if (self->metaTables[id] == NULL) self->metaTables[id] = gobj_create(self);
       if (self->metaTables[id] != NULL) gobj_setstack_any(self, self->metaTables[id], -1);
     }
-    lua_pop(L, 1);
+    self->metaIDCounter++;
+    /* Leaves newly created metatable on stack (-1). */
     return id;
   }
-  /* Already present: report its stored MetaID. */
-  lua_pushstring(L, name);
-  lua_gettable(L, LUA_REGISTRYINDEX);
+  /* Already present: luaL_newmetatable_type already pushed it onto stack.
+  ** Fetch its stored MetaID and leave the metatable at -1. */
   lua_getfield(L, -1, "MetaID");
   id = (int)lua_tonumber(L, -1);
-  lua_pop(L, 2);
+  lua_pop(L, 1);
   return id;
 }
 
@@ -1482,6 +1496,7 @@ static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
 
   /* A small metatable for GLuaColor so PushColor/GetColor round-trip. */
   self->colorMetaID = ci_slot_CreateMetaTable(self, "Color");
+  lua_pop(L, 1);
 
   /* Global table object: created through the game callback like the
   ** reference, then pointed at the globals table. */
@@ -1641,8 +1656,6 @@ static GLuaObject *ci_slot_GetMetaTableObjectName(CLuaInterface *self, const cha
     lua_pop(L, 1);
     if (type == -1) { glua_log("SLOT:GetMetaTableObjectName -> NULL (not table, type=-1)"); return NULL; }
     ci_slot_CreateMetaTableType(self, name, type);
-    /* re-fetch */
-    lua_getfield(L, LUA_REGISTRYINDEX, name);
   }
   {
     GLuaObject *obj = ci_slot_NewTemporaryObject(self);
@@ -1857,13 +1870,17 @@ static int glua_run_ex(CLuaInterface *self, const char *filename, const char *pa
   }
 loaded:
   if (!run) return 1;
+  base = lua_gettop(L) - 1; /* top before pushing the function chunk */
   if (lua_pcall(L, 0, noReturns ? 0 : LUA_MULTRET, 0) != 0) {
     glua_log("IFACE::RunString RUNTIME-ERROR fn=%s: %s", filename?filename:"(null)", lua_tostring(L, -1));
     if (printErrors) ci_slot_ErrorNoHalt(self, "%s", lua_tostring(L, -1));
-    lua_settop(L, base);
+    if (dontPushErrors) lua_pop(L, 1);
+    else lua_settop(L, base);
     return 0;
   }
-  lua_settop(L, base);
+  if (noReturns) {
+    lua_settop(L, base);
+  }
   glua_log("IFACE::RunString OK fn=%s", filename?filename:"(null)");
   return 1;
 }
@@ -1896,7 +1913,10 @@ static void ci_slot_Error(CLuaInterface *self, const char *err)
 static const char *ci_slot_GetStringOrError(CLuaInterface *self, int index)
 { glua_log("SLOT:ci_slot_GetStringOrError");
   const char *s = lua_tostring(self->state, index);
-  if (s == NULL) ci_slot_TypeError(self, "string", index);
+  if (s == NULL) {
+    ci_slot_TypeError(self, "string", index);
+    return "";
+  }
   return s;
 }
 
@@ -1934,6 +1954,9 @@ static const char *glua_game_root(void)
   }
   return root;
 }
+
+static FILE *glua_open_script_id(CLuaInterface *self, const char *name,
+                                 const char *pathID, char *outPath, size_t outSize);
 
 /* Open a script by its engine-relative name.  Like the reference, a relative
 ** name first resolves against the current include directory (the path stack
@@ -1989,7 +2012,7 @@ int opglua_read_script(const char *name, char **outData)
   long size;
   if (outData) *outData = NULL;
   if (name == NULL) return 0;
-  f = glua_open_script(NULL, name, full, sizeof(full));
+  f = glua_open_script_id(NULL, name, NULL, full, sizeof(full));
   if (f == NULL) return 0;
   fseek(f, 0, SEEK_END);
   size = ftell(f);
@@ -2005,16 +2028,390 @@ int opglua_read_script(const char *name, char **outData)
   return (int)size;
 }
 
-/* Existence probe for ILuaShared::ScriptExists. */
-int opglua_script_exists(const char *name)
+/* ------------------------------------------------------------------------ */
+/* Lua script search roots.                                                 */
+/*                                                                          */
+/* The engine registers its search directories with the ILuaShared mounting  */
+/* slots (MountLua / MountLuaAdd) before it asks for any script, and every   */
+/* later request (LoadFile, ScriptExists, FindScripts) carries the same path */
+/* id.  Keeping those registrations is what makes a name resolve against the */
+/* directories the engine actually mounted for that id -- in particular the  */
+/* gamemode's own "entities" and "weapons" folders, which is how the scripted */
+/* entity and weapon scripts become reachable at all.                        */
+
+#define GLUA_MAX_SCRIPT_ROOTS   128
+#define GLUA_MAX_PATHIDS        16
+
+/* Report-callback used by the directory walk below: (context, entry name,
+** is folder).  Kept as a plain function pointer because the C side owns the
+** walk and the C++ side owns the result vector it fills. */
+typedef void (*glua_find_cb)(void *ctx, const char *name, int isFolder);
+
+typedef struct GLuaScriptRoot {
+  char name[260];                       /* engine-relative directory */
+  int  pathID;                          /* index into glua_pathid_names */
+} GLuaScriptRoot;
+
+static GLuaScriptRoot glua_script_roots[GLUA_MAX_SCRIPT_ROOTS];
+static int glua_script_root_count = 0;
+static char glua_pathid_names[GLUA_MAX_PATHIDS][40];
+static int glua_pathid_count = 0;
+
+static int glua_tolower_ascii(int c)
+{
+  return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;
+}
+
+static int glua_pathid_index(const char *id, int create)
+{
+  int i;
+  if (id == NULL) id = "";
+  for (i = 0; i < glua_pathid_count; i++) {
+    if (glua_stricmp(glua_pathid_names[i], id) == 0) return i;
+  }
+  if (!create || glua_pathid_count >= GLUA_MAX_PATHIDS) return -1;
+  snprintf(glua_pathid_names[glua_pathid_count], sizeof(glua_pathid_names[0]), "%s", id);
+  return glua_pathid_count++;
+}
+
+static void glua_script_root_add(const char *name, const char *pathID)
+{
+  int id;
+  int i;
+  if (name == NULL || name[0] == '\0') return;
+  id = glua_pathid_index(pathID, 1);
+  if (id < 0) return;
+  for (i = 0; i < glua_script_root_count; i++) {
+    if (glua_script_roots[i].pathID == id &&
+        glua_stricmp(glua_script_roots[i].name, name) == 0) return;
+  }
+  if (glua_script_root_count >= GLUA_MAX_SCRIPT_ROOTS) return;
+  snprintf(glua_script_roots[glua_script_root_count].name,
+           sizeof(glua_script_roots[0].name), "%s", name);
+  glua_script_roots[glua_script_root_count].pathID = id;
+  glua_script_root_count++;
+}
+
+static void glua_script_root_remove(const char *pathID)
+{
+  int id = glua_pathid_index(pathID, 0);
+  int i, w = 0;
+  if (id < 0) return;
+  for (i = 0; i < glua_script_root_count; i++) {
+    if (glua_script_roots[i].pathID != id) {
+      if (w != i) glua_script_roots[w] = glua_script_roots[i];
+      w++;
+    }
+  }
+  glua_script_root_count = w;
+}
+
+static int glua_dir_exists(const char *path)
+{
+#ifdef _WIN32
+  DWORD a = GetFileAttributesA(path);
+  return (a != INVALID_FILE_ATTRIBUTES) && ((a & FILE_ATTRIBUTE_DIRECTORY) != 0);
+#else
+  struct stat st;
+  return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+#endif
+}
+
+/* Content directory: <install>/garrysmod, or the install itself when the
+** content lives directly under it.  Every engine-relative name is resolved
+** below this point. */
+static const char *glua_content_root(void)
+{
+  static char buf[512];
+  static int tried = 0;
+  if (!tried) {
+    const char *root = glua_game_root();
+    tried = 1;
+    snprintf(buf, sizeof(buf), "%s/garrysmod", root);
+    if (!glua_dir_exists(buf)) snprintf(buf, sizeof(buf), "%s", root);
+  }
+  return buf;
+}
+
+/* One candidate for one root: try the directory of the currently running
+** include (relative names inside it), then the root under the content
+** directory, then the name directly under the content directory. */
+static FILE *glua_try_root(CLuaInterface *self, const char *root, const char *name,
+                           char *outPath, size_t outSize)
+{
+  char cand[1024];
+  FILE *f;
+  const char *content = glua_content_root();
+  const char *curdir = (self != NULL && self->pushedPaths > 0)
+                         ? self->pathStack[self->pushedPaths - 1] : NULL;
+  if (curdir != NULL && curdir[0] != '\0') {
+    snprintf(cand, sizeof(cand), "%s%s", curdir, name);
+    f = fopen(cand, "rb");
+    if (f) { if (outPath) snprintf(outPath, outSize, "%s", cand); return f; }
+  }
+  if (root != NULL && root[0] != '\0') {
+    snprintf(cand, sizeof(cand), "%s/%s/%s", content, root, name);
+    f = fopen(cand, "rb");
+    if (f) { if (outPath) snprintf(outPath, outSize, "%s", cand); return f; }
+  }
+  snprintf(cand, sizeof(cand), "%s/%s", content, name);
+  f = fopen(cand, "rb");
+  if (f) { if (outPath) snprintf(outPath, outSize, "%s", cand); return f; }
+  return NULL;
+}
+
+/* Resolve a script name for a path id: every root registered for that id in
+** registration order, then the conventional roots.  NULL pathID means "try
+** every registered root". */
+static FILE *glua_open_script_id(CLuaInterface *self, const char *name,
+                                 const char *pathID, char *outPath, size_t outSize)
+{
+  int id = (pathID != NULL) ? glua_pathid_index(pathID, 0) : -1;
+  int i;
+  FILE *f;
+  if (name == NULL) return NULL;
+  for (i = 0; i < glua_script_root_count; i++) {
+    if (id >= 0 && glua_script_roots[i].pathID != id) continue;
+    f = glua_try_root(self, glua_script_roots[i].name, name, outPath, outSize);
+    if (f != NULL) return f;
+  }
+  if (id >= 0) {
+    for (i = 0; i < glua_script_root_count; i++) {
+      if (glua_script_roots[i].pathID == id) continue;
+      f = glua_try_root(self, glua_script_roots[i].name, name, outPath, outSize);
+      if (f != NULL) return f;
+    }
+  }
+  return glua_open_script(self, name, outPath, outSize);
+}
+
+/* Engine file system answers (lib_luashared.cpp): the interface's search paths
+** carry the mounted packs and every root the mount slots recorded.  Each one
+** returns 0 / "no" when no engine file system is bound, so the local walk
+** below always stays usable as the fallback. */
+extern int opglua_luashared_readfile(const char *name, const char *pathID, char **outData);
+extern int opglua_luashared_fileexists(const char *name, const char *pathID);
+extern int opglua_luashared_isdirectory(const char *name, const char *pathID);
+
+/* Read a script by name for a path id.  Returns the byte length, or 0. */
+int opglua_read_script_id(const char *name, const char *pathID, char **outData)
+{
+  char full[1024];
+  FILE *f;
+  char *buf;
+  long size;
+  if (outData) *outData = NULL;
+  if (name == NULL) return 0;
+  {
+    int n = opglua_luashared_readfile(name, pathID, outData);
+    if (n > 0) return n;
+  }
+  f = glua_open_script_id(NULL, name, pathID, full, sizeof(full));
+  if (f == NULL) return 0;
+  fseek(f, 0, SEEK_END);
+  size = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  if (size <= 0) { fclose(f); return 0; }
+  buf = (char *)malloc((size_t)size + 1);
+  if (buf == NULL) { fclose(f); return 0; }
+  if (fread(buf, 1, (size_t)size, f) != (size_t)size) { fclose(f); free(buf); return 0; }
+  buf[size] = '\0';
+  fclose(f);
+  if (outData) *outData = buf;
+  else free(buf);
+  return (int)size;
+}
+
+int opglua_script_exists_id(const char *name, const char *pathID)
 {
   char full[1024];
   FILE *f;
   if (name == NULL) return 0;
-  f = glua_open_script(NULL, name, full, sizeof(full));
+  if (opglua_luashared_fileexists(name, pathID)) return 1;
+  f = glua_open_script_id(NULL, name, pathID, full, sizeof(full));
   if (f == NULL) return 0;
   fclose(f);
   return 1;
+}
+
+/* Resolve a name for a path id and report whether it is a directory.  The
+** reference's existence test also answers "yes" for a directory, which is what
+** lets the engine probe "entities/foo" before it asks for a file inside it. */
+int opglua_script_isdir_id(const char *name, const char *pathID)
+{
+  char full[1024];
+  FILE *f;
+  (void)pathID;
+  if (name == NULL) return 0;
+  if (opglua_luashared_isdirectory(name, pathID)) return 1;
+  f = glua_open_script_id(NULL, name, pathID, full, sizeof(full));
+  if (f != NULL) { fclose(f); return 0; }
+  /* No file opened: the name may still be a directory.  Try the same roots the
+  ** reader walks, without the file test. */
+  {
+    const char *content = glua_content_root();
+    int i;
+    char cand[1024];
+    if (glua_dir_exists(name)) return 1;
+    for (i = 0; i < glua_script_root_count; i++) {
+      if (pathID != NULL) {
+        int id = glua_pathid_index(pathID, 0);
+        if (id >= 0 && glua_script_roots[i].pathID != id) continue;
+      }
+      snprintf(cand, sizeof(cand), "%s/%s/%s", content, glua_script_roots[i].name, name);
+      if (glua_dir_exists(cand)) return 1;
+    }
+    snprintf(cand, sizeof(cand), "%s/%s", content, name);
+    if (glua_dir_exists(cand)) return 1;
+  }
+  return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Directory enumeration for ILuaShared::FindScripts.                       */
+
+/* Case-insensitive wildcard match, '*' and '?'. */
+static int glua_wildmatch(const char *pat, const char *str)
+{
+  while (*pat) {
+    if (*pat == '*') {
+      while (*pat == '*') pat++;
+      if (*pat == '\0') return 1;
+      while (*str) {
+        if (glua_wildmatch(pat, str)) return 1;
+        str++;
+      }
+      return 0;
+    }
+    if (*str == '\0') return 0;
+    if (*pat != '?' && glua_tolower_ascii((unsigned char)*pat) !=
+                        glua_tolower_ascii((unsigned char)*str)) return 0;
+    pat++;
+    str++;
+  }
+  return *str == '\0';
+}
+
+/* Names already reported during one FindScripts call: a name mounted twice
+** (content directory and an addon) is handed to the engine only once. */
+typedef struct GLuaFindSeen {
+  char names[512][128];
+  int  count;
+} GLuaFindSeen;
+
+static int glua_find_seen(GLuaFindSeen *seen, const char *name)
+{
+  int i;
+  for (i = 0; i < seen->count; i++) {
+    if (glua_stricmp(seen->names[i], name) == 0) return 1;
+  }
+  if (seen->count < 512) {
+    snprintf(seen->names[seen->count], sizeof(seen->names[0]), "%s", name);
+    seen->count++;
+  }
+  return 0;
+}
+
+/* Report every entry of one directory whose base name matches the pattern. */
+static int glua_emit_dir(const char *dir, const char *wild,
+                         GLuaFindSeen *seen, void *ctx, glua_find_cb cb)
+{
+  int total = 0;
+  const char *w = (wild != NULL && wild[0] != '\0') ? wild : "*";
+#ifdef _WIN32
+  char pat[1024];
+  WIN32_FIND_DATAA fd;
+  HANDLE h;
+  snprintf(pat, sizeof(pat), "%s/%s", dir, w);
+  h = FindFirstFileA(pat, &fd);
+  if (h == INVALID_HANDLE_VALUE) return 0;
+  do {
+    int isFolder = (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? 1 : 0;
+    if (strcmp(fd.cFileName, ".") == 0 || strcmp(fd.cFileName, "..") == 0) continue;
+    if (glua_find_seen(seen, fd.cFileName)) continue;
+    cb(ctx, fd.cFileName, isFolder);
+    total++;
+  } while (FindNextFileA(h, &fd));
+  FindClose(h);
+#else
+  DIR *d = opendir(dir);
+  struct dirent *e;
+  if (d == NULL) return 0;
+  while ((e = readdir(d)) != NULL) {
+    char full[1024];
+    int isFolder;
+    if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0) continue;
+    if (!glua_wildmatch(w, e->d_name)) continue;
+    if (glua_find_seen(seen, e->d_name)) continue;
+    snprintf(full, sizeof(full), "%s/%s", dir, e->d_name);
+    isFolder = glua_dir_exists(full);
+    cb(ctx, e->d_name, isFolder);
+    total++;
+  }
+  closedir(d);
+#endif
+  return total;
+}
+
+/* Walk every root registered for the path id and report the matching entries
+** of <path>.  The pattern splits into a directory part and a wildcard part the
+** same way the engine's file system does ("entities/*" -> directory
+** "entities", wildcard "*"), and the callback receives the entry name as it
+** appears inside that directory. */
+int opglua_find_scripts(const char *path, const char *pathID,
+                        void *ctx, glua_find_cb cb)
+{
+  char dir[512];
+  const char *slash;
+  const char *wild;
+  const char *content = glua_content_root();
+  GLuaFindSeen seen;
+  int id = (pathID != NULL) ? glua_pathid_index(pathID, 0) : -1;
+  int total = 0;
+  int i;
+
+  if (path == NULL || cb == NULL) return 0;
+  memset(&seen, 0, sizeof(seen));
+
+  slash = strrchr(path, '/');
+  if (slash == NULL) {
+    dir[0] = '\0';
+    wild = path;
+  } else {
+    size_t n = (size_t)(slash - path);
+    if (n >= sizeof(dir)) n = sizeof(dir) - 1;
+    memcpy(dir, path, n);
+    dir[n] = '\0';
+    wild = slash + 1;
+  }
+
+  for (i = 0; i < glua_script_root_count; i++) {
+    char full[1024];
+    if (id >= 0 && glua_script_roots[i].pathID != id) continue;
+    if (dir[0] != '\0') {
+      snprintf(full, sizeof(full), "%s/%s/%s", content, glua_script_roots[i].name, dir);
+    } else {
+      snprintf(full, sizeof(full), "%s/%s", content, glua_script_roots[i].name);
+    }
+    total += glua_emit_dir(full, wild, &seen, ctx, cb);
+  }
+
+  /* The conventional root covers the stock layout even when the engine did not
+  ** mount anything for this id yet. */
+  {
+    char full[1024];
+    if (dir[0] != '\0') snprintf(full, sizeof(full), "%s/lua/%s", content, dir);
+    else                snprintf(full, sizeof(full), "%s/lua", content);
+    total += glua_emit_dir(full, wild, &seen, ctx, cb);
+  }
+  glua_log("FindScripts: %s (%s) -> %d", path, pathID ? pathID : "(null)", total);
+  return total;
+}
+
+/* Existence probe for ILuaShared::ScriptExists. */
+int opglua_script_exists(const char *name)
+{
+  return opglua_script_exists_id(name, NULL);
 }
 
 static int ci_slot_FindAndRunScript(CLuaInterface *self, const char *fn, bool run,
@@ -2039,30 +2436,51 @@ static int ci_slot_FindAndRunScript(CLuaInterface *self, const char *fn, bool ru
     return 0;
   }
   full[0] = '\0';
-  f = glua_open_script(self, norm, full, sizeof(full));
-  if (f == NULL) {
-    glua_log("IFACE::FindAndRunScript OPEN-FAIL '%s'", norm);
-    if (showErrors) ci_slot_ErrorNoHalt(self, "Couldn't include file '%s' - File not found or is empty\n", fn);
-    return 0;
+  buf = NULL;
+  size = 0;
+  /* The engine's file system answers first: its search paths carry the mounted
+  ** packs and every root the mount slots recorded.  The local walk below is
+  ** the fallback for anything it does not see. */
+  {
+    const char *pid = (self && self->pathID[0]) ? self->pathID : NULL;
+    int n = opglua_luashared_readfile(norm, pid, &buf);
+    if (n > 0) {
+      size = (long)n;
+      snprintf(full, sizeof(full), "%s", norm);
+      glua_log("IFACE::FindAndRunScript resolved (engine fs) '%s'", full);
+    }
   }
-  glua_log("IFACE::FindAndRunScript resolved '%s'", full);
-  fseek(f, 0, SEEK_END);
-  size = ftell(f);
-  fseek(f, 0, SEEK_SET);
-  if (size <= 0) {
+  if (buf == NULL) {
+    f = glua_open_script_id(self, norm, (self && self->pathID[0]) ? self->pathID : NULL, full, sizeof(full));
+    if (f == NULL) {
+      glua_log("IFACE::FindAndRunScript OPEN-FAIL '%s'", norm);
+      if (showErrors) ci_slot_ErrorNoHalt(self, "Couldn't include file '%s' - File not found or is empty\n", fn);
+      return 0;
+    }
+    glua_log("IFACE::FindAndRunScript resolved '%s'", full);
+    fseek(f, 0, SEEK_END);
+    size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    if (size <= 0) {
+      fclose(f);
+      if (showErrors) ci_slot_ErrorNoHalt(self, "Not running script %s - it's too short.\n", fn);
+      return 0;
+    }
+    buf = (char *)malloc((size_t)size + 1);
+    if (buf == NULL) { fclose(f); return 0; }
+    if (fread(buf, 1, (size_t)size, f) != (size_t)size) { fclose(f); free(buf); return 0; }
+    buf[size] = '\0';
     fclose(f);
-    if (showErrors) ci_slot_ErrorNoHalt(self, "Not running script %s - it's too short.\n", fn);
-    return 0;
   }
-  buf = (char *)malloc((size_t)size + 1);
-  if (buf == NULL) { fclose(f); return 0; }
-  if (fread(buf, 1, (size_t)size, f) != (size_t)size) { fclose(f); free(buf); return 0; }
-  buf[size] = '\0';
-  fclose(f);
   /* Push this file's directory so nested include() resolves relative to it,
-  ** then pop after the chunk has run (reference order). */
+  ** and record the running file (GetCurrentFile); pop both after the run. */
   ci_slot_PushPath(self, full);
+  if (self->pushedFiles < 16) {
+    snprintf(self->fileStack[self->pushedFiles], sizeof(self->fileStack[0]), "%s", norm);
+    self->pushedFiles++;
+  }
   ok = glua_run_ex(self, fn, NULL, buf, run, showErrors, false, noReturns);
+  if (self->pushedFiles > 0) self->pushedFiles--;
   ci_slot_PopPath(self);
   free(buf);
   (void)L;
@@ -2082,6 +2500,7 @@ static void glua_vmsg(CLuaInterface *self, const char *fmt, va_list ap, int errH
 {
   char buf[4096];
   vsnprintf(buf, sizeof(buf), fmt, ap);
+  glua_log("LUA_MSG(err=%d): %s", errHalt, buf);
   if (errHalt) {
     gc_ErrorPrint(&self->callback, buf, true);
   } else {
@@ -2236,10 +2655,21 @@ static void ci_slot_MsgColour(CLuaInterface *self, const GLuaColor *col, const c
   gc_MsgColour(&self->callback, buf, col);
 }
 
+/* Implemented in lib_luashared.cpp: fill a caller std::string& out param. */
+extern void opglua_stdstring_clear(void *dest);
+extern void opglua_stdstring_assign(void *dest, const char *data, unsigned int len);
+
 static void ci_slot_GetCurrentFile(CLuaInterface *self, void *outStr)
 { glua_log("SLOT:ci_slot_GetCurrentFile");
-  (void)self; (void)outStr;
-  glua_warn_once("GetCurrentFile(std::string&)");
+  opglua_stdstring_clear(outStr);
+  /* Report the file whose chunk is currently executing.  The loader keeps a
+  ** stack of running files; the running script is the top.  (The reference
+  ** recovers the same value from the Lua debug stack; tracking it directly is
+  ** equivalent and avoids re-entering the debug API.) */
+  if (self->pushedFiles > 0) {
+    const char *f = self->fileStack[self->pushedFiles - 1];
+    opglua_stdstring_assign(outStr, f, (unsigned int)strlen(f));
+  }
 }
 
 static int ci_slot_CompileString(CLuaInterface *self, void *dumper, const void *str)
@@ -2419,19 +2849,21 @@ static void ci_slot_PreCreateTable(CLuaInterface *self, int arr, int narr)
 { glua_log("SLOT:ci_slot_PreCreateTable"); lua_createtable(self->state, arr, narr); }
 
 static void ci_slot_PushPooledString(CLuaInterface *self, int index)
-{ glua_log("SLOT:ci_slot_PushPooledString");
+{
   lua_State *L = self->state;
-  if (index >= 0 && index < GLUA_POOLED_COUNT)
-    lua_pushstring(L, glua_pooled_strings[index]);
+  const char *str = (index >= 0 && index < GLUA_POOLED_COUNT) ? glua_pooled_strings[index] : NULL;
+  glua_log("SLOT:ci_slot_PushPooledString(%d -> %s)", index, str ? str : "(null)");
+  if (str != NULL)
+    lua_pushstring(L, str);
   else
     lua_pushnil(L);
 }
 
 static const char *ci_slot_GetPooledString(CLuaInterface *self, int index)
-{ glua_log("SLOT:ci_slot_GetPooledString");
+{
   (void)self;
   if (index >= 0 && index < GLUA_POOLED_COUNT) return glua_pooled_strings[index];
-  return NULL;
+  return "";
 }
 
 static int ci_slot_AddThreadedCall(CLuaInterface *self, void *call)
@@ -2487,18 +2919,18 @@ static double ci_slot_CheckNumberOpt(CLuaInterface *self, int idx, double def)
 { glua_log("SLOT:ci_slot_CheckNumberOpt"); return luaL_optnumber(self->state, idx, def); }
 
 static int ci_slot_RegisterMetaTable(CLuaInterface *self, const char *name, GLuaObject *tbl)
-{ glua_log("SLOT:ci_slot_RegisterMetaTable");
+{ glua_log("SLOT:ci_slot_RegisterMetaTable(name=%s)", name?name:"(null)");
   lua_State *L = self->state;
   int id;
   lua_getfield(L, LUA_REGISTRYINDEX, name);
-  if (lua_type(L, -1) == GT_TABLE) {    /* already registered: return its id */
+  if (lua_type(L, -1) == GT_TABLE) {    /* already registered: preserve its id */
     lua_getfield(L, -1, "MetaID");
     id = (int)lua_tonumber(L, -1);
-    lua_pop(L, 2);
-    return id;
+    lua_pop(L, 2);                      /* pop MetaID and old table */
+  } else {
+    lua_pop(L, 1);
+    id = self->metaIDCounter++;
   }
-  lua_pop(L, 1);
-  id = self->metaIDCounter++;
   if (tbl != NULL) gobj_push_obj(self, tbl); else lua_newtable(L);
   lua_pushnumber(L, (double)id);
   lua_setfield(L, -2, "MetaID");
@@ -2510,7 +2942,7 @@ static int ci_slot_RegisterMetaTable(CLuaInterface *self, const char *name, GLua
     if (self->metaTables[id] == NULL) self->metaTables[id] = gobj_create(self);
     if (self->metaTables[id] != NULL) gobj_setstack_any(self, self->metaTables[id], -1);
   }
-  lua_pop(L, 1);
+  /* Leave registered metatable on stack (-1) per GMod contract */
   return id;
 }
 
@@ -2533,6 +2965,7 @@ typedef struct CLuaShared {
   const void *vtable;
   void *factory;                        /* engine interface factory (Init) */
   bool dedicated;
+  void *filesystem;                     /* VFileSystem022, or NULL */
   CLuaInterface *client;
   CLuaInterface *server;
   CLuaInterface *menu;
@@ -2540,20 +2973,31 @@ typedef struct CLuaShared {
 
 static void cs_dtor(CLuaShared *s) { (void)s; }
 
-/* Init(interfaceFactory, magicBool, context, pGet): the engine hands over
-** its CreateInterface so lua_shared can reach VFileSystem022 /
-** VEngineCvar007 etc.  Stored for later use; nothing is requested yet. */
+/* Init(interfaceFactory, magicBool, context, pGet): the engine hands over its
+** CreateInterface.  The reference asks it for the ConVar system and for the
+** file system, keeps both, and only then lets any interface be created -- the
+** file system is what every script lookup goes through afterwards.  A missing
+** file system is not fatal: the module keeps its own directory walk. */
 extern void opglua_convars_set_cvar(void *cvar);
+extern void opglua_mem_bind(void);
+extern void opglua_luashared_setfilesystem(void *fs);
 
 static void cs_Init(CLuaShared *s, void *f, bool b, void *ctx, void *get)
 { glua_log("ILuaShared::Init(factory=%p ctx=%p)", f, ctx); s->factory = f; s->dedicated = b; (void)ctx; (void)get;
-  /* Pull VEngineCvar007 like the reference so the ConVar module's g_pCVar is
-  ** bound to the engine's ICVar.  factory(name, int* out). */
+  opglua_mem_bind();
+  s->filesystem = NULL;
   if (f != NULL) {
     void *(*factory)(const char *, int *) = (void *(*)(const char *, int *))f;
+    /* Pull VEngineCvar007 like the reference so the ConVar module's g_pCVar is
+    ** bound to the engine's ICVar.  factory(name, int* out). */
     void *cvar = factory("VEngineCvar007", NULL);
-    glua_log("ILuaShared::Init cvar=%p", cvar);
+    void *fs = factory("VFileSystem022", NULL);
+    glua_log("ILuaShared::Init cvar=%p filesystem=%p", cvar, fs);
     opglua_convars_set_cvar(cvar);
+    s->filesystem = fs;
+    opglua_luashared_setfilesystem(fs);
+  } else {
+    opglua_luashared_setfilesystem(NULL);
   }
 }
 
@@ -2562,6 +3006,8 @@ static void cs_Shutdown(CLuaShared *s)
   if (s->client) { ci_slot_Shutdown(s->client); free(s->client); s->client = NULL; }
   if (s->server) { ci_slot_Shutdown(s->server); free(s->server); s->server = NULL; }
   if (s->menu)   { ci_slot_Shutdown(s->menu);   free(s->menu);   s->menu = NULL; }
+  opglua_luashared_setfilesystem(NULL);
+  s->filesystem = NULL;
 }
 static void cs_DumpStats(CLuaShared *s) { (void)s; glua_log("ILuaShared::DumpStats"); }
 
@@ -2603,15 +3049,21 @@ static CLuaInterface *cs_GetLuaInterface(CLuaShared *s, unsigned char realm)
   }
 }
 
-/* ILuaShared tail (slots 7..17).  File-mounting and script enumeration go
-** through the engine file system, which the standalone build does not have;
-** they are safe stand-ins.  ScriptExists answers from the host filesystem so
-** Require-style probes still work. */
+/* ILuaShared tail (slots 7..18).  File reads, the script cache and the
+** script enumeration live in lib_luashared.cpp; the mounting slots below keep
+** the local root bookkeeping and hand the same roots to the engine's file
+** system when one is present. */
 /* Implemented in lib_luashared.cpp: std::string-typed ILuaShared tail slots
 ** and the LuaFile the engine's gamemode existence check consumes. */
 extern void *opglua_luashared_loadfile(const void *path, const void *pathId,
                                        bool fromDatatable, bool fromFile);
 extern bool opglua_luashared_scriptexists(const void *file, const void *path, bool unknown);
+extern void opglua_luashared_findscripts(const void *path, const void *pathID, void *outVector);
+extern void *opglua_luashared_getcache(const void *fileName);
+extern void opglua_luashared_emptycache(void);
+extern void opglua_luashared_invalidatecache(const void *name);
+extern void opglua_luashared_mount_add(const char *root, const char *pathID);
+extern void opglua_luashared_unmount(const char *pathID);
 
 static void *cs_LoadFile(CLuaShared *s, const void *path, const void *pathId,
                          bool fromDatatable, bool fromFile)
@@ -2620,17 +3072,59 @@ static void *cs_LoadFile(CLuaShared *s, const void *path, const void *pathId,
   glua_log("ILuaShared::LoadFile -> %p", r);
   return r;
 }
-static void cs_MountLua(CLuaShared *s, const char *pathID) { (void)s; glua_log("ILuaShared::MountLua(%s)", pathID); }
+
+/* MountLua(pathID): the engine's per-path-id root set.  The reference mounts
+** "lua" for every id and additionally "gamemodes" for every id except the
+** menu's, both through the same add-one-root slot, so the local bookkeeping
+** and the engine's search paths stay in step.  The menu comparison is exact:
+** the engine always spells that id the same way. */
+static void cs_MountLuaAdd(CLuaShared *s, const char *file, const char *pathID);
+
+static void cs_MountLua(CLuaShared *s, const char *pathID)
+{ (void)s;
+  glua_log("ILuaShared::MountLua(%s)", pathID ? pathID : "(null)");
+  if (pathID == NULL) return;
+  cs_MountLuaAdd(s, "lua", pathID);
+  if (strcmp(pathID, "LuaMenu") != 0) cs_MountLuaAdd(s, "gamemodes", pathID);
+}
+
+/* MountLuaAdd(file, pathID): one explicit root.  The reference resolves the
+** directory, refuses it when it is not a directory, and adds it to the path
+** id's search set; the engine side of that happens in lib_luashared.cpp and
+** the local walk records the same name either way, so a path id that the file
+** system does not know still resolves here. */
 static void cs_MountLuaAdd(CLuaShared *s, const char *file, const char *pathID)
-{ (void)s; (void)file; (void)pathID; }
-static void cs_UnMountLua(CLuaShared *s, const char *pathID) { (void)s; (void)pathID; }
+{ (void)s;
+  glua_log("ILuaShared::MountLuaAdd(%s, %s)", file ? file : "(null)", pathID ? pathID : "(null)");
+  if (file == NULL || file[0] == '\0' || pathID == NULL) return;
+  glua_script_root_add(file, pathID);
+  opglua_luashared_mount_add(file, pathID);
+}
+
+/* UnMountLua(pathID): drop the id's roots on both sides. */
+static void cs_UnMountLua(CLuaShared *s, const char *pathID)
+{ (void)s;
+  glua_log("ILuaShared::UnMountLua(%s)", pathID ? pathID : "(null)");
+  if (pathID == NULL) return;
+  glua_script_root_remove(pathID);
+  opglua_luashared_unmount(pathID);
+}
 static void cs_SetFileContents(CLuaShared *s, const char *a, const char *b) { (void)s; (void)a; (void)b; }
 static void cs_SetLuaFindHook(CLuaShared *s, void *hook) { (void)s; (void)hook; }
+
+/* FindScripts(path, pathID, out): enumerate the matching entries of `path`
+** over every root mounted for `pathID` and append them to the caller's
+** result vector.  The engine drives this for its script folders, so an empty
+** answer here is precisely what leaves scripted entities and weapons
+** unregistered. */
 static void cs_FindScripts(CLuaShared *s, const void *path, const void *pathID, void *out)
-{ (void)s; (void)path; (void)pathID; (void)out; }
+{ (void)s;
+  opglua_luashared_findscripts(path, pathID, out);
+}
 static const char *cs_GetStackTraces(CLuaShared *s) { (void)s; return ""; }
-static void cs_InvalidateCache(CLuaShared *s, const void *unknown) { (void)s; (void)unknown; }
-static void cs_EmptyCache(CLuaShared *s) { (void)s; }
+static void cs_InvalidateCache(CLuaShared *s, const void *unknown)
+{ (void)s; opglua_luashared_invalidatecache(unknown); }
+static void cs_EmptyCache(CLuaShared *s) { (void)s; opglua_luashared_emptycache(); }
 static bool cs_ScriptExists(CLuaShared *s, const void *file, const void *path, bool unknown)
 { (void)s;
   bool r = opglua_luashared_scriptexists(file, path, unknown);
@@ -2638,7 +3132,16 @@ static bool cs_ScriptExists(CLuaShared *s, const void *file, const void *path, b
   return r;
 }
 
-static const glua_vfn glua_shared_vtable[18] = {
+/* GetCache(fileName) -> LuaFile* from the module cache.  A pure lookup: the
+** loader fills the table, and a name that was never loaded is a miss. */
+static void *cs_GetCache(CLuaShared *s, const void *fileName)
+{ (void)s;
+  void *r = opglua_luashared_getcache(fileName);
+  glua_log("ILuaShared::GetCache -> %p", r);
+  return r;
+}
+
+static const glua_vfn glua_shared_vtable[19] = {
   /*  0 */ (glua_vfn)cs_dtor,
   /*  1 */ (glua_vfn)cs_Init,
   /*  2 */ (glua_vfn)cs_Shutdown,
@@ -2647,16 +3150,17 @@ static const glua_vfn glua_shared_vtable[18] = {
   /*  5 */ (glua_vfn)cs_CloseLuaInterface,
   /*  6 */ (glua_vfn)cs_GetLuaInterface,
   /*  7 */ (glua_vfn)cs_LoadFile,
-  /*  8 */ (glua_vfn)cs_MountLua,
-  /*  9 */ (glua_vfn)cs_MountLuaAdd,
-  /* 10 */ (glua_vfn)cs_UnMountLua,
-  /* 11 */ (glua_vfn)cs_SetFileContents,
-  /* 12 */ (glua_vfn)cs_SetLuaFindHook,
-  /* 13 */ (glua_vfn)cs_FindScripts,
-  /* 14 */ (glua_vfn)cs_GetStackTraces,
-  /* 15 */ (glua_vfn)cs_InvalidateCache,
-  /* 16 */ (glua_vfn)cs_EmptyCache,
-  /* 17 */ (glua_vfn)cs_ScriptExists
+  /*  8 */ (glua_vfn)cs_GetCache,
+  /*  9 */ (glua_vfn)cs_MountLua,
+  /* 10 */ (glua_vfn)cs_MountLuaAdd,
+  /* 11 */ (glua_vfn)cs_UnMountLua,
+  /* 12 */ (glua_vfn)cs_SetFileContents,
+  /* 13 */ (glua_vfn)cs_SetLuaFindHook,
+  /* 14 */ (glua_vfn)cs_FindScripts,
+  /* 15 */ (glua_vfn)cs_GetStackTraces,
+  /* 16 */ (glua_vfn)cs_InvalidateCache,
+  /* 17 */ (glua_vfn)cs_EmptyCache,
+  /* 18 */ (glua_vfn)cs_ScriptExists
 };
 
 /* ILuaConVars: the engine asks for this too.  CreateConVar/CreateConCommand
