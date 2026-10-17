@@ -136,9 +136,10 @@ typedef struct CLuaInterface {
   int tempIndex;                        /* NewTemporaryObject ring cursor */
   GLuaObject *temp[32];                 /* NewTemporaryObject ring */
 
-  GLuaObject *global;                   /* Global() table object */
-  int metaIDCounter;
-  GLuaObject *metaTables[255];          /* per-type metatable objects */
+  GLuaObject *global;                   /* Global() table object (+0x1a0) */
+  GLuaObject *pooled;                   /* pooled-string object  (+0x1a8) */
+  int metaIDCounter;                    /* first free type id    (+0x1b0) */
+  GLuaObject *metaTables[255];          /* per-type metatable objects (+0x1b8) */
 
   /* Pending host calls.  Each entry is a host object whose method table
   ** answers "should this run now" and "run it"; Cycle drains the queue once a
@@ -1688,40 +1689,107 @@ static int glua_error_handler(lua_State *L)
   return 1;
 }
 
+/* Init: build the state and hand it to the host.
+**
+** Order matters and is reproduced from the reference:
+**   1. adopt the game callback and create the global table object through it
+**   2. clear the return slots and the per-type metatable object table
+**   3. create the state, install it, write the interface back pointer
+**   4. install the panic handler and keep a reference to the error handler
+**   5. check the FPU precision
+**   6. build the 317-entry callback-name table and keep it as the pooled object
+**   7. tell the host the interface exists -- BEFORE the libraries are opened,
+**      because the host may start running scripts from this callback
+**   8. publish VERSION and BRANCH
+**   9. open the standard libraries
+**  10. strip the debug introspection entry points
+**
+** A host that starts loading script from step 7 sees a state whose globals are
+** still bare; that is exactly what the reference does, and the scripts the
+** engine loads at that point expect it.
+*/
 static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
 {
   lua_State *L;
-  glua_log("IFACE::Init(cb=%p dedicated=%d state=%p)", cb, (int)dedicated, (void*)self->state);
-  (void)dedicated;
-  if (cb != NULL) self->gameCallback = cb;
-  if (self->state != NULL) return true;
+  int i;
 
+  if (self == NULL) return 0;
+  glua_log("IFACE::Init(cb=%p dedicated=%d state=%p)", cb, (int)dedicated, (void*)self->state);
+
+  /* 1. adopt the callback first: object creation goes through it. */
+  if (cb != NULL) self->gameCallback = cb;
+  if (self->state != NULL) return 1;
+
+  /* 2. clear the slots the host will fill. */
+  for (i = 0; i < 4; i++) self->returns.objs[i] = NULL;
+  for (i = 0; i < 255; i++) self->metaTables[i] = NULL;
+  for (i = 0; i < 32; i++) self->temp[i] = NULL;
+  self->tempIndex = 0;
+  self->threadedCount = 0;
+  self->metaIDCounter = GT_TYPE_COUNT;   /* 44, the first free type id */
+  self->pushedPaths = 0;
+  self->pushedFiles = 0;
+
+  /* 3. the state itself. */
   L = luaL_newstate();
   if (L == NULL) {
-    fputs("Unable to create new Lua State! Couldn't alloc memory?\n", stderr);
-    return false;
+    glua_report(self, "Unable to create new Lua State! Couldn't alloc memory?\n", 1);
+    return 0;
   }
   self->state = L;
-  L->luabase = self;                    /* the module-visible back pointer */
+  L->luabase = self;                     /* the module-visible back pointer */
 
-  luaL_openlibs(L);
-
-  /* The reference does not expose the io library to scripts: no `io` entry
-  ** exists in its name table, and GMod sandboxes file access behind its own
-  ** library.  Removing it also keeps os.execute-class escapes out of reach. */
-  lua_pushnil(L);
-  lua_setglobal(L, "io");
-  lua_atpanic(L, NULL);
-
-  /* Keep the error handler in the registry: every protected call made through
-  ** the interface runs with it so a runtime error is a formatted message
-  ** rather than a bare value. */
+  /* 4. panic handler and the error handler every protected call runs with. */
+  lua_atpanic(L, (lua_CFunction)glua_error_handler);
   lua_pushcclosure(L, (lua_CFunction)glua_error_handler, 0);
   self->errorFuncRef = luaL_ref(L, LUA_REGISTRYINDEX);
 
-  /* Custom metatable ids start after the builtin type range so they can
-  ** never collide with a GarrysMod::Lua::Type value. */
-  self->metaIDCounter = GT_TYPE_COUNT;
+  /* 6. the pooled-string object backing PushPooledString/GetPooledString. */
+  self->pooled = gobj_create(self);
+  if (self->pooled != NULL) {
+    lua_createtable(L, GLUA_POOLED_COUNT, 0);
+    for (i = 0; i < GLUA_POOLED_COUNT; i++) {
+      lua_pushinteger(L, i);
+      lua_pushstring(L, glua_pooled_strings[i]);
+      lua_settable(L, -3);
+    }
+    gobj_setstack_any(self, self->pooled, -1);
+    lua_pop(L, 1);
+  }
+
+  /* The global table object, also created through the host. */
+  self->global = gobj_create(self);
+  glua_log("IFACE::Init: gameCallback=%p cb_vt0=%p global=%p", self->gameCallback,
+           self->gameCallback ? GLUA_OBJ_VT(self->gameCallback)[0] : 0, (void *)self->global);
+  if (self->global != NULL) {
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+    gobj_setstack_any(self, self->global, -1);
+    lua_pop(L, 1);
+  }
+
+  /* 7. hand the interface to the host before any library exists. */
+  if (self->gameCallback != NULL) {
+    void **vt = *(void ***)self->gameCallback;
+    if (vt != NULL && vt[6] != NULL) {
+      glua_log("IFACE::-> InterfaceCreated");
+      ((void (*)(void *, CLuaInterface *))vt[6])(self->gameCallback, self);
+      glua_log("IFACE::<- InterfaceCreated returned");
+    }
+  }
+
+  /* 8. build identity in the globals. */
+  lua_pushnumber(L, 1234.0);
+  lua_setfield(L, LUA_GLOBALSINDEX, "VERSION");
+  lua_pushstring(L, "unknown");
+  lua_setfield(L, LUA_GLOBALSINDEX, "BRANCH");
+
+  /* 9. libraries. */
+  luaL_openlibs(L);
+
+  /* The reference never exposes io to scripts; GMod routes file access through
+  ** its own library. */
+  lua_pushnil(L);
+  lua_setglobal(L, "io");
 
   /* Register the loader's _LOADLIB metatable (handle cache for modules). */
   luaL_newmetatable(L, "_LOADLIB");
@@ -1729,29 +1797,12 @@ static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
   lua_setfield(L, -2, "__gc");
   lua_pop(L, 1);
 
-  /* A small metatable for GLuaColor so PushColor/GetColor round-trip. */
+  /* A metatable for GLuaColor so PushColor/GetColor round-trip. */
   self->colorMetaID = ci_slot_CreateMetaTable(self, "Color");
   lua_pop(L, 1);
 
-  /* Global table object: created through the game callback like the
-  ** reference, then pointed at the globals table. */
-  self->global = gobj_create(self);
-  glua_log("IFACE::Init: gameCallback=%p cb_vt0=%p global=%p", self->gameCallback, self->gameCallback?GLUA_OBJ_VT(self->gameCallback)[0]:0, (void*)self->global);
-  if (self->global != NULL) {
-    lua_pushvalue(L, LUA_GLOBALSINDEX);
-    GLUA_OBJ_SETSTACK(self->global, -1);
-    lua_pop(L, 1);
-  }
-  /* The reference publishes the engine build identity into the globals here
-  ** and strips the debug library's introspection entry points so scripts
-  ** cannot rewrite upvalues. */
-  if (self->global != NULL) {
-    lua_pushnumber(L, 1234.0);
-    ci_slot_SetMemberStr(self, self->global, "VERSION");
-    lua_pushstring(L, "unknown");
-    ci_slot_SetMemberStr(self, self->global, "BRANCH");
-  }
-  lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+  /* 10. strip the debug introspection entry points. */
+  lua_getglobal(L, "debug");
   if (lua_istable(L, -1)) {
     static const char *const stripped[] = {
       "setlocal", "setupvalue", "upvalueid", "upvaluejoin"
@@ -1765,17 +1816,8 @@ static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
   lua_pop(L, 1);
 
   self->savedMetas = 1;
-
-  /* Hand the finished interface back to the engine (callback slot 6).  The
-  ** engine's Lua bring-up waits for this. */
-  if (self->gameCallback != NULL) {
-    void (*ifaceCreated)(void *, void *) =
-      (void (*)(void *, void *))GLUA_OBJ_VT(self->gameCallback)[0x30/8];
-    glua_log("IFACE::-> InterfaceCreated(cb=%p)", self->gameCallback);
-    if (ifaceCreated != NULL) ifaceCreated(self->gameCallback, self);
-    glua_log("IFACE::<- InterfaceCreated returned");
-  }
-  return true;
+  glua_log("IFACE::Init done, top=%d", lua_gettop(L));
+  return 1;
 }
 
 static void ci_slot_Shutdown(CLuaInterface *self)
@@ -2117,101 +2159,132 @@ static void ci_slot_SetMemberFast(CLuaInterface *self, GLuaObject *t, int k, int
 
 /* Compile + optionally run a string.  Bytecode (leading 0x1b) is refused,
 ** matching the reference. */
+/* Assemble the DEFINE_BASECLASS sugar into "local BaseClass = baseclass.Get".
+** The replacement is the same length or longer, which keeps line numbers
+** intact for the error messages. */
+static char *glua_rewrite_baseclass(const char *src)
+{
+  const char *needle = "DEFINE_BASECLASS";
+  const char *repl = "local BaseClass = baseclass.Get";
+  const size_t nlen = strlen(needle), rlen = strlen(repl);
+  size_t len = strlen(src), count = 0, cap;
+  const char *p;
+  char *out, *q;
+  for (p = src; (p = strstr(p, needle)) != NULL; p += nlen) count++;
+  if (count == 0) return NULL;
+  cap = len + 1 + count * (rlen > nlen ? rlen - nlen : 0);
+  out = (char *)malloc(cap);
+  if (out == NULL) return NULL;
+  q = out;
+  for (p = src; *p; ) {
+    if (strncmp(p, needle, nlen) == 0) { memcpy(q, repl, rlen); q += rlen; p += nlen; }
+    else *q++ = *p++;
+  }
+  *q = '\0';
+  return out;
+}
+
+/* RunStringEx: compile and run a chunk.
+**
+** Contract reproduced from the reference:
+**   - a null or empty body is refused with "Not running script <name> - it's
+**     too short."; a body starting with the bytecode escape is refused with
+**     "Cannot run byte code!"
+**   - the chunk name is the caller's name with a leading '@' normalised, so a
+**     traceback prints "file:line" rather than the raw name
+**   - a compile failure reports through the game callback's Lua error slot,
+**     tagged with the realm, and optionally leaves the message on the stack
+**   - a run failure goes through the interface's protected-call slot, then the
+**     same reporting path
+**   - the globals SCRIPTNAME and SCRIPTPATH are cleared before the chunk runs
+**     so a script cannot read a stale value from the previous one
+*/
 static int glua_run_ex(CLuaInterface *self, const char *filename, const char *path,
                        const char *str, bool run, bool printErrors,
                        bool dontPushErrors, bool noReturns)
-{ glua_log("IFACE::RunString(fn=%s run=%d len=%d)", filename?filename:"(null)", (int)run, str?(int)strlen(str):-1);
-  lua_State *L = self->state;
-  char cn[512];
-  const char *chunkname;
+{ lua_State *L;
+  char cn[1024];
+  char *rewritten = NULL;
+  const char *body;
+  const char *name;
   int base;
-  (void)path; (void)dontPushErrors;
-  if (str == NULL || str[0] == '\0') return 0;
-  if (str[0] == '\033') {                /* 0x1b: reject bytecode */
-    if (printErrors) ci_slot_ErrorNoHalt(self, "Cannot run byte code!");
+  int loaded;
+
+  if (self == NULL) return 0;
+  L = self->state;
+  if (L == NULL) return 0;
+
+  glua_log("IFACE::RunString(fn=%s run=%d len=%d)", filename ? filename : "(null)",
+           (int)run, str ? (int)strlen(str) : -1);
+
+  /* A body that is absent or empty is not a compile error: it is refused with
+  ** its own message, and the caller decides whether it becomes a stack value. */
+  if (str == NULL || str[0] == '\0') {
+    ci_slot_ErrorNoHalt(self, "Not running script %s - it's too short.\n",
+                        filename ? filename : "");
+    if (!dontPushErrors) ci_slot_PushString(self, "Invalid script - or too short.", 0);
     return 0;
   }
-  /* Chunk names are prefixed with '@', like the reference. */
-  if (filename != NULL && filename[0] != '\0') {
-    snprintf(cn, sizeof(cn), "@%s", filename);
-    chunkname = cn;
-  } else {
-    chunkname = "?";
+  if (str[0] == '\033') {
+    ci_slot_ErrorNoHalt(self, "Cannot run byte code! %x\n", 0x1b);
+    if (!dontPushErrors) ci_slot_PushString(self, "Cannot run byte code!", 0);
+    return 0;
   }
+
+  body = str;
+  rewritten = glua_rewrite_baseclass(str);
+  if (rewritten != NULL) body = rewritten;
+
+  /* Chunk names carry '@': a leading one already present is not doubled. */
+  name = (filename != NULL) ? filename : "";
+  if (name[0] == '@') name++;
+  if (path != NULL && path[0] != '\0') snprintf(cn, sizeof(cn), "@%s%s", path, name);
+  else snprintf(cn, sizeof(cn), "@%s", name);
+
   base = lua_gettop(L);
-  {
-    /* The reference rewrites the DEFINE_BASECLASS sugar in RunStringEx: the
-    ** token becomes 'local BaseClass = baseclass.Get' so a class file can name
-    ** its base class.  Substitution adds no newlines, so line numbers survive. */
-    const char *needle = "DEFINE_BASECLASS";
-    const char *repl = "local BaseClass = baseclass.Get";
-    const char *hit = strstr(str, needle);
-    if (hit != NULL) {
-      size_t nlen = strlen(needle), rlen = strlen(repl), src = strlen(str);
-      size_t cap = src + 1, count = 0, i;
-      const char *p;
-      char *out, *q;
-      for (p = str; (p = strstr(p, needle)) != NULL; p += nlen) count++;
-      cap += count * (rlen > nlen ? rlen - nlen : 0);
-      out = (char *)malloc(cap);
-      if (out != NULL) {
-        q = out;
-        for (p = str; *p; ) {
-          if (strncmp(p, needle, nlen) == 0) { memcpy(q, repl, rlen); q += rlen; p += nlen; }
-          else *q++ = *p++;
-        }
-        *q = '\0';
-        i = luaL_loadbufferx(L, out, (size_t)(q - out), chunkname, NULL);
-        free(out);
-        if (i != 0) {
-          glua_log("IFACE::RunString COMPILE-ERROR fn=%s: %s", filename?filename:"(null)", lua_tostring(L, -1));
-          if (printErrors) ci_slot_ErrorNoHalt(self, "%s", lua_tostring(L, -1));
-          if (dontPushErrors) lua_pop(L, 1);
-          return 0;
-        }
-        goto loaded;
+  loaded = luaL_loadbufferx(L, body, strlen(body), cn, "t");
+  free(rewritten);
+
+  if (loaded != 0) {
+    const char *msg = lua_tostring(L, -1);
+    glua_log("IFACE::RunString COMPILE-ERROR fn=%s: %s", filename ? filename : "(null)",
+             msg ? msg : "(no message)");
+    if (printErrors) {
+      const char *realm = (self->realm == GLUA_REALM_SERVER) ? "server"
+                        : (self->realm == GLUA_REALM_MENU) ? "menu" : "client";
+      ci_slot_Msg(self, "[%s] %s\n", realm, msg ? msg : "unknown compile error");
+      if (self->gameCallback != NULL) {
+        void **vt = *(void ***)self->gameCallback;
+        if (vt != NULL && vt[5] != NULL)
+          ((void (*)(void *, const char *, const char *))vt[5])(self->gameCallback,
+                                                                msg ? msg : "", realm);
       }
     }
-  }
-  if (luaL_loadbufferx(L, str, strlen(str), chunkname, NULL) != 0) {
-    glua_log("IFACE::RunString COMPILE-ERROR fn=%s: %s", filename?filename:"(null)", lua_tostring(L, -1));
-    if (printErrors) ci_slot_ErrorNoHalt(self, "%s", lua_tostring(L, -1));
-    if (dontPushErrors) lua_pop(L, 1);
+    if (!dontPushErrors) lua_pop(L, 1);
     return 0;
   }
-loaded:
+
   if (!run) return 1;
-  base = lua_gettop(L) - 1; /* top before pushing the function chunk */
-  /* The reference publishes where the chunk came from before running it; a
-  ** script that reports an error relies on these. */
-  {
-    GLuaObject *pathObj = ci_slot_NewTemporaryObject(self);
-    GLuaObject *nameObj = ci_slot_NewTemporaryObject(self);
-    if (pathObj != NULL) { lua_pushstring(L, filename ? filename : ""); gobj_setstack_any(self, pathObj, -1); lua_pop(L, 1); }
-    if (nameObj != NULL) { lua_pushstring(L, filename ? filename : ""); gobj_setstack_any(self, nameObj, -1); lua_pop(L, 1); }
-    if (self->global != NULL) {
-      if (nameObj != NULL) { gobj_push_obj(self, nameObj); ci_slot_SetMemberStr(self, self->global, "SCRIPTNAME"); }
-      if (pathObj != NULL) { gobj_push_obj(self, pathObj); ci_slot_SetMemberStr(self, self->global, "SCRIPTPATH"); }
-    }
-  }
-  /* Run through the protected-call slot so the interface's error handler turns
-  ** a raised value into a formatted message. */
-  if (!ci_slot_CallFunctionProtected(self, 0, noReturns ? 0 : LUA_MULTRET, printErrors)) {
-    glua_log("IFACE::RunString RUNTIME-ERROR fn=%s", filename?filename:"(null)");
-    if (!printErrors) {
-      /* The caller wants the message: leave it on the stack, as the reference
-      ** does when it is told not to print. */
-      if (dontPushErrors) lua_settop(L, base);
-      return 0;
-    }
-    if (dontPushErrors) lua_settop(L, base);
+
+  /* The reference clears the two script-identity globals around the run. */
+  lua_pushnil(L); lua_setfield(L, LUA_GLOBALSINDEX, "SCRIPTNAME");
+  lua_pushnil(L); lua_setfield(L, LUA_GLOBALSINDEX, "SCRIPTPATH");
+
+  if (!ci_slot_CallFunctionProtected(self, 0, LUA_MULTRET, printErrors)) {
+    const char *msg = lua_tostring(L, -1);
+    glua_log("IFACE::RunString RUNTIME-ERROR fn=%s: %s", filename ? filename : "(null)",
+             msg ? msg : "(no message)");
+    if (!dontPushErrors) lua_settop(L, base);   /* keep nothing when not asked */
     else lua_settop(L, base);
     return 0;
   }
-  if (noReturns) {
-    lua_settop(L, base);
-  }
-  glua_log("IFACE::RunString OK fn=%s", filename?filename:"(null)");
+
+  if (noReturns) lua_settop(L, base);
+
+  lua_pushnil(L); lua_setfield(L, LUA_GLOBALSINDEX, "SCRIPTNAME");
+  lua_pushnil(L); lua_setfield(L, LUA_GLOBALSINDEX, "SCRIPTPATH");
+
+  glua_log("IFACE::RunString OK fn=%s", filename ? filename : "(null)");
   return 1;
 }
 
@@ -3189,40 +3262,80 @@ static int glua_file_exists(const char *path)
 
 /* Require: try the Lua module file, then fall back to the binary module, the
 ** same order the reference uses inside this slot. */
+/* Require(name): load a Lua or binary module exactly once per realm.
+**
+** The reference keeps a `_MODULES` table in the globals; an entry that is not
+** nil means the module already ran and Require returns immediately.  Otherwise
+** it probes `lua/includes/modules/<name>.lua` with the file system, falling
+** back to the binary module in `lua/bin/<gmcl_|gmsv_><name>_<arch>.<ext>`,
+** and finally to a loader module by the same name.  A name that reaches none
+** of those paths raises "Module not found!".
+**
+** The entry is stored as a boolean, which is what the nil test above reads.
+*/
 static void ci_slot_Require(CLuaInterface *self, const char *name)
 { glua_log_v("SLOT:ci_slot_Require");
-  lua_State *L = self->state;
-  const char *dir;
+  lua_State *L;
   char path[1024];
+  char real[1024];
+  const char *dir;
+  int found;
+
+  if (self == NULL || name == NULL || name[0] == '\0') return;
+  L = self->state;
+  if (L == NULL) return;
+  glua_log("IFACE::Require(%s)", name);
+
+  /* _MODULES table, created once. */
   lua_getglobal(L, "_MODULES");
-  if (lua_type(L, -1) != GT_TABLE) {
+  if (!lua_istable(L, -1)) {
     lua_pop(L, 1);
     lua_createtable(L, 0, 0);
     lua_pushvalue(L, -1);
     lua_setglobal(L, "_MODULES");
   }
+
+  /* Already loaded?  An entry that is anything but nil short-circuits. */
   lua_getfield(L, -1, name);
-  if (lua_toboolean(L, -1)) {           /* already loaded */
+  if (!lua_isnil(L, -1)) {
     lua_pop(L, 2);
     return;
   }
-  lua_pop(L, 2);                        /* cached value + _MODULES */
+  lua_pop(L, 1);
+  lua_pop(L, 1);
 
   dir = glua_game_dir(L);
-  snprintf(path, sizeof(path), "%s/lua/includes/modules/%s.lua",
-           dir, name);
-  if (!glua_file_exists(path)) {
-    /* The prefix helpers already carry the leading "gm" ("gmcl_"/"gmsv_"). */
-    snprintf(path, sizeof(path), "%s/lua/bin/%s%s_%s%s",
-             dir, glua_module_prefix(self), name,
-             glua_module_suffix(), glua_module_ext());
-    if (!glua_file_exists(path)) {
-      ci_slot_ErrorNoHalt(self, "Module not found! (%s)\n", name);
-      return;
+  found = 0;
+
+  /* 1. the Lua module file */
+  snprintf(path, sizeof(path), "%s/lua/includes/modules/%s.lua", dir, name);
+  if (glua_file_exists(path)) {
+    real[0] = '\0';
+    found = ci_slot_FindAndRunScript(self, path, true, true, "!MODULE", false);
+    if (found) glua_log("IFACE::Require(%s) ran the Lua module", name);
+  }
+
+  /* 2. the binary module */
+  if (!found) {
+    snprintf(path, sizeof(path), "%s/lua/bin/%s%s_%s%s", dir,
+             glua_module_prefix(self), name, glua_module_suffix(), glua_module_ext());
+    if (glua_file_exists(path)) {
+      found = glua_load_binary_module(self, path, name) ? 1 : 0;
+      if (found) glua_log("IFACE::Require(%s) loaded the binary module", name);
     }
-    glua_load_binary_module(self, path, name);
-  } else {
-    ci_slot_FindAndRunScript(self, path, true, true, NULL, false);
+  }
+
+  /* 3. a loader module by the same name */
+  if (!found) {
+    found = ci_slot_RunLuaModule(self, name);
+    if (found) glua_log("IFACE::Require(%s) ran the loader module", name);
+  }
+
+  if (!found) {
+    /* The reference raises this rather than returning quietly: a script that
+    ** requires a missing module must fail at the call site. */
+    ci_slot_ErrorNoHalt(self, "Module not found! (%s)\n", name);
+    return;
   }
 
   lua_getglobal(L, "_MODULES");

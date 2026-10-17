@@ -267,16 +267,20 @@ engine: ILuaInterface::Init(callback, false)
 3. clear the return slots, the temporary ring, and the metatable table
 4. `luaL_newstate`; on failure report and return false
 5. `SetState(L)` and write the back pointer at `L+0x78`
-6. install the panic handler, push the error reporter and keep its reference
-7. FPU precision self-check (warn, not fatal)
-8. publish `VERSION` (1234) and `BRANCH` ("unknown") into the globals
-9. `luaL_openlibs`, open the base gamemode environment
-10. build the callback-name table (317 names, index 1 = `AcceptInput`) and keep
-    it as the pooled-string object
+6. install the panic handler and keep a registry reference to the error handler
+7. build the callback-name table (317 names, index 0 = `AcceptInput`) and keep
+    it as the pooled-string object at `+0x1a8`
+8. **call callback slot 6 `InterfaceCreated(this)`** — this happens *before*
+    the libraries exist, because the host starts pulling in scripts from this
+    callback
+9. publish `VERSION` (1234) and `BRANCH` ("unknown") into the globals
+10. `luaL_openlibs`, with `io` removed afterwards (the reference never exposes
+    it)
 11. strip `debug.setlocal`, `setupvalue`, `upvalueid`, `upvaluejoin`
-12. call callback slot 6 `InterfaceCreated(this)`
 
-Steps 8 and 11 are easy to miss and are implemented here.
+The ordering of step 8 is load-bearing: a host that loads script from that
+callback sees a state without standard libraries, which is what the reference
+gives it.
 
 ---
 
@@ -284,13 +288,28 @@ Steps 8 and 11 are easy to miss and are implemented here.
 
 `FindAndRunScript(name, run, showErrors, marker, noReturns)`:
 
-1. reject anything that is not a `.lua` name (case-insensitive, `.lua` appended
-   when absent)
+1. reject anything that is not a `.lua` name (`.lua` appended when the name has
+   no extension, any other extension refused)
 2. ask `CLuaShared` slot 7 `LoadFile(name, pathID, false, isClient)` — **script
-   bytes come through `LoadFile`, not through a private disk walk**
+   bytes come through `LoadFile`, not through a private disk walk**, so an
+   `include` made by a running script reaches the same cache entry
 3. on NULL report "File not found or is empty"
-4. on success write the marker into `LuaFile::source` (`+0x28`)
-5. `PushPath(name)`, run the chunk, `PopPath()`
+4. on success write the marker into `LuaFile::source` (`+0x28`) and bump the
+   per-realm counters (`+0x90` server, `+0x94` client)
+5. run the recorded bytes through slot 111, using the **cache entry's own name**
+   as the chunk name (with a leading `!` stripped), `PushPath`/`PopPath` around
+   it
+
+`RunStringEx(name, path, body, run, showErrors, dontPushErrors, noReturns)`:
+
+- a null or empty body is refused with "Not running script <name> - it's too
+  short."; a body beginning with the bytecode escape is refused with
+  "Cannot run byte code!"
+- the chunk name is `"@" + path + name` with one leading `@` normalised
+- a compile failure reports through the game callback with the realm tag and
+  optionally pushes the message; a runtime failure goes through the
+  protected-call slot and then the same path
+- `SCRIPTNAME` and `SCRIPTPATH` are cleared before the chunk runs
 
 `LuaFile` layout (0x98):
 
