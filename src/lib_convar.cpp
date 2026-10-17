@@ -42,11 +42,18 @@ void track( void *obj )
 }
 } /* namespace */
 
+/* Release what this module created.
+**
+** A ConVar registered with the engine is also linked into the engine's own
+** global list, which lives in another module.  Deleting the object here leaves
+** that list holding a dangling pointer -- the engine then walks it and calls
+** through a dead vtable, which is a hard crash.  The reference never does
+** this either: its managed vector is cleared but the objects stay registered.
+** So the list is emptied and the objects are left alive for the process
+** lifetime.
+*/
 extern "C" void glua_convars_destroy_managed( void )
 {
-  for ( size_t i = 0; i < g_managed.size(); i++ ) {
-    delete (ConCommandBase *)g_managed[i];
-  }
   g_managed.clear();
 }
 

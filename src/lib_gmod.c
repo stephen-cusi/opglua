@@ -3710,10 +3710,16 @@ static void cs_DumpStats(CLuaShared *s)
   int files = 0, hits = 0, failed = 0, ok = 0, disk = 0;
   glua_log("ILuaShared::DumpStats");
   opglua_luashared_cache_stats(&files, &hits, &failed, &ok, &disk);
+  /* Only an interface that went through Init carries a host callback, so a
+  ** realm that exists but has no state yet must not be used as a message
+  ** sink.  The figures always go to the log. */
   out = s->ifaces[GLUA_REALM_CLIENT];
-  if (out == NULL) out = s->ifaces[GLUA_REALM_SERVER];
-  if (out == NULL) out = s->ifaces[GLUA_REALM_MENU];
-  if (out == NULL) return;   /* no console to print through yet */
+  if (out != NULL && out->state == NULL) out = NULL;
+  if (out == NULL) { out = s->ifaces[GLUA_REALM_SERVER]; if (out != NULL && out->state == NULL) out = NULL; }
+  if (out == NULL) { out = s->ifaces[GLUA_REALM_MENU];   if (out != NULL && out->state == NULL) out = NULL; }
+  glua_log("Lua File Stats: files=%d hits=%d failed=%d ok=%d disk=%d",
+           files, hits, failed, ok, disk);
+  if (out == NULL) return;
   ci_slot_Msg(out, "Lua File Stats ------\n");
   ci_slot_Msg(out, "Files In Cache: %i\n", files);
   ci_slot_Msg(out, "m_iCacheHits: %i\n", hits);
