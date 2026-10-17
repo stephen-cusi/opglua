@@ -1662,6 +1662,12 @@ static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
   L->luabase = self;                    /* the module-visible back pointer */
 
   luaL_openlibs(L);
+
+  /* The reference does not expose the io library to scripts: no `io` entry
+  ** exists in its name table, and GMod sandboxes file access behind its own
+  ** library.  Removing it also keeps os.execute-class escapes out of reach. */
+  lua_pushnil(L);
+  lua_setglobal(L, "io");
   lua_atpanic(L, NULL);
 
   /* Keep the error handler in the registry: every protected call made through
@@ -2133,10 +2139,29 @@ static int glua_run_ex(CLuaInterface *self, const char *filename, const char *pa
 loaded:
   if (!run) return 1;
   base = lua_gettop(L) - 1; /* top before pushing the function chunk */
-  if (lua_pcall(L, 0, noReturns ? 0 : LUA_MULTRET, 0) != 0) {
-    glua_log("IFACE::RunString RUNTIME-ERROR fn=%s: %s", filename?filename:"(null)", lua_tostring(L, -1));
-    if (printErrors) ci_slot_ErrorNoHalt(self, "%s", lua_tostring(L, -1));
-    if (dontPushErrors) lua_pop(L, 1);
+  /* The reference publishes where the chunk came from before running it; a
+  ** script that reports an error relies on these. */
+  {
+    GLuaObject *pathObj = ci_slot_NewTemporaryObject(self);
+    GLuaObject *nameObj = ci_slot_NewTemporaryObject(self);
+    if (pathObj != NULL) { lua_pushstring(L, filename ? filename : ""); gobj_setstack_any(self, pathObj, -1); lua_pop(L, 1); }
+    if (nameObj != NULL) { lua_pushstring(L, filename ? filename : ""); gobj_setstack_any(self, nameObj, -1); lua_pop(L, 1); }
+    if (self->global != NULL) {
+      if (nameObj != NULL) { gobj_push_obj(self, nameObj); ci_slot_SetMemberStr(self, self->global, "SCRIPTNAME"); }
+      if (pathObj != NULL) { gobj_push_obj(self, pathObj); ci_slot_SetMemberStr(self, self->global, "SCRIPTPATH"); }
+    }
+  }
+  /* Run through the protected-call slot so the interface's error handler turns
+  ** a raised value into a formatted message. */
+  if (!ci_slot_CallFunctionProtected(self, 0, noReturns ? 0 : LUA_MULTRET, printErrors)) {
+    glua_log("IFACE::RunString RUNTIME-ERROR fn=%s", filename?filename:"(null)");
+    if (!printErrors) {
+      /* The caller wants the message: leave it on the stack, as the reference
+      ** does when it is told not to print. */
+      if (dontPushErrors) lua_settop(L, base);
+      return 0;
+    }
+    if (dontPushErrors) lua_settop(L, base);
     else lua_settop(L, base);
     return 0;
   }
@@ -3167,8 +3192,10 @@ static void ci_slot_PushPooledString(CLuaInterface *self, int index)
 static const char *ci_slot_GetPooledString(CLuaInterface *self, int index)
 {
   (void)self;
+  /* Out of range answers NULL, not an empty string: callers test the pointer,
+  ** and an empty name is a valid pooled entry in the table. */
   if (index >= 0 && index < GLUA_POOLED_COUNT) return glua_pooled_strings[index];
-  return "";
+  return NULL;
 }
 
 static int ci_slot_AddThreadedCall(CLuaInterface *self, void *call)

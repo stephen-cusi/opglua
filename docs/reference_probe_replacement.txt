@@ -1,0 +1,146 @@
+module|ours_lua_shared.dll
+create.shared|rc=0 nonnull=1
+shared.init|skipped
+getiface.before|nonnull=0
+create.iface|nonnull=1
+getiface.after|matches=1
+iface.init|ok=1 created=1 objs=2
+state|nonnull=1
+state.luabase|matches=1
+== stack ==
+top.initial|0
+top.after3|3
+type.nil|0
+type.string|4
+type.number|3
+getstring|abc
+getnumber|42.5
+top.after_pop|0
+== typenames ==
+typename.-1|none
+typename.0|nil
+typename.1|bool
+typename.2|lightuserdata
+typename.3|number
+typename.4|string
+typename.5|table
+typename.6|function
+typename.7|userdata
+typename.8|thread
+typename.9|entity
+typename.10|vector
+typename.11|angle
+typename.12|physobj
+typename.40|particlesystem
+typename.42|physcollide
+typename.43|surfaceinfo
+typename.44|unknown
+typename.50|unknown
+typename.-5|none
+== pooled ==
+pooled.0|AcceptInput
+pooled.1|AdjustMouseSensitivity
+pooled.25|EntityNetworkedVarChanged
+pooled.100|PlayerNoClip
+pooled.126|PostPlayerDraw
+pooled.127|PostRender
+pooled.196|FireAnimationEvent
+pooled.200|GetRelationship
+pooled.300|OnMouseReleased
+pooled.316|Entity
+pooled.317|(null)
+pooled.400|(null)
+== realm ==
+isserver|1
+isclient|0
+ismenu|0
+== path ==
+path.skipped|no file system
+== globals ==
+global.VERSION.type|3
+global.VERSION.value|1234
+global.BRANCH|unknown
+global.print.type|6
+global.pairs.type|6
+global.string.type|5
+global.table.type|5
+global.math.type|5
+global.os.type|5
+global.io.type|0
+global.debug.type|5
+global.coroutine.type|5
+global.jit.type|5
+global.bit.type|5
+global.hook.type|0
+global.util.type|0
+global.file.type|0
+global.net.type|0
+global.timer.type|0
+global.draw.type|0
+global.concommand.type|0
+global.list.type|0
+global.scripted_ents.type|0
+global.undo.type|0
+debug.setlocal.type|0
+debug.setupvalue.type|0
+debug.upvalueid.type|0
+debug.upvaluejoin.type|0
+== lang ==
+lang.arith|ok=1
+lang.continue|ok=1
+lang.andand|ok=1
+lang.oror|ok=1
+lang.bang|ok=1
+lang.ne|ok=1
+lang.linecom|ok=1
+lang.blockcom|ok=1
+lang.tinsert|ok=1
+lang.strfind|ok=1
+lang.tconcat|ok=1
+lang.pcall|ok=1
+@probe:1: attempt to call global 'Vector' (a nil value)
+stack traceback:
+	@probe:1: in main chunklang.vec|ok=0
+@probe:1: attempt to call field 'Rand' (a nil value)
+stack traceback:
+	@probe:1: in main chunklang.mathrand|ok=0
+lang.stringfmt|ok=1
+lang.goto_break|ok=1
+lang.metatable|ok=1
+lang.coroutine|ok=1
+lang.p_a.value|14
+lang.p_b.value|12
+lang.p_c.value|bool
+lang.p_d.value|bool
+lang.p_e.value|bool
+lang.p_f.value|bool
+lang.p_g.value|1
+lang.p_h.value|2
+lang.p_i.value|1
+lang.p_j.value|3
+lang.p_k.value|a-b
+lang.p_l.value|bool
+lang.p_m.value|type=0
+lang.p_n.value|type=0
+lang.p_o.value|7-z
+lang.p_p.value|3
+lang.p_q.value|9
+lang.p_r.value|5
+== refs ==
+ref.first_positive|1
+ref.distinct|1
+ref.push_value|ref-a
+== errors ==
+@probe:1: attempt to index local 't' (a nil value)
+stack traceback:
+	@probe:1: in main chunkerrors.runtime|ok=0
+@probe:1: '=' expected near 'is'errors.compile|ok=0
+@probe:1: explicit
+stack traceback:
+	[C]: in function 'error'
+	@probe:1: in main chunkerrors.explicit|ok=0
+top.after_errors|0
+cycle.top_after|0
+shutdown|done
+host.objects|created=34 destroyed=0 msgs=0 errs=0
+failures|0
