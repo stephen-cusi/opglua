@@ -60,6 +60,12 @@ ILuaConVars 与游戏、二进制模块消费的 C 导出。构建产物 `src\lu
 - **ConVar 必须按引擎布局 0x90**：回调向量（CUtlVector）在 +0x70，浮动值域在其前；
   布局短了引擎回写回调时踩值域 = OOM / DEP-EXECUTE。ConVar/ConCommandBase 的
   Create/CreateBase 均为虚函数，竞争性函数桩 false。
+- **ConVar 的次虚表（IConVar 子对象）在原版是 8 槽**：`SetValue(Color) / SetValue(int) /
+  SetValue(float) / SetValue(const char*) / GetName / GetName / IsFlagSet(int) / 恒 false 桩`，
+  顺序就是这四参类型的反常识排序（**不是** str/float/int/Color）。槽数不足时，
+  引擎按 `IsFlagSet` 的签名（一个 int 参数、bool 返回）调进来的那次会落在空槽上硬崩。
+  主表（ConCommandBase 部分）原版是 12 槽——`Init` 在那边**不是虚函数**，
+  多声明一个会让整张主表错位一格。
 - **IMemAlloc 释放虚表**：`[0]=Alloc / [2]=Realloc / [4]=Free`（调试/发布成对）。
   模块侧跨引擎分配一律走 `opglua_mem_alloc/free`（lib_mem.cpp），不做虚表挂钩。
 - **池化字符串表**按原版槽位数量建（323），不要缩容，越界 NULL 会崩引擎。
@@ -70,18 +76,30 @@ ILuaConVars 与游戏、二进制模块消费的 C 导出。构建产物 `src\lu
 
 ## 当前未解决（下一步从这里开始）
 
+0. **ConVar 的 IConVar 子对象虚表槽数不足（最高优先级，先修这个）**。该子对象在原版
+   有 8 个槽位，当前头文件只声明了 5 个，多出来的调用落在空槽上。引擎在脚本跑完后
+   会做一次全量 cvar 遍历，正好命中，表现为进图后期硬崩。
+   取证细节见本地 `D:\tmp\glua\HANDOFF.md` 第 3 节（含逐槽语义与修改步骤）。
+   连带要核对：`ConCommandBase` 主表在原版是 12 槽（`Init` 不是虚函数），
+   当前多一格，导致主表整体错位。**改完这两个表之后所有 ConVar 相关报错
+   （`GetConVar` 返回 nil、spawnmenu 的 `self.ToolToggle` 为 nil）也可能一并消失。**
 1. **进图黑屏 / Q 菜单不出**。三个 realm 现在都创建成功（菜单、客户端、
-   服务器），脚本经引擎文件系统正常加载且无报错，但画面仍然是黑的。下一步方向：
-   ① `Cycle`（slot 57）必须真的泵送 `AddThreadedCall` 队列——现在实现是清空丢弃，
-   客户端每张图调用一次；② 逐槽核对 `CLuaInterface` 132 个槽的行为（不只是签名），
-   优先 `GetPooledString`/`PushPooledString`、`CallInternal*` 族、`GetReturn`、
-   `NewTemporaryObject`；③ GMod 的 C 侧库（file/sql/net/util/draw）在本 DLL 里
-   完全没实现，客户端域起来后会成片失败。
+   服务器），脚本经引擎文件系统正常加载，日志停在 `sandbox/gamemode/persistence.lua`。
+   先修第 0 条；之后再考虑：① `Cycle`（slot 57）必须真的泵送 `AddThreadedCall`
+   队列——现在实现是清空丢弃，客户端每张图调用一次；② 逐槽核对 `CLuaInterface`
+   132 个槽的行为（不只是签名），优先 `GetPooledString`/`PushPooledString`、
+   `CallInternal*` 族、`GetReturn`、`NewTemporaryObject`；③ realm=1 加载了 0 个
+   `cl_init.lua` 而 realm=0 加载了 12 个，这个不对称要查清楚。
 2. **workshop 地图启动卡死**：`Couldn't write cache/map_pack.bsp` 后无响应；普通地图可
    完整跑完退出。排查引擎文件系统优先读路径在 BSP 挂载期的重入。
 3. **日志量**：`glua_log` 已分两级——lifecycle（旗标文件/`OPGLUA_LOG` 任意值）只记
    生命周期事件与内存心跳，verbose（`OPGLUA_LOG=verbose` 或旗标文件写 verbose）才记
    每次槽调用。**不要把 verbose 留在游戏运行中**：一次地图加载 120 万行，游戏会卡死。
+
+## 交接
+
+`D:\tmp\glua\HANDOFF.md` 是取证级交接文档（允许写地址与偏移）：现状、已修提交、
+未修根因的完整证据链、工具坑、未完成清单。接手前先读它。
 
 ## 结构档案
 

@@ -1,6 +1,6 @@
  lua51
 
- Timestamp is 6ad3de7e (Sun Oct 18 04:45:50 2026)
+ Timestamp is 6ad3e024 (Sun Oct 18 04:52:52 2026)
 
  Preferred load address is 0000000180000000
 
@@ -961,51 +961,45 @@
  0001:0007bee0       ??1?$_Uninitialized_backout_al@V?$allocator@PEAX@std@@@std@@QEAA@XZ 000000018007cee0 f i lib_convar.obj
  0001:0007bef0       ??1?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEAA@XZ 000000018007cef0 f i lib_convar.obj
  0001:0007bf80       ??1_Reallocation_guard@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEAA@XZ 000000018007cf80 f i lib_convar.obj
+ 0001:0007bfe0       ?_Throw_bad_array_new_length@std@@YAXXZ 000000018007cfe0 f i lib_convar.obj
  0001:0007c000       ??1bad_alloc@std@@UEAA@XZ  000000018007d000 f i lib_convar.obj
  0001:0007c020       ??1bad_array_new_length@std@@UEAA@XZ 000000018007d020 f i lib_convar.obj
  0001:0007c040       ??1exception@std@@UEAA@XZ  000000018007d040 f i lib_convar.obj
  0001:0007c060       ??2@YAPEAX_KPEAX@Z         000000018007d060 f i lib_convar.obj
- 0001:0007c070       ??A?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEAAAEAPEAX_K@Z 000000018007d070 f i lib_convar.obj
- 0001:0007c080       ??_Ebad_alloc@std@@UEAAPEAXI@Z 000000018007d080 f i lib_convar.obj
- 0001:0007c080       ??_Gbad_alloc@std@@UEAAPEAXI@Z 000000018007d080 f i lib_convar.obj
- 0001:0007c0e0       ??_Ebad_array_new_length@std@@UEAAPEAXI@Z 000000018007d0e0 f i lib_convar.obj
- 0001:0007c0e0       ??_Gbad_array_new_length@std@@UEAAPEAXI@Z 000000018007d0e0 f i lib_convar.obj
- 0001:0007c140       ??_Eexception@std@@UEAAPEAXI@Z 000000018007d140 f i lib_convar.obj
- 0001:0007c140       ??_Gexception@std@@UEAAPEAXI@Z 000000018007d140 f i lib_convar.obj
- 0001:0007c1a0       ?_Adjust_manually_vector_aligned@std@@YAXAEAPEAXAEA_K@Z 000000018007d1a0 f i lib_convar.obj
- 0001:0007c1f0       ?_Alloc_proxy@_Container_base0@std@@QEAAXAEBU_Fake_allocator@2@@Z 000000018007d1f0 f i lib_convar.obj
- 0001:0007c200       ?_Allocate@_Default_allocate_traits@std@@SAPEAX_K@Z 000000018007d200 f i lib_convar.obj
- 0001:0007c210       ?_Calculate_growth@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEBA_K_K@Z 000000018007d210 f i lib_convar.obj
- 0001:0007c250       ?_Change_array@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAXQEAPEAX_K1@Z 000000018007d250 f i lib_convar.obj
- 0001:0007c310       ?_Get_first@?$_Compressed_pair@V?$allocator@PEAX@std@@V?$_Vector_val@U?$_Simple_types@PEAX@std@@@2@$00@std@@QEAAAEAV?$allocator@PEAX@2@XZ 000000018007d310 f i lib_convar.obj
- 0001:0007c320       ?_Get_first@?$_Compressed_pair@V?$allocator@PEAX@std@@V?$_Vector_val@U?$_Simple_types@PEAX@std@@@2@$00@std@@QEBAAEBV?$allocator@PEAX@2@XZ 000000018007d320 f i lib_convar.obj
- 0001:0007c330       ?_Getal@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAAEAV?$allocator@PEAX@2@XZ 000000018007d330 f i lib_convar.obj
- 0001:0007c340       ?_Getal@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEBAAEBV?$allocator@PEAX@2@XZ 000000018007d340 f i lib_convar.obj
- 0001:0007c350       ?_Orphan_all@_Container_base0@std@@QEAAXXZ 000000018007d350 f i lib_convar.obj
- 0001:0007c360       ?_Orphan_range@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEBAXPEAPEAX0@Z 000000018007d360 f i lib_convar.obj
- 0001:0007c370       ?_Release@?$_Uninitialized_backout_al@V?$allocator@PEAX@std@@@std@@QEAAPEAPEAXXZ 000000018007d370 f i lib_convar.obj
- 0001:0007c380       ?_Throw_bad_array_new_length@std@@YAXXZ 000000018007d380 f i lib_convar.obj
- 0001:0007c3b0       ?_Tidy@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAXXZ 000000018007d3b0 f i lib_convar.obj
- 0001:0007c440       ?_Xlength@?$vector@PEAXV?$allocator@PEAX@std@@@std@@CAXXZ 000000018007d440 f i lib_convar.obj
- 0001:0007c460       ?allocate@?$allocator@PEAX@std@@QEAAPEAPEAX_K@Z 000000018007d460 f i lib_convar.obj
- 0001:0007c500       ?capacity@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEBA_KXZ 000000018007d500 f i lib_convar.obj
- 0001:0007c510       ?clear@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEAAXXZ 000000018007d510 f i lib_convar.obj
- 0001:0007c530       ?deallocate@?$allocator@PEAX@std@@QEAAXQEAPEAX_K@Z 000000018007d530 f i lib_convar.obj
- 0001:0007c5a0       ?max_size@?$_Default_allocator_traits@V?$allocator@PEAX@std@@@std@@SA_KAEBV?$allocator@PEAX@2@@Z 000000018007d5a0 f i lib_convar.obj
- 0001:0007c5b0       ?max_size@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEBA_KXZ 000000018007d5b0 f i lib_convar.obj
- 0001:0007c5c0       ?push_back@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEAAXAEBQEAX@Z 000000018007d5c0 f i lib_convar.obj
- 0001:0007c5f0       ?size@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEBA_KXZ 000000018007d5f0 f i lib_convar.obj
- 0001:0007c660       ?what@exception@std@@UEBAPEBDXZ 000000018007d660 f i lib_convar.obj
- 0001:0007c680       fabsf                      000000018007d680 f i lib_convar.obj
- 0001:0007c690       glua_convars_create_concommand 000000018007d690 f   lib_convar.obj
- 0001:0007c760       glua_convars_create_convar 000000018007d760 f   lib_convar.obj
- 0001:0007c820       glua_convars_create_convar_probe 000000018007d820 f   lib_convar.obj
- 0001:0007c930       glua_convars_destroy_managed 000000018007d930 f   lib_convar.obj
- 0001:0007c9c0       opglua_convars_set_cvar    000000018007d9c0 f   lib_convar.obj
+ 0001:0007c080       ??_Ebad_array_new_length@std@@UEAAPEAXI@Z 000000018007d080 f i lib_convar.obj
+ 0001:0007c080       ??_Gbad_array_new_length@std@@UEAAPEAXI@Z 000000018007d080 f i lib_convar.obj
+ 0001:0007c0e0       ??_Eexception@std@@UEAAPEAXI@Z 000000018007d0e0 f i lib_convar.obj
+ 0001:0007c0e0       ??_Gexception@std@@UEAAPEAXI@Z 000000018007d0e0 f i lib_convar.obj
+ 0001:0007c140       ?_Adjust_manually_vector_aligned@std@@YAXAEAPEAXAEA_K@Z 000000018007d140 f i lib_convar.obj
+ 0001:0007c1a0       ?_Alloc_proxy@_Container_base0@std@@QEAAXAEBU_Fake_allocator@2@@Z 000000018007d1a0 f i lib_convar.obj
+ 0001:0007c1f0       ?_Allocate@_Default_allocate_traits@std@@SAPEAX_K@Z 000000018007d1f0 f i lib_convar.obj
+ 0001:0007c250       ?_Get_first@?$_Compressed_pair@V?$allocator@PEAX@std@@V?$_Vector_val@U?$_Simple_types@PEAX@std@@@2@$00@std@@QEAAAEAV?$allocator@PEAX@2@XZ 000000018007d250 f i lib_convar.obj
+ 0001:0007c310       ?_Get_first@?$_Compressed_pair@V?$allocator@PEAX@std@@V?$_Vector_val@U?$_Simple_types@PEAX@std@@@2@$00@std@@QEBAAEBV?$allocator@PEAX@2@XZ 000000018007d310 f i lib_convar.obj
+ 0001:0007c320       ?_Getal@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAAEAV?$allocator@PEAX@2@XZ 000000018007d320 f i lib_convar.obj
+ 0001:0007c330       ?_Getal@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEBAAEBV?$allocator@PEAX@2@XZ 000000018007d330 f i lib_convar.obj
+ 0001:0007c340       ?_Orphan_all@_Container_base0@std@@QEAAXXZ 000000018007d340 f i lib_convar.obj
+ 0001:0007c350       ?_Orphan_range@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEBAXPEAPEAX0@Z 000000018007d350 f i lib_convar.obj
+ 0001:0007c360       ?_Release@?$_Uninitialized_backout_al@V?$allocator@PEAX@std@@@std@@QEAAPEAPEAXXZ 000000018007d360 f i lib_convar.obj
+ 0001:0007c3b0       ?_Xlength@?$vector@PEAXV?$allocator@PEAX@std@@@std@@CAXXZ 000000018007d3b0 f i lib_convar.obj
+ 0001:0007c460       ?capacity@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEBA_KXZ 000000018007d460 f i lib_convar.obj
+ 0001:0007c500       ?clear@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEAAXXZ 000000018007d500 f i lib_convar.obj
+ 0001:0007c530       ?max_size@?$_Default_allocator_traits@V?$allocator@PEAX@std@@@std@@SA_KAEBV?$allocator@PEAX@2@@Z 000000018007d530 f i lib_convar.obj
+ 0001:0007c5a0       ?max_size@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEBA_KXZ 000000018007d5a0 f i lib_convar.obj
+ 0001:0007c600       fabsf                      000000018007d600 f i lib_convar.obj
+ 0001:0007c760       glua_convars_destroy_managed 000000018007d760 f   lib_convar.obj
+ 0001:0007c820       opglua_convars_set_cvar    000000018007d820 f   lib_convar.obj
  0001:0007de90       luaopen_debug              000000018007ee90 f   lib_debug.obj
+ 0001:0007e350       ?push_back@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEAAXAEBQEAX@Z 000000018007f350 f i lib_convar.obj
+ 0001:0007e870       ?what@exception@std@@UEBAPEBDXZ 000000018007f870 f i lib_convar.obj
+ 0001:0007f7a0       ?allocate@?$allocator@PEAX@std@@QEAAPEAPEAX_K@Z 00000001800807a0 f i lib_convar.obj
+ 0001:00082bd0       ??_Ebad_alloc@std@@UEAAPEAXI@Z 0000000180083bd0 f i lib_convar.obj
+ 0001:00082bd0       ??_Gbad_alloc@std@@UEAAPEAXI@Z 0000000180083bd0 f i lib_convar.obj
  0001:00086e00       CreateInterface            0000000180087e00 f   lib_gmod.obj
  0001:00086f30       DllMain                    0000000180087f30 f   lib_gmod.obj
  0001:00086f60       GMOD_LoadBinaryModule      0000000180087f60 f   lib_gmod.obj
+ 0001:00087ba0       ?_Calculate_growth@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEBA_K_K@Z 0000000180088ba0 f i lib_convar.obj
+ 0001:000886c0       glua_convars_create_convar 00000001800896c0 f   lib_convar.obj
+ 0001:00089db0       ?_Tidy@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAXXZ 000000018008adb0 f i lib_convar.obj
  0001:0008a650       opglua_find_scripts        000000018008b650 f   lib_gmod.obj
  0001:0008a9e0       opglua_lua_error_report    000000018008b9e0 f   lib_gmod.obj
  0001:0008ac80       opglua_read_script         000000018008bc80 f   lib_gmod.obj
@@ -1015,7 +1009,9 @@
  0001:0008b120       opglua_script_isdir_id     000000018008c120 f   lib_gmod.obj
  0001:0008b350       opglua_selftest            000000018008c350 f   lib_gmod.obj
  0001:0008b5e0       luaL_openlibs              000000018008c5e0 f   lib_init.obj
+ 0001:0008ca80       glua_convars_create_convar_probe 000000018008da80 f   lib_convar.obj
  0001:0008d330       luaopen_io                 000000018008e330 f   lib_io.obj
+ 0001:0008d920       ?deallocate@?$allocator@PEAX@std@@QEAAXQEAPEAX_K@Z 000000018008e920 f i lib_convar.obj
  0001:0008fae0       luaopen_jit                0000000180090ae0 f   lib_jit.obj
  0001:00090050       ??$?0$$V@?$_Compressed_pair@V?$allocator@D@std@@V?$_String_val@U?$_Simple_types@D@std@@@2@$00@std@@QEAA@U_Zero_then_variadic_args_t@1@@Z 0000000180091050 f i lib_luashared.obj
  0001:00090090       ??$?0$$V@?$_Compressed_pair@V?$allocator@U?$_Tree_node@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAX@std@@@std@@V?$_Tree_val@U?$_Tree_simple_types@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@std@@@2@$00@std@@QEAA@U_Zero_then_variadic_args_t@1@@Z 0000000180091090 f i lib_luashared.obj
@@ -1248,6 +1244,7 @@
  0001:00096400       ?_Getal@?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@AEBAAEBV?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@XZ 0000000180097400 f i lib_luashared.obj
  0001:00096410       ?_Getcomp@?$_Tree@V?$_Tset_traits@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@U?$less@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@$0A@@std@@@std@@IEBAAEBU?$less@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@XZ 0000000180097410 f i lib_luashared.obj
  0001:00096420       ?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@std@@@std@@QEAAPEAU?$_Tree_node@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAX@std@@@2@QEAU32@@Z 0000000180097420 f i lib_luashared.obj
+ 0001:00096680       ?_Change_array@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAXQEAPEAX_K1@Z 0000000180097680 f i lib_convar.obj
  0001:00096720       ?_Kfn@?$_Tset_traits@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@U?$less@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@$0A@@std@@SAAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@AEBV32@@Z 0000000180097720 f i lib_luashared.obj
  0001:00096730       ?_Large_mode_engaged@?$_String_val@U?$_Simple_types@D@std@@@std@@QEBA_NXZ 0000000180097730 f i lib_luashared.obj
  0001:00096740       ?_Lrotate@?$_Tree_val@U?$_Tree_simple_types@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@std@@@std@@QEAAXPEAU?$_Tree_node@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAX@2@@Z 0000000180097740 f i lib_luashared.obj
@@ -1359,6 +1356,7 @@
  0001:0009d960       opglua_mem_alloc           000000018009e960 f   lib_mem.obj
  0001:0009d9c0       opglua_mem_bind            000000018009e9c0 f   lib_mem.obj
  0001:0009d9d0       opglua_mem_free            000000018009e9d0 f   lib_mem.obj
+ 0001:0009e3b0       glua_convars_create_concommand 000000018009f3b0 f   lib_convar.obj
  0001:0009e720       luaopen_os                 000000018009f720 f   lib_os.obj
  0001:0009fc40       luaopen_package            00000001800a0c40 f   lib_package.obj
  0001:000a1c90       luaopen_string             00000001800a2c90 f   lib_string.obj
@@ -5955,6 +5953,7 @@
  0002:00006760       ??_C@_07KLIPAOKE@physobj@  000000018018c760     lib_gmod.obj
  0002:0000676c       ??_C@_04EMMDIJJL@save@     000000018018c76c     lib_gmod.obj
  0002:00006778       ??_C@_07HICINA@restore@    000000018018c778     lib_gmod.obj
+ 0002:00006780       __real@4093480000000000    000000018018c780     lib_gmod.obj
  0002:00006788       ??_C@_0L@MPBLLEF@damageinfo@ 000000018018c788     lib_gmod.obj
  0002:00006798       ??_C@_0L@DEKLJEIB@effectdata@ 000000018018c798     lib_gmod.obj
  0002:000067a8       ??_C@_08KKKGJPMM@movedata@ 000000018018c7a8     lib_gmod.obj
@@ -6551,54 +6550,49 @@
  0002:00009fe8       ??_C@_0BB@DHKFNPBN@ILuaShared?3?3Init@ 000000018018ffe8     lib_gmod.obj
  0002:0000a000       ??_C@_0BF@LFKDCJBK@ILuaShared?3?3Shutdown@ 0000000180190000     lib_gmod.obj
  0002:0000a020       ??_C@_0BG@FAKFPODP@ILuaShared?3?3DumpStats@ 0000000180190020     lib_gmod.obj
- 0002:0000a040       ??_C@_0BH@LJBACMPH@Lua?5File?5Stats?5?9?9?9?9?9?9?6@ 0000000180190040     lib_gmod.obj
- 0002:0000a060       ??_C@_0BE@HFCDFBDB@Files?5In?5Cache?3?5?$CFi?6@ 0000000180190060     lib_gmod.obj
- 0002:0000a078       ??_C@_0BC@FEIJPLNK@m_iCacheHits?3?5?$CFi?6@ 0000000180190078     lib_gmod.obj
- 0002:0000a090       ??_C@_0BE@NMHHNGOI@m_iFailedLoads?3?5?$CFi?6@ 0000000180190090     lib_gmod.obj
- 0002:0000a0a8       ??_C@_0BI@CNCGFBIG@m_iSuccessfulLoads?3?5?$CFi?6@ 00000001801900a8     lib_gmod.obj
- 0002:0000a0c8       ??_C@_0BC@KIHLKEBE@m_iDiskLoads?3?5?$CFi?6@ 00000001801900c8     lib_gmod.obj
- 0002:0000a0e0       ??_C@_0BN@LMEJEAJO@CreateLuaInterface?$CIrealm?$DN?$CFd?$CJ@ 00000001801900e0     lib_gmod.obj
- 0002:0000a108       ??_C@_0BD@BPCOBDCH@CreateLuaInterface@ 0000000180190108     lib_gmod.obj
- 0002:0000a120       ??_C@_0CC@EEBMBNIJ@ILuaShared?3?3CloseLuaInterface?$CI?$CF@ 0000000180190120     lib_gmod.obj
- 0002:0000a148       ??_C@_0DA@DMMEGAJB@ILuaShared?3?3CloseLuaInterface?5?9@ 0000000180190148     lib_gmod.obj
- 0002:0000a188       ??_C@_0CG@PMFOGOBJ@ILuaShared?3?3GetLuaInterface?$CIrea@ 0000000180190188     lib_gmod.obj
- 0002:0000a1b8       ??_C@_0CC@NGJCDBOK@ILuaShared?3?3GetLuaInterface?5?9?$DO?5@ 00000001801901b8     lib_gmod.obj
- 0002:0000a1e0       ??_C@_0BL@IEFCMMMB@ILuaShared?3?3LoadFile?5?9?$DO?5?$CFp@ 00000001801901e0     lib_gmod.obj
- 0002:0000a200       ??_C@_0BJ@PFLAMGGK@ILuaShared?3?3MountLua?$CI?$CFs?$CJ@ 0000000180190200     lib_gmod.obj
+ 0002:0000a060       ??_C@_0BH@LJBACMPH@Lua?5File?5Stats?5?9?9?9?9?9?9?6@ 0000000180190060     lib_gmod.obj
+ 0002:0000a078       ??_C@_0BE@HFCDFBDB@Files?5In?5Cache?3?5?$CFi?6@ 0000000180190078     lib_gmod.obj
+ 0002:0000a090       ??_C@_0BC@FEIJPLNK@m_iCacheHits?3?5?$CFi?6@ 0000000180190090     lib_gmod.obj
+ 0002:0000a0a8       ??_C@_0BE@NMHHNGOI@m_iFailedLoads?3?5?$CFi?6@ 00000001801900a8     lib_gmod.obj
+ 0002:0000a0c8       ??_C@_0BI@CNCGFBIG@m_iSuccessfulLoads?3?5?$CFi?6@ 00000001801900c8     lib_gmod.obj
+ 0002:0000a0e0       ??_C@_0BC@KIHLKEBE@m_iDiskLoads?3?5?$CFi?6@ 00000001801900e0     lib_gmod.obj
+ 0002:0000a120       ??_C@_0BD@BPCOBDCH@CreateLuaInterface@ 0000000180190120     lib_gmod.obj
+ 0002:0000a148       ??_C@_0CC@EEBMBNIJ@ILuaShared?3?3CloseLuaInterface?$CI?$CF@ 0000000180190148     lib_gmod.obj
+ 0002:0000a188       ??_C@_0DA@DMMEGAJB@ILuaShared?3?3CloseLuaInterface?5?9@ 0000000180190188     lib_gmod.obj
+ 0002:0000a1b8       ??_C@_0CG@PMFOGOBJ@ILuaShared?3?3GetLuaInterface?$CIrea@ 00000001801901b8     lib_gmod.obj
+ 0002:0000a200       ??_C@_0BL@IEFCMMMB@ILuaShared?3?3LoadFile?5?9?$DO?5?$CFp@ 0000000180190200     lib_gmod.obj
  0002:0000a220       ??_C@_03IBJHJIAF@lua@      0000000180190220     lib_gmod.obj
- 0002:0000a228       ??_C@_07CFINCEBH@LuaMenu@  0000000180190228     lib_gmod.obj
- 0002:0000a238       ??_C@_09KHHEHEPN@gamemodes@ 0000000180190238     lib_gmod.obj
- 0002:0000a248       ??_C@_0CA@GBJIEEME@ILuaShared?3?3MountLuaAdd?$CI?$CFs?0?5?$CFs?$CJ@ 0000000180190248     lib_gmod.obj
- 0002:0000a270       ??_C@_0BL@DCPHGOP@ILuaShared?3?3UnMountLua?$CI?$CFs?$CJ@ 0000000180190270     lib_gmod.obj
- 0002:0000a290       ??_C@_0BP@FFCBAFAP@ILuaShared?3?3ScriptExists?5?9?$DO?5?$CFd@ 0000000180190290     lib_gmod.obj
- 0002:0000a2b8       ??_C@_0BL@KIHJMMIL@ILuaShared?3?3GetCache?5?9?$DO?5?$CFp@ 00000001801902b8     lib_gmod.obj
- 0002:0000a2d8       ??_C@_0L@COKOAEPK@CV?3cv_dtor@ 00000001801902d8     lib_gmod.obj
- 0002:0000a2e8       ??_C@_0L@HKIMIDIA@CV?3cv_Init@ 00000001801902e8     lib_gmod.obj
- 0002:0000a2f8       ??_C@_0BH@HOCIEBIO@CV?3cv_CreateConVar?$CI?$CFs?$CJ@ 00000001801902f8     lib_gmod.obj
- 0002:0000a318       ??_C@_0BL@HOOHKDCJ@CV?3cv_CreateConCommand?$CI?$CFs?$CJ@ 0000000180190318     lib_gmod.obj
- 0002:0000a338       ??_C@_0BF@PCBEKKEP@CV?3cv_DestroyManaged@ 0000000180190338     lib_gmod.obj
- 0002:0000a358       ??_C@_0BD@FHNLCHEI@CV?3cv_Cache?$CI?$CFs?$DN?$CFs?$CJ@ 0000000180190358     lib_gmod.obj
- 0002:0000a370       ??_C@_0BB@DJOMENH@CV?3cv_ClearCache@ 0000000180190370     lib_gmod.obj
- 0002:0000a388       ??_C@_0BC@JIOGCEIL@CV?3cv_SaveManaged@ 0000000180190388     lib_gmod.obj
- 0002:0000a3a0       ??_C@_0N@IMEOPHJK@CV?3?5?5?$CFs?5?$DN?5?$CFs@ 00000001801903a0     lib_gmod.obj
- 0002:0000a3b0       ??_C@_0BG@HFBBJEDG@CreateInterface?$CI?8?$CFs?8?$CJ@ 00000001801903b0     lib_gmod.obj
- 0002:0000a3d0       ??_C@_0BA@OBHPCBFP@CreateInterface@ 00000001801903d0     lib_gmod.obj
- 0002:0000a3e8       ??_C@_0N@NAHLMBPA@LUASHARED003@ 00000001801903e8     lib_gmod.obj
- 0002:0000a3f8       ??_C@_09FCOELODM@LUASHARED@ 00000001801903f8     lib_gmod.obj
- 0002:0000a408       ??_C@_0O@JBPNOGKH@LUACONVARS001@ 0000000180190408     lib_gmod.obj
- 0002:0000a418       ??_C@_0L@JEKIMFIL@LUACONVARS@ 0000000180190418     lib_gmod.obj
- 0002:0000a428       ??_C@_0CF@DHABNFHL@selftest?3?5interface?5creation?5fa@ 0000000180190428     lib_gmod.obj
- 0002:0000a458       ??_C@_0CI@JCAKIDKD@selftest?3?5luabase?5back?5pointer?5@ 0000000180190458     lib_gmod.obj
- 0002:0000a488       ??_C@_0CK@LCONMEHP@selftest?3?5GMOD_LoadBinaryModule@ 0000000180190488     lib_gmod.obj
- 0002:0000a4c0       ??_C@_0BD@CMHKNOAN@opglua_test_marker@ 00000001801904c0     lib_gmod.obj
- 0002:0000a4d8       ??_C@_0BJ@ENNHILBK@selftest?3?5marker?5?$DN?5?8?$CFs?8?6@ 00000001801904d8     lib_gmod.obj
- 0002:0000a4f8       ??_C@_0CE@COKEEHPD@selftest?3?5marker?5missing?5?$CItype?5@ 00000001801904f8     lib_gmod.obj
- 0002:0000a528       ??_C@_0P@BBJBCGIA@process?9attach@ 0000000180190528     lib_gmod.obj
- 0002:0000a540       __real@4093480000000000    0000000180190540     lib_gmod.obj
+ 0002:0000a238       ??_C@_07CFINCEBH@LuaMenu@  0000000180190238     lib_gmod.obj
+ 0002:0000a248       ??_C@_09KHHEHEPN@gamemodes@ 0000000180190248     lib_gmod.obj
+ 0002:0000a270       ??_C@_0CA@GBJIEEME@ILuaShared?3?3MountLuaAdd?$CI?$CFs?0?5?$CFs?$CJ@ 0000000180190270     lib_gmod.obj
+ 0002:0000a290       ??_C@_0BL@DCPHGOP@ILuaShared?3?3UnMountLua?$CI?$CFs?$CJ@ 0000000180190290     lib_gmod.obj
+ 0002:0000a2b8       ??_C@_0BP@FFCBAFAP@ILuaShared?3?3ScriptExists?5?9?$DO?5?$CFd@ 00000001801902b8     lib_gmod.obj
+ 0002:0000a2e8       ??_C@_0L@COKOAEPK@CV?3cv_dtor@ 00000001801902e8     lib_gmod.obj
+ 0002:0000a2f8       ??_C@_0L@HKIMIDIA@CV?3cv_Init@ 00000001801902f8     lib_gmod.obj
+ 0002:0000a318       ??_C@_0BH@HOCIEBIO@CV?3cv_CreateConVar?$CI?$CFs?$CJ@ 0000000180190318     lib_gmod.obj
+ 0002:0000a338       ??_C@_0BL@HOOHKDCJ@CV?3cv_CreateConCommand?$CI?$CFs?$CJ@ 0000000180190338     lib_gmod.obj
+ 0002:0000a358       ??_C@_0BF@PCBEKKEP@CV?3cv_DestroyManaged@ 0000000180190358     lib_gmod.obj
+ 0002:0000a370       ??_C@_0BD@FHNLCHEI@CV?3cv_Cache?$CI?$CFs?$DN?$CFs?$CJ@ 0000000180190370     lib_gmod.obj
+ 0002:0000a388       ??_C@_0BB@DJOMENH@CV?3cv_ClearCache@ 0000000180190388     lib_gmod.obj
+ 0002:0000a3b0       ??_C@_0N@IMEOPHJK@CV?3?5?5?$CFs?5?$DN?5?$CFs@ 00000001801903b0     lib_gmod.obj
+ 0002:0000a3d0       ??_C@_0BG@HFBBJEDG@CreateInterface?$CI?8?$CFs?8?$CJ@ 00000001801903d0     lib_gmod.obj
+ 0002:0000a3e8       ??_C@_0BA@OBHPCBFP@CreateInterface@ 00000001801903e8     lib_gmod.obj
+ 0002:0000a3f8       ??_C@_0N@NAHLMBPA@LUASHARED003@ 00000001801903f8     lib_gmod.obj
+ 0002:0000a408       ??_C@_09FCOELODM@LUASHARED@ 0000000180190408     lib_gmod.obj
+ 0002:0000a418       ??_C@_0O@JBPNOGKH@LUACONVARS001@ 0000000180190418     lib_gmod.obj
+ 0002:0000a428       ??_C@_0L@JEKIMFIL@LUACONVARS@ 0000000180190428     lib_gmod.obj
+ 0002:0000a458       ??_C@_0CF@DHABNFHL@selftest?3?5interface?5creation?5fa@ 0000000180190458     lib_gmod.obj
+ 0002:0000a488       ??_C@_0CI@JCAKIDKD@selftest?3?5luabase?5back?5pointer?5@ 0000000180190488     lib_gmod.obj
+ 0002:0000a4b0       ??_C@_0CE@COKEEHPD@selftest?3?5marker?5missing?5?$CItype?5@ 00000001801904b0     lib_gmod.obj
+ 0002:0000a4d8       ??_C@_0BD@CMHKNOAN@opglua_test_marker@ 00000001801904d8     lib_gmod.obj
+ 0002:0000a4f8       ??_C@_0BJ@ENNHILBK@selftest?3?5marker?5?$DN?5?8?$CFs?8?6@ 00000001801904f8     lib_gmod.obj
+ 0002:0000a540       ??_C@_0P@BBJBCGIA@process?9attach@ 0000000180190540     lib_gmod.obj
+ 0002:0000a610       ??_C@_0CC@NGJCDBOK@ILuaShared?3?3GetLuaInterface?5?9?$DO?5@ 0000000180190610     lib_gmod.obj
  0002:0000a638       ??_C@_07KNEGBPNO@package@  0000000180190638     lib_init.obj
  0002:0000a644       ??_C@_02EHCHIAMF@os@       0000000180190644     lib_init.obj
  0002:0000a648       ??_C@_04CFDJAKFL@math@     0000000180190648     lib_init.obj
  0002:0000a650       ??_C@_03IGHFHLNJ@jit@      0000000180190650     lib_init.obj
+ 0002:0000a7b0       ??_C@_0DJ@FOLGBBGI@Lua?5File?5Stats?3?5files?$DN?$CFd?5hits?$DN?$CF@ 00000001801907b0     lib_gmod.obj
  0002:0000a7ec       ??_C@_05KCHOJJD@FILE?$CK@  00000001801907ec     lib_io.obj
  0002:0000a7f8       ??_C@_0BL@PEFGCPAG@cannot?5close?5standard?5file@ 00000001801907f8     lib_io.obj
  0002:0000a818       ??_C@_03DLDNIBIK@?$CFlf@   0000000180190818     lib_io.obj
@@ -6636,6 +6630,7 @@
  0002:0000ac9c       ??_C@_05IPMPAMGF@nexit@    0000000180190c9c     lib_jit.obj
  0002:0000aca8       ??_C@_08IDKBLEPL@linktype@ 0000000180190ca8     lib_jit.obj
  0002:0000acc0       ??_C@_0IP@MHNKICBG@?$AImaxtrace?7maxrecord?6maxirconst?$AH@ 0000000180190cc0     lib_jit.obj
+ 0002:0000ad50       ??_C@_0BL@KIHJMMIL@ILuaShared?3?3GetCache?5?9?$DO?5?$CFp@ 0000000180190d50     lib_gmod.obj
  0002:0000ad70       ??_C@_07LDLFNPGN@Windows@  0000000180190d70     lib_jit.obj
  0002:0000ad7c       ??_C@_03OLPMMCEF@x64@      0000000180190d7c     lib_jit.obj
  0002:0000ad80       ??_C@_0BD@DNOKJOFG@LuaJIT?52?41?40?9beta3@ 0000000180190d80     lib_jit.obj
@@ -6665,6 +6660,7 @@
  0002:0000b10c       ??_C@_05HGBEJAHO@isdst@    000000018019110c     lib_os.obj
  0002:0000b118       ??_C@_0CL@PFAPFEGP@?$AFctype?$AHnumeric?$AEtime?$AHcollate?$AImon@ 0000000180191118     lib_os.obj
  0002:0000b150       __real@3f50624dd2f1a9fc    0000000180191150     lib_os.obj
+ 0002:0000b1f8       ??_C@_0BN@LMEJEAJO@CreateLuaInterface?$CIrealm?$DN?$CFd?$CJ@ 00000001801911f8     lib_gmod.obj
  0002:0000b218       ??_C@_07KOEABFCN@loadlib@  0000000180191218     lib_package.obj
  0002:0000b228       ??_C@_0L@LLHGDMBK@searchpath@ 0000000180191228     lib_package.obj
  0002:0000b238       ??_C@_06LNOHAKGK@seeall@   0000000180191238     lib_package.obj
@@ -6708,6 +6704,7 @@
  0002:0000b558       ??_C@_0L@GKIMPOMK@?2?6?$DL?6?$DP?6?$CB?6?9?6@ 0000000180191558     lib_package.obj
  0002:0000b568       ??_C@_06HEJKKHEK@config@   0000000180191568     lib_package.obj
  0002:0000b570       ??_C@_06IILMCCFO@loaded@   0000000180191570     lib_package.obj
+ 0002:0000b668       ??_C@_0CK@LCONMEHP@selftest?3?5GMOD_LoadBinaryModule@ 0000000180191668     lib_gmod.obj
  0002:0000b698       ??_C@_0BC@IMEAEJPD@too?5many?5captures@ 0000000180191698     lib_string.obj
  0002:0000b930       ??_C@_03CLCAEGCJ@new@      0000000180191930     lib_table.obj
  0002:0000b934       ??_C@_05MEHLAELG@clear@    0000000180191934     lib_table.obj
@@ -6716,7 +6713,9 @@
  0002:0000b968       ??_7CDefaultAccessor@@6B@  0000000180191968     convar_impl.obj
  0002:0000b980       ??_7IConVar@@6B@           0000000180191980     convar_impl.obj
  0002:0000b9c0       ??_7ConCommandBase@@6B@    00000001801919c0     convar_impl.obj
+ 0002:0000ba28       ??_C@_0BC@JIOGCEIL@CV?3cv_SaveManaged@ 0000000180191a28     lib_gmod.obj
  0002:0000ba48       ??_7ConCommand@@6B@        0000000180191a48     convar_impl.obj
+ 0002:0000bac8       ??_C@_0BJ@PFLAMGGK@ILuaShared?3?3MountLua?$CI?$CFs?$CJ@ 0000000180191ac8     lib_gmod.obj
  0002:0000baf0       ??_7ConVar@@6BConCommandBase@@@ 0000000180191af0     convar_impl.obj
  0002:0000bbd8       ??_7ConVar@@6BIConVar@@@   0000000180191bd8     convar_impl.obj
  0002:0000bc10       ??_C@_0BG@FHJDLLKG@FCVAR_NEVER_AS_STRING@ 0000000180191c10     convar_impl.obj
@@ -8466,6 +8465,8 @@
  0003:000053f0       ??_R0?AVDNameStatusNode@@@8 00000001801d33f0     libvcruntime:undname.obj
  0003:00005420       ??_R0?AVpairNode@@@8       00000001801d3420     libvcruntime:undname.obj
  0003:00005564       __isa_available_default    00000001801d3564     lj_bcread.obj
+ 0003:00005568       ?_OptionsStorage@?1??__local_stdio_scanf_options@@9@9 00000001801d3568     <common>
+ 0003:00005608       ?_OptionsStorage@?1??__local_stdio_printf_options@@9@9 00000001801d3608     <common>
  0003:00005628       _Avx2WmemEnabledWeakValue  00000001801d3628     lib_convar.obj
  0003:00010380       ?g_pFullFileSystem@@3PEAVIFileSystem@@EA 00000001801de380     lib_luashared.obj
  0003:00010388       cvar                       00000001801de388     lib_luashared.obj
@@ -8524,8 +8525,6 @@
  0003:0001289c       __acrt_lconv_static_W_null 00000001801e089c     libucrt:localeconv.obj
  0003:000128a4       _umaskval                  00000001801e08a4     libucrt:umask.obj
  0003:000128b4       _fmode                     00000001801e08b4     libucrt:txtmode.obj
- 0003:000128b8       ?_OptionsStorage@?1??__local_stdio_scanf_options@@9@9 00000001801e08b8     <common>
- 0003:000128d0       ?_OptionsStorage@?1??__local_stdio_printf_options@@9@9 00000001801e08d0     <common>
  0003:000128d8       __dyn_tls_init_callback    00000001801e08d8     <common>
  0003:000128ec       __scrt_ucrt_dll_is_in_use  00000001801e08ec     <common>
  0005:00000000       __imp_ExitProcess          00000001801f4000     kernel32:KERNEL32.dll
@@ -14521,7 +14520,6 @@
  0001:0007b620       setgcVraw                  000000018007c620 f   lib_bit.obj
  0001:0007b640       setintV                    000000018007c640 f   lib_bit.obj
  0001:0007b650       setstrV                    000000018007c650 f   lib_bit.obj
- 0001:0007c600       ?track@?A0xb6af9686@@YAXPEAX@Z 000000018007d600 f   lib_convar.obj
  0001:0007c9d0       lj_cf_debug_getregistry    000000018007d9d0 f   lib_debug.obj
  0001:0007ca00       lj_cf_debug_getmetatable   000000018007da00 f   lib_debug.obj
  0001:0007ca50       lj_cf_debug_setmetatable   000000018007da50 f   lib_debug.obj
@@ -14735,7 +14733,7 @@
  0001:00085e60       cs_dtor                    0000000180086e60 f   lib_gmod.obj
  0001:00085e70       cs_Init                    0000000180086e70 f   lib_gmod.obj
  0001:00085f60       cs_Shutdown                0000000180086f60 f   lib_gmod.obj
- 0001:000860f0       cs_DumpStats               00000001800870f0 f   lib_gmod.obj
+ 0001:000860a0       cs_DumpStats               00000001800870a0 f   lib_gmod.obj
  0001:00086220       cs_CreateLuaInterface      0000000180087220 f   lib_gmod.obj
  0001:000862d0       cs_CloseLuaInterface       00000001800872d0 f   lib_gmod.obj
  0001:000863e0       cs_GetLuaInterface         00000001800873e0 f   lib_gmod.obj
@@ -14971,6 +14969,7 @@
  0001:000996b0       ?read_script@?A0x1afd4df9@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0AEAV23@PEAI@Z 000000018009a6b0 f   lib_luashared.obj
  0001:000998e0       ?same_name@?A0x1afd4df9@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0@Z 000000018009a8e0 f   lib_luashared.obj
  0001:00099950       ?size@?$vector@PEAUGmodLuaFile@?A0x1afd4df9@@V?$allocator@PEAUGmodLuaFile@?A0x1afd4df9@@@std@@@std@@QEBA_KXZ 000000018009a950 f   lib_luashared.obj
+ 0001:0009cd00       ?track@?A0xb6af9686@@YAXPEAX@Z 000000018009dd00 f   lib_convar.obj
  0001:0009ced0       lj_ffh_math_abs            000000018009ded0 f   lib_math.obj
  0001:0009cef0       lj_ffh_math_sqrt           000000018009def0 f   lib_math.obj
  0001:0009cf10       lj_ffh_math_log            000000018009df10 f   lib_math.obj
@@ -19016,23 +19015,20 @@
  0002:00031738       $unwind$?_Xlength@?$vector@PEAXV?$allocator@PEAX@std@@@std@@CAXXZ 00000001801b7738     lib_convar.obj
  0002:00031740       $unwind$??__Fg_managed@?A0xb6af9686@@YAXXZ 00000001801b7740     lib_convar.obj
  0002:00031748       $unwind$?track@?A0xb6af9686@@YAXPEAX@Z 00000001801b7748     lib_convar.obj
- 0002:00031750       $unwind$glua_convars_destroy_managed 00000001801b7750     lib_convar.obj
- 0002:00031758       $unwind$glua_convars_create_convar 00000001801b7758     lib_convar.obj
- 0002:00031770       $unwind$glua_convars_create_concommand 00000001801b7770     lib_convar.obj
- 0002:00031788       $unwind$glua_convars_create_convar_probe 00000001801b7788     lib_convar.obj
- 0002:000317a4       $unwind$??$_Emplace_reallocate@AEBQEAX@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAPEAPEAXQEAPEAXAEBQEAX@Z 00000001801b77a4     lib_convar.obj
- 0002:000317b8       $chain$3$??$_Emplace_reallocate@AEBQEAX@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAPEAPEAXQEAPEAXAEBQEAX@Z 00000001801b77b8     lib_convar.obj
- 0002:000317dc       $chain$5$??$_Emplace_reallocate@AEBQEAX@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAPEAPEAXQEAPEAXAEBQEAX@Z 00000001801b77dc     lib_convar.obj
- 0002:00031800       $chain$6$??$_Emplace_reallocate@AEBQEAX@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAPEAPEAXQEAPEAXAEBQEAX@Z 00000001801b7800     lib_convar.obj
- 0002:00031814       $unwind$??$_Allocate_at_least_helper@V?$allocator@PEAX@std@@@std@@YAPEAPEAXAEAV?$allocator@PEAX@0@AEA_K@Z 00000001801b7814     lib_convar.obj
- 0002:0003181c       $unwind$??1_Reallocation_guard@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEAA@XZ 00000001801b781c     lib_convar.obj
- 0002:00031824       $unwind$??$_Uninitialized_move@PEAPEAXV?$allocator@PEAX@std@@@std@@YAPEAPEAXQEAPEAX0PEAPEAXAEAV?$allocator@PEAX@0@@Z 00000001801b7824     lib_convar.obj
- 0002:00031834       $unwind$??$_Deallocate@$0BA@@std@@YAXPEAX_K@Z 00000001801b7834     lib_convar.obj
- 0002:0003183c       $unwind$??$_Copy_memmove@PEAPEAXPEAPEAX@std@@YAPEAPEAXPEAPEAX00@Z 00000001801b783c     lib_convar.obj
- 0002:0003184c       $unwind$??$_Copy_memmove_tail@PEAPEAX@std@@YAPEAPEAXQEBDQEAPEAX_K2@Z 00000001801b784c     lib_convar.obj
- 0002:0003185c       $unwind$??$_Get_size_of_n@$07@std@@YA_K_K@Z 00000001801b785c     lib_convar.obj
- 0002:00031864       $unwind$??$_Allocate@$0BA@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z 00000001801b7864     lib_convar.obj
- 0002:0003186c       $unwind$??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z 00000001801b786c     lib_convar.obj
+ 0002:00031758       $unwind$glua_convars_create_concommand 00000001801b7758     lib_convar.obj
+ 0002:00031770       $unwind$glua_convars_create_convar_probe 00000001801b7770     lib_convar.obj
+ 0002:00031788       $unwind$??$_Emplace_reallocate@AEBQEAX@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAPEAPEAXQEAPEAXAEBQEAX@Z 00000001801b7788     lib_convar.obj
+ 0002:00031798       $chain$3$??$_Emplace_reallocate@AEBQEAX@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAPEAPEAXQEAPEAXAEBQEAX@Z 00000001801b7798     lib_convar.obj
+ 0002:000317b8       $chain$5$??$_Emplace_reallocate@AEBQEAX@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAPEAPEAXQEAPEAXAEBQEAX@Z 00000001801b77b8     lib_convar.obj
+ 0002:000317dc       $chain$6$??$_Emplace_reallocate@AEBQEAX@?$vector@PEAXV?$allocator@PEAX@std@@@std@@AEAAPEAPEAXQEAPEAXAEBQEAX@Z 00000001801b77dc     lib_convar.obj
+ 0002:00031800       $unwind$??$_Allocate_at_least_helper@V?$allocator@PEAX@std@@@std@@YAPEAPEAXAEAV?$allocator@PEAX@0@AEA_K@Z 00000001801b7800     lib_convar.obj
+ 0002:00031808       $unwind$??$_Uninitialized_move@PEAPEAXV?$allocator@PEAX@std@@@std@@YAPEAPEAXQEAPEAX0PEAPEAXAEAV?$allocator@PEAX@0@@Z 00000001801b7808     lib_convar.obj
+ 0002:00031814       $unwind$??1_Reallocation_guard@?$vector@PEAXV?$allocator@PEAX@std@@@std@@QEAA@XZ 00000001801b7814     lib_convar.obj
+ 0002:00031824       $unwind$??$_Deallocate@$0BA@@std@@YAXPEAX_K@Z 00000001801b7824     lib_convar.obj
+ 0002:0003183c       $unwind$??$_Copy_memmove_tail@PEAPEAX@std@@YAPEAPEAXQEBDQEAPEAX_K2@Z 00000001801b783c     lib_convar.obj
+ 0002:0003184c       $unwind$??$_Get_size_of_n@$07@std@@YA_K_K@Z 00000001801b784c     lib_convar.obj
+ 0002:0003185c       $unwind$??$_Allocate@$0BA@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z 00000001801b785c     lib_convar.obj
+ 0002:00031864       $unwind$??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z 00000001801b7864     lib_convar.obj
  0002:00031874       $unwind$luaopen_debug      00000001801b7874     lib_debug.obj
  0002:0003187c       $unwind$lj_cf_debug_getmetatable 00000001801b787c     lib_debug.obj
  0002:00031884       $unwind$lj_cf_debug_setmetatable 00000001801b7884     lib_debug.obj
@@ -20734,6 +20730,7 @@
  0002:00039520       $unwind$?fin$1@?0??FrameUnwindToState@__FrameHandler4@@SAXPEA_KPEAU_xDISPATCHER_CONTEXT@@PEAUFuncInfo4@FH4@@H@Z@4HA 00000001801bf520     libvcruntime:frame.obj
  0002:00039528       $unwind$?GetHandlerSearchState@__FrameHandler4@@SAHPEA_KPEAU_xDISPATCHER_CONTEXT@@PEAUFuncInfo4@FH4@@@Z 00000001801bf528     libvcruntime:frame.obj
  0002:00039538       $unwind$?CxxCallCatchBlock@__FrameHandler4@@SAPEAXPEAU_EXCEPTION_RECORD@@@Z 00000001801bf538     libvcruntime:frame.obj
+ 0002:00039594       $unwind$??$_Copy_memmove@PEAPEAXPEAPEAX@std@@YAPEAPEAXPEAPEAX00@Z 00000001801bf594     lib_convar.obj
  0002:000395a0       $unwind$?filt$0@?0??CxxCallCatchBlock@__FrameHandler4@@SAPEAXPEAU_EXCEPTION_RECORD@@@Z@4HA 00000001801bf5a0     libvcruntime:frame.obj
  0002:000395a8       $unwind$?fin$1@?0??CxxCallCatchBlock@__FrameHandler4@@SAPEAXPEAU_EXCEPTION_RECORD@@@Z@4HA 00000001801bf5a8     libvcruntime:frame.obj
  0002:000395b8       $unwind$??0bad_exception@std@@QEAA@AEBV01@@Z 00000001801bf5b8     libvcruntime:frame.obj
@@ -23121,6 +23118,7 @@
  0002:00044288       $unwind$__GSHandlerCheck_SEH_noexcept 00000001801ca288     LIBCMT:gshandlerseh_noexcept.obj
  0002:00044298       $unwind$_local_unwind      00000001801ca298     libvcruntime:jmpuwind.obj
  0002:000442a0       $unwind$__C_specific_handler_noexcept 00000001801ca2a0     libvcruntime:chandler_noexcept.obj
+ 0002:000442ac       $unwind$glua_convars_create_convar 00000001801ca2ac     lib_convar.obj
  0002:00045aa0       .edata                     00000001801cbaa0     lua51.exp
  0002:00045ac8       rgpv                       00000001801cbac8     lua51.exp
  0002:00045ff4       rgszName                   00000001801cbff4     lua51.exp
