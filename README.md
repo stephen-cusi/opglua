@@ -42,14 +42,15 @@ Working:
 
 In development:
 
-- The GMod-standard C-side libraries (`file`, `sql`, `net`, `util`, ...).
-- The threaded-call queue behind `AddThreadedCall`, and the remaining
-  `CLuaInterface` slots that differ from the reference in behaviour rather
-  than in signature.
+- The GMod-standard C-side libraries (`file`, `sql`, `net`, `util`, ...). The
+  reference implements them in the same module, so this is the largest
+  remaining piece.
+- Unifying every path on host-supplied `ILuaObject` handles, so our own object
+  type never mixes with the engine's.
 
-`docs/lua_shared_structure.md` describes the reference object model, both
-virtual tables and the boot sequence, and tracks how far this implementation
-follows them.
+`docs/lua_shared_structure.md` maps the reference object model, all five
+virtual tables, the interface memory layout, the boot sequence and the script
+resolution chain, and tracks how far this implementation follows them.
 
 ## Build (Windows x64, MSVC)
 

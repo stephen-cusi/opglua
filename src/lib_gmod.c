@@ -69,6 +69,9 @@ typedef struct GLuaUserData {
 #define GLUA_REALM_SERVER 1
 #define GLUA_REALM_MENU   2
 
+/* Host calls waiting for the next frame. */
+#define GLUA_MAX_THREADED 64
+
 /* GarrysMod::Lua::Type numeric values used directly below. */
 #define GT_NONE          (-1)
 #define GT_NIL           0
@@ -137,11 +140,15 @@ typedef struct CLuaInterface {
   int metaIDCounter;
   GLuaObject *metaTables[255];          /* per-type metatable objects */
 
-  void *threadedHead;                   /* simple list of pending calls */
+  /* Pending host calls.  Each entry is a host object whose method table
+  ** answers "should this run now" and "run it"; Cycle drains the queue once a
+  ** frame. */
+  void *threaded[GLUA_MAX_THREADED];
   int  threadedCount;
 
   int colorMetaID;                      /* metatable id for GLuaColor */
   int savedMetas;                       /* guard for repeated Init */
+  int errorFuncRef;                     /* registry ref of the error handler */
 } CLuaInterface;
 
 typedef void (*glua_vfn)(void);
@@ -1622,6 +1629,22 @@ LUALIB_API int GMOD_LoadBinaryModule(lua_State *L, const char *path)
   return 0;
 }
 
+/* Message handler for the interface's protected calls: the raised value plus a
+** traceback of where it came from, returned as the single error result. */
+static int glua_error_handler(lua_State *L)
+{
+  char buf[512];
+  const char *msg;
+  if (!lua_isstring(L, 1)) {
+    snprintf(buf, sizeof(buf), "(error object is a %s value)", luaL_typename(L, 1));
+    msg = buf;
+  } else {
+    msg = lua_tostring(L, 1);
+  }
+  luaL_traceback(L, L, msg, 1);
+  return 1;
+}
+
 static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
 {
   lua_State *L;
@@ -1640,6 +1663,12 @@ static int ci_slot_Init(CLuaInterface *self, void *cb, bool dedicated)
 
   luaL_openlibs(L);
   lua_atpanic(L, NULL);
+
+  /* Keep the error handler in the registry: every protected call made through
+  ** the interface runs with it so a runtime error is a formatted message
+  ** rather than a bare value. */
+  lua_pushcclosure(L, (lua_CFunction)glua_error_handler, 0);
+  self->errorFuncRef = luaL_ref(L, LUA_REGISTRYINDEX);
 
   /* Custom metatable ids start after the builtin type range so they can
   ** never collide with a GarrysMod::Lua::Type value. */
@@ -1708,13 +1737,48 @@ static void ci_slot_Shutdown(CLuaInterface *self)
   }
 }
 
+/* Drain the pending host calls.  Each entry answers a "run now" question
+** through its method table and, when it says yes, is run once with this
+** interface and dropped; one that says no stays queued for a later frame.
+** Entries queued while the drain runs wait for the next frame, so a call that
+** re-queues itself cannot spin here. */
+static void glua_pump_threaded(CLuaInterface *self)
+{
+  void *pending[GLUA_MAX_THREADED];
+  int n, i, keep = 0;
+
+  n = self->threadedCount;
+  if (n <= 0) return;
+  if (n > GLUA_MAX_THREADED) n = GLUA_MAX_THREADED;
+  memcpy(pending, self->threaded, sizeof(void *) * (size_t)n);
+  memset(self->threaded, 0, sizeof(self->threaded));
+  self->threadedCount = 0;
+
+  for (i = 0; i < n; i++) {
+    void *obj = pending[i];
+    void **vt;
+    int run = 0;
+    if (obj == NULL) continue;
+    vt = *(void ***)obj;
+    if (vt == NULL) continue;
+    if (vt[1] != NULL) run = ((int (*)(void *))vt[1])(obj) != 0;
+    if (run) {
+      if (vt[2] != NULL) ((void (*)(void *, CLuaInterface *))vt[2])(obj, self);
+      continue;
+    }
+    if (keep < GLUA_MAX_THREADED) self->threaded[keep++] = obj;
+  }
+  self->threadedCount = keep;
+}
+
 static void ci_slot_Cycle(CLuaInterface *self)
 { glua_log_v("SLOT:ci_slot_Cycle");
   int i;
   for (i = 0; i < 4; i++) self->returns.objs[i] = NULL;
-  /* Threaded calls are pumped here in the reference; ours is a no-op list. */
-  self->threadedHead = NULL;
-  self->threadedCount = 0;
+  glua_pump_threaded(self);
+  if (self->state != NULL && lua_gettop(self->state) != 0) {
+    glua_log("IFACE::DoStackCheck-uneven top=%d", lua_gettop(self->state));
+  }
 }
 
 static GLuaObject *ci_slot_Global(CLuaInterface *self) { if(self->global==NULL) glua_log("Global: NULL!"); return self->global; }
@@ -1742,65 +1806,84 @@ static void ci_slot_TypeError(CLuaInterface *self, const char *name, int index)
 { glua_log_v("SLOT:ci_slot_TypeError"); luaL_typerror(self->state, index, name); }
 
 /* Protected call helper shared by the CallInternal family. */
-static int glua_pcall_int(CLuaInterface *self, int args, int rets)
+/* Report a failed protected call the way the reference does: hand the message
+** to the game callback (the interface prints it) and leave the stack as the
+** caller expects. */
+static void glua_call_failed(CLuaInterface *self)
 {
   lua_State *L = self->state;
-  int base = lua_gettop(L) - args;
-  if (base < 1 || lua_type(L, base) != GT_FUNCTION) {
-    luaL_error(L, "Lua tried to call a non-function");
-    return 0;
-  }
-  return lua_pcall(L, args, rets, 0);
+  const char *msg = lua_tostring(L, -1);
+  if (msg != NULL) ci_slot_ErrorNoHalt(self, "%s\n", msg);
+  lua_pop(L, 1);
 }
 
+/* CallInternal: protected call with `rets` results turned into interface
+** objects.  The return slots are cleared first, an object is prepared for each
+** expected result (so a slot is never NULL on success), the call runs with the
+** interface's error handler, and the results are bound to their objects. */
 static void ci_slot_CallInternal(CLuaInterface *self, int args, int rets)
 { glua_log_v("SLOT:ci_slot_CallInternal");
+  lua_State *L = self->state;
   int i;
-  if (rets > 4) { luaL_error(self->state, "too many returns"); return; }
-  for (i = 0; i < 4; i++) self->returns.objs[i] = NULL;
-  if (glua_pcall_int(self, args, rets) != 0) return;
-  for (i = 0; i < rets; i++) {
-    if (self->returns.objs[i] == NULL) self->returns.objs[i] = gobj_create(self);
-    if (self->returns.objs[i] != NULL)
-      gobj_setstack_any(self, self->returns.objs[i], -(rets - i));
+  if (rets > 4) {
+    ci_slot_ErrorNoHalt(self, "[CLuaInterface::Call] Expecting more returns than possible\n");
+    return;
   }
-  lua_pop(self->state, rets);
+  for (i = 0; i < 4; i++) self->returns.objs[i] = NULL;
+  for (i = 0; i < rets; i++) {
+    self->returns.objs[i] = ci_slot_NewTemporaryObject(self);
+  }
+  if (!ci_slot_CallFunctionProtected(self, args, rets, true)) return;
+  for (i = 0; i < rets; i++) {
+    GLuaObject *obj = self->returns.objs[i];
+    if (obj == NULL) obj = self->returns.objs[i] = ci_slot_NewTemporaryObject(self);
+    if (obj != NULL) gobj_setstack_any(self, obj, -(rets - i));
+  }
+  if (rets > 0) lua_pop(L, rets);
 }
 
 static void ci_slot_CallInternalNoReturns(CLuaInterface *self, int args)
-{ glua_log_v("SLOT:ci_slot_CallInternalNoReturns"); (void)glua_pcall_int(self, args, 0); }
+{ glua_log_v("SLOT:ci_slot_CallInternalNoReturns");
+  if (!ci_slot_CallFunctionProtected(self, args, 0, true)) return;
+}
 
 static int ci_slot_CallInternalGetBool(CLuaInterface *self, int args)
 { glua_log_v("SLOT:ci_slot_CallInternalGetBool");
+  lua_State *L = self->state;
   int r = 0;
-  if (glua_pcall_int(self, args, 1) == 0) {
-    r = lua_toboolean(self->state, -1) != 0;
-    lua_pop(self->state, 1);
+  if (!ci_slot_CallFunctionProtected(self, args, 1, true)) return 0;
+  if (lua_type(L, -1) != GT_BOOL) {
+    lua_pop(L, 1);
+    return 0;
   }
+  r = lua_toboolean(L, -1) != 0;
+  lua_pop(L, 1);
   return r;
 }
 
 static const char *ci_slot_CallInternalGetString(CLuaInterface *self, int args)
 { glua_log_v("SLOT:ci_slot_CallInternalGetString");
+  lua_State *L = self->state;
   const char *r = NULL;
-  if (glua_pcall_int(self, args, 1) == 0) {
-    if (lua_type(self->state, -1) == GT_STRING) r = lua_tostring(self->state, -1);
-    lua_pop(self->state, 1);
+  if (!ci_slot_CallFunctionProtected(self, args, 1, true)) return NULL;
+  if (lua_type(L, -1) != GT_STRING) {
+    lua_pop(L, 1);
+    return NULL;
   }
+  r = lua_tostring(L, -1);
+  lua_pop(L, 1);
   return r;
 }
 
 static int ci_slot_CallInternalGet(CLuaInterface *self, int args, GLuaObject *obj)
 { glua_log_v("SLOT:ci_slot_CallInternalGet");
-  if (glua_pcall_int(self, args, 1) != 0) return 0;
-  if (obj != NULL) {
-    gobj_setstack_any(self, obj, -1);
-    lua_pop(self->state, 1);
-    return 1;
-  }
-  lua_pop(self->state, 1);
-  return 0;
+  lua_State *L = self->state;
+  if (!ci_slot_CallFunctionProtected(self, args, 1, true)) return 0;
+  if (obj != NULL) gobj_setstack_any(self, obj, -1);
+  lua_pop(L, 1);
+  return 1;
 }
+
 
 static void ci_slot_NewGlobalTable(CLuaInterface *self, const char *name)
 { glua_log_v("SLOT:ci_slot_NewGlobalTable");
@@ -2894,19 +2977,26 @@ static int ci_slot_CompileString(CLuaInterface *self, void *dumper, const void *
   return 0;
 }
 
+/* Protected call with the error handler this interface installed at boot: the
+** handler reference is pushed under the function so a runtime error is turned
+** into a formatted message before it unwinds, then removed again.  Returns
+** true on success; a failure leaves the message on the stack for the caller to
+** report and discard. */
 static int ci_slot_CallFunctionProtected(CLuaInterface *self, int args, int rets, bool printErr)
 { glua_log_v("SLOT:ci_slot_CallFunctionProtected");
   lua_State *L = self->state;
-  int base = lua_gettop(L) - args;
+  int index;
   int r;
-  if (base < 1 || lua_type(L, base) != GT_FUNCTION) {
-    ci_slot_ErrorNoHalt(self, "CallFunctionProtected was passed a non-function!\n");
-    return 0;
+  if (L == NULL || args < 0) return 0;
+  index = lua_gettop(L) - args;
+  if (self->errorFuncRef != 0) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, self->errorFuncRef);
+    lua_insert(L, index);
   }
-  r = lua_pcall(L, args, rets, 0);
+  r = lua_pcall(L, args, rets, self->errorFuncRef != 0 ? index : 0);
+  if (self->errorFuncRef != 0) lua_remove(L, index);
   if (r != 0) {
     if (printErr) ci_slot_ErrorNoHalt(self, "%s", lua_tostring(L, -1));
-    lua_pop(L, 1);
     return 0;
   }
   return 1;
@@ -3082,7 +3172,15 @@ static const char *ci_slot_GetPooledString(CLuaInterface *self, int index)
 }
 
 static int ci_slot_AddThreadedCall(CLuaInterface *self, void *call)
-{ glua_log_v("SLOT:ci_slot_AddThreadedCall"); (void)call; self->threadedCount++; return self->threadedCount; }
+{ glua_log_v("SLOT:ci_slot_AddThreadedCall");
+  if (call == NULL) return 0;
+  if (self->threadedCount >= GLUA_MAX_THREADED) {
+    glua_log("IFACE::AddThreadedCall queue full, dropping");
+    return 0;
+  }
+  self->threaded[self->threadedCount++] = call;
+  return self->threadedCount;
+}
 
 static void ci_slot_AppendStackTrace(CLuaInterface *self, char *buf, unsigned int size)
 { glua_log_v("SLOT:ci_slot_AppendStackTrace");

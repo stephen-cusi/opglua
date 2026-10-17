@@ -1,155 +1,358 @@
 # lua_shared structure reference
 
-What the shipping Garry's Mod `lua_shared.dll` (win64) contains, and how far
-this implementation matches it. Facts below come from the reference binary's
-runtime type information, virtual tables and function bodies; the addresses
-live in the local forensics archive (`D:\tmp\dec\lua_shared.dll\`) and are
-deliberately not repeated in this repository.
+A complete structural map of the shipping Garry's Mod `lua_shared.dll` (win64),
+and how far this implementation follows it. Everything here was established from
+the reference binary's runtime type information, its virtual tables and the
+bodies of the functions those tables point at; the raw evidence lives in the
+local forensics archive and addresses are deliberately not repeated here.
 
-## Object model
+Object field offsets (`+0x170`) are ABI facts, not code addresses.
+
+---
+
+## 1. Object inventory
+
+| Object | Slots | Role |
+|---|---|---|
+| `CLuaShared` | 19 | the object `CreateInterface("LUASHARED003")` returns; owns one interface per realm |
+| `CLuaInterface` | 132 | one per realm; `ILuaBase` (0..54) + `ILuaInterface` (55..130) + own destructor (131) |
+| `CLuaConVars` | 8 | `CreateInterface("LUACONVARS001")`; builds ConVar/ConCommand objects for scripts |
+| `ILuaGameCallback` | 7 | supplied by the host; how the runtime asks the game for objects and messages |
+| `ILuaObject` | 40+ | host-owned value handle; **never** inspected by field, only driven through its vtable |
+| `ILuaThreadedCall` | 3 | work item queued with `AddThreadedCall` and drained by `Cycle` |
+
+All three `CreateInterface` answers are process-wide singletons: the engine
+caches the first answer and hands the same pointer to every module.
+
+---
+
+## 2. `CLuaShared` (19 slots)
 
 ```
-game / binary module
-        |
-        | CreateInterface("LUASHARED003")   (factory returns a singleton)
-        v
-   CLuaShared  ---------------------------+-------------------+
-   vtable, 19 slots                       |                   |
-        |                                 |                   |
-        | slot 4 CreateLuaInterface(realm) | slot 6 GetLuaInterface(realm)
-        v                                 v                   v
-   CLuaInterface  (one per realm)   ifaces[0] client   ifaces[2] menu
-   132-slot vtable                   ifaces[1] server
-        |
-        | slot 55 Init(gameCallback, dedicated)
-        v
-   lua_State (LuaJIT 2.1, GC64) ---- L+0x78 -> ILuaBase* (= the CLuaInterface)
++0x00  vtable
++0x08  engine interface factory (transient; not stored in the reference)
++0x10  dedicated/magic flag
++0x18  engine file system
++0x78  ILuaInterface* realm[3]   ({CLIENT=0, SERVER=1, MENU=2})
 ```
 
-`CreateInterface("LUACONVARS001")` returns the `CLuaConVars` singleton (8
-slots) used to build ConVar/ConCommand objects for scripts.
-
-## CLuaShared (19 virtual slots)
-
-| slot | method | notes |
+| slot | method | contract |
 |---|---|---|
 | 0 | destructor | |
-| 1 | Init(factory, dedicated, context, get) | binds the engine cvar system and file system |
-| 2 | Shutdown | |
-| 3 | DumpStats | prints file-timestamp timings |
-| 4 | CreateLuaInterface(realm, unk) | allocates; Init follows |
-| 5 | CloseLuaInterface | |
-| 6 | GetLuaInterface(realm) | plain array read |
-| 7 | LoadFile | returns a cached `LuaFile*` |
-| 8 | GetCache | pure cache lookup |
-| 9 | MountLua(pathID) | mounts `lua`, plus `gamemodes` unless the realm is the menu |
-| 10 | MountLuaAdd(root, pathID) | resolves the root, then adds the search path |
-| 11 | UnMountLua(pathID) | |
-| 12 | SetFileContents | client file transfer |
-| 13 | SetLuaFindHook | |
-| 14 | FindScripts | directory walk, `{fileName, isFolder}` results |
-| 15 | GetStackTraces | |
-| 16 | InvalidateCache | |
-| 17 | EmptyCache | |
-| 18 | ScriptExists | |
+| 1 | `Init(factory, dedicated, ctx, get)` | pulls `VEngineCvar007` and `VFileSystem022`, initialises the ConVar module, records the flag; **state creation does not happen here** |
+| 2 | `Shutdown` | |
+| 3 | `DumpStats` | prints file-timestamp timings |
+| 4 | `CreateLuaInterface(realm, bool)` | allocates + constructs, stores into `realm[realm]`; **does not create a `lua_State`** |
+| 5 | `CloseLuaInterface` | `Shutdown()` then destructor, clears the realm slot, and when both client and server are gone calls the ConVar module's `DestroyManaged` |
+| 6 | `GetLuaInterface(realm)` | plain read of `realm[realm]`; **not** create-on-demand |
+| 7 | `LoadFile(name, pathID, fromDatatable, fromFile)` | returns a cached `LuaFile*` or NULL |
+| 8 | `GetCache(name)` | pure cache lookup |
+| 9 | `MountLua(pathID)` | mounts `lua`; also `gamemodes` unless the id is the menu realm |
+| 10 | `MountLuaAdd(root, pathID)` | resolves the root, adds the search path, marks the id request-only |
+| 11 | `UnMountLua(pathID)` | |
+| 12 | `SetFileContents` | empty in the shipping build |
+| 13 | `SetLuaFindHook` | |
+| 14 | `FindScripts(path, pathID, out)` | directory walk; results are base names + folder flag |
+| 15 | `GetStackTraces` | walks all three realms, labelled Client/Server/MenuSystem |
+| 16 | `InvalidateCache` | |
+| 17 | `EmptyCache` | |
+| 18 | `ScriptExists` | accepts a directory |
 
-The realm table is a fixed array inside the object at `+0x78`, one pointer per
-realm, and *both* slot 4 and slot 6 address that array. A caller that reads the
-object directly and a caller going through the table must see the same answer,
-so the placement is part of the contract (`offsetof` is asserted in the
-platform layer).
+**Realm indices are part of the ABI.** The realm table sits at `+0x78` with a
+stride of 8, and both slot 4 and slot 6 address it. A caller reading the object
+directly and a caller going through the table must agree, so this member's
+placement is asserted at compile time in this tree.
 
-## CLuaInterface (132 virtual slots)
+---
 
-`ILuaBase` contributes slots 0..54, `ILuaInterface` slots 55..130, and the
-class adds its own deleting destructor at 131.
+## 3. `CLuaInterface` (132 slots)
 
-Base block worth memorising (slot = byte offset / 8):
+Slot = byte offset / 8. `ILuaBase` supplies 0..54, `ILuaInterface` 55..130, and
+the class adds its own deleting destructor at 131.
 
-| slot | byte | method |
-|---|---|---|
-| 0 | 0x00 | Top |
-| 1 | 0x08 | Push |
-| 2 | 0x10 | Pop |
-| 3 | 0x18 | GetTable |
-| 10 | 0x50 | Call |
-| 11 | 0x58 | PCall |
-| 17 | 0x88 | NewUserdata |
-| 23 | 0xb0 | GetString |
-| 29 | 0xe8 | PushString |
-| 30 | 0xf0 | PushNumber |
-| 35 | 0x118 | ReferenceCreate |
-| 36 | 0x120 | ReferenceFree |
-| 37 | 0x128 | ReferencePush |
-| 40 | 0x140 | GetType |
-| 43 | 0x158 | CheckString |
-| 44 | 0x160 | CheckNumber |
-| 50 | 0x190 | SetState |
-| 51 | 0x198 | CreateMetaTable |
-| 55 | 0x1b8 | Init |
-| 57 | 0x1c8 | Cycle |
-| 58 | 0x1d0 | Global |
-| 79 | 0x278 | CreateObject |
-| 92 | 0x2e0 | RunString |
-| 96 | 0x300 | RunLuaModule |
-| 97 | 0x308 | FindAndRunScript |
-| 111 | 0x378 | RunStringEx |
-| 122 | 0x3d0 | PushPooledString |
-| 123 | 0x3d8 | GetPooledString |
-| 124 | 0x3e0 | AddThreadedCall |
-| 126 | 0x3f0 | CreateConVar |
-| 127 | 0x3f8 | CreateConCommand |
-| 131 | 0x418 | ~CLuaInterface |
+Essential base slots:
 
-### Init, step by step
+| slot | byte | method | note |
+|---|---|---|---|
+| 0 | 0x000 | Top | |
+| 1 | 0x008 | Push | |
+| 2 | 0x010 | Pop | errors on over-pop |
+| 3 | 0x018 | GetTable | |
+| 6 | 0x030 | CreateTable | |
+| 10 | 0x050 | Call | |
+| 11 | 0x058 | PCall | |
+| 17 | 0x088 | NewUserdata | deprecated, still occupies its slot |
+| 23 | 0x0b8 | GetString | returns NULL on failure |
+| 29 | 0x0e8 | PushString | |
+| 30 | 0x0f0 | PushNumber | |
+| 35 | 0x118 | ReferenceCreate | |
+| 36 | 0x120 | ReferenceFree | |
+| 37 | 0x128 | ReferencePush | |
+| 39 | 0x138 | IsType | |
+| 40 | 0x140 | GetType | type plus custom user-type byte |
+| 41 | 0x148 | GetTypeName | |
+| 43 | 0x158 | CheckString | throwing |
+| 44 | 0x160 | CheckNumber | throwing |
+| 48 | 0x180 | PushAngle | |
+| 49 | 0x188 | PushVector | |
+| 50 | 0x190 | SetState | writes `state` |
+| 51 | 0x198 | CreateMetaTable | |
+| 52 | 0x1a0 | PushMetaTable | |
 
-1. store the game callback, ask the object factory for the global table object
-2. clear the return-slot block and the per-type metatable object table
-   (44 entries)
-3. `luaL_newstate`, install it through `SetState`, write the back pointer at
-   `L+0x78`
-4. install the panic handler; push the error reporter and keep its reference
-5. FPU precision self-check (a bad x87 state is warned about, not fatal)
-6. publish `VERSION` (1234) and `BRANCH` ("unknown") into the globals
-7. load the standard libraries and open the base gamemode environment
-8. build the 317-entry callback-name table (index 1 = `AcceptInput`) and keep
-   it as the string-pool object for `PushPooledString`
-9. strip `debug.setlocal`, `setupvalue`, `upvalueid`, `upvaluejoin`
-10. call back into the game (`InterfaceCreated`)
+Interface slots:
 
-Steps 6 and 9 are easy to miss and are now implemented; step 8 exists in this
-tree as a flat table in C, which answers `GetPooledString` identically.
+| slot | byte | method | note |
+|---|---|---|---|
+| 55 | 0x1b8 | Init | the whole boot sequence |
+| 56 | 0x1c0 | Shutdown | |
+| 57 | 0x1c8 | Cycle | per frame: clear returns, stack check, drain threaded calls |
+| 58 | 0x1d0 | Global | returns the global object |
+| 59 | 0x1d8 | GetObject | temp object bound to a stack index |
+| 64 | 0x200 | CallInternal | |
+| 65 | 0x208 | CallInternalNoReturns | |
+| 66 | 0x210 | CallInternalGetBool | |
+| 67 | 0x218 | CallInternalGetString | |
+| 68 | 0x220 | CallInternalGet | |
+| 70 | 0x230 | NewTemporaryObject | 32-entry ring |
+| 72/73 | 0x240/0x248 | GetMetaTableObject | by name / by index |
+| 74 | 0x250 | GetReturn | |
+| 75/76/77 | 0x258/0x260/0x268 | IsServer/IsClient/IsMenu | realm byte test |
+| 78/79 | 0x270/0x278 | DestroyObject/CreateObject | through the game callback |
+| 80..85 | 0x280..0x2a8 | SetMember overloads, GetNewTable | **shipping order differs from the public header mirror** |
+| 92 | 0x2e0 | RunString | forwarder to 111 |
+| 96 | 0x300 | RunLuaModule | |
+| 97 | 0x308 | FindAndRunScript | |
+| 98/99 | 0x310/0x318 | SetPathID/GetPathID | |
+| 102..104 | 0x330..0x340 | PushPath/PopPath/GetPath | |
+| 111 | 0x378 | RunStringEx | core compile + run |
+| 118 | 0x3b0 | CallFunctionProtected | |
+| 119 | 0x3b8 | Require | |
+| 122/123 | 0x3d0/0x3d8 | PushPooledString/GetPooledString | |
+| 124 | 0x3e0 | AddThreadedCall | |
+| 126/127 | 0x3f0/0x3f8 | CreateConVar/CreateConCommand | |
+| 130 | 0x410 | RegisterMetaTable | |
+| 131 | 0x418 | deleting destructor | |
 
-### Per-frame work
+### Shipping `SetMember` order (slots 80..85)
 
-`Cycle` (slot 57) clears the four return slots and pumps the threaded-call
-queue. The queue is a list of host objects handed to `AddThreadedCall`
-(slot 124); the client calls it exactly once per map load, so an implementation
-that drops the queue loses those calls silently. This is a known gap.
+```
+80  SetMember(table, const char* key, ILuaObject* value)
+81  SetMember(table, const char* key)
+82  SetMember(table, float key, ILuaObject* value)
+83  SetMember(table, float key)
+84  SetMember(table, ILuaObject* key, ILuaObject* value)
+85  ILuaObject* GetNewTable()
+```
 
-## lua_State
+The public `LuaInterface.h` mirror shipped by `garrysmod_common` declares this
+same set in a different order, with `GetNewTable` third. A module built against
+that mirror calls the wrong functions on six consecutive slots. This tree
+defines its table by hand in the shipping order above; the mirror is left
+untouched because it is an upstream project, and `tests/gmod_abi` carries a
+corrected header for tests.
 
-* GC64 build: stock core ends at 0x60; Garry's Mod adds a tail and the
-  interface back pointer, for `sizeof = 0x80`.
-* `offsetof(lua_State, luabase) = 0x78` — a coroutine state must inherit the
-  parent's pointer or every engine callback made from a coroutine reads
-  garbage.
+---
 
-## Script loading path
+## 4. `CLuaInterface` memory layout
 
-The engine does **not** drive script loading through `ILuaShared::LoadFile`
-in practice; it calls `CLuaInterface::FindAndRunScript` (slot 97), which is why
-that slot must consult the engine file system itself. `LoadFile`, `GetCache`,
-`FindScripts` and `ScriptExists` still matter for gamemode discovery and for
-`include`-style lookups.
+Derived from which slots read or write each offset. `state` is the only field
+touched by the whole base table, which is why slot 0..54 wrappers can be thin.
 
-Resolution order in this implementation: engine file system (with the path id,
-then without) -> local disk walk over the mounted roots -> miss.
+```
++0x008  lua_State*            state
++0x010  int                   registry ref of the error handler
++0x018  char*                 path stack buffer      (CUtlMemory)
++0x020  uint                  path stack capacity
++0x024  int                   path stack grow size
++0x028  int                   path stack depth
++0x030  char*                 path stack elements
++0x038  list head             pending host calls
++0x040  int                   pending call count (max marker 0x0aaaaaaaaaaaaaaa)
++0x048  ILuaObject* [4]       return slots
++0x068  ILuaObject* [32]      temporary object ring
++0x168  unsigned char         realm (0 client, 1 server, 2 menu)
++0x170  ILuaGameCallback*     host callback
++0x178  char [32]             path id
++0x198  int                   temporary ring cursor
++0x1a0  ILuaObject*           global table object
++0x1a8  ILuaObject*           pooled-string object
++0x1b0  int                   metatable object count (44)
++0x1b8  ILuaObject* [44]      metatable objects, indexed by type
+```
 
-## ConVar / ConCommand
+Each path stack element is a full 260-byte buffer, and the stack grows; a fixed
+array is not equivalent because `PushPath` may be nested deeper than expected.
 
-`CLuaConVars` builds real `ConVar`/`ConCommand` objects that self-register with
-the engine's cvar system. For that to work the ConVar block must match the
-engine's layout exactly, including the change-callback vector at the tail, and
-the virtual order must match (see `public/tier1/convar.h` on the engine
-`opglua` branch).
+`PushPath` canonicalises the path through the file system (own-table path
+helper), converts separators, and stores the result; `GetPath` returns the top
+entry; `PopPath` guards against over-popping.
+
+---
+
+## 5. `ILuaGameCallback` (7 slots)
+
+```
+0  ILuaObject* CreateLuaObject()                -- no arguments; the callback is already bound to its realm
+1  void        DestroyLuaObject(ILuaObject*)
+2  void        ErrorPrint(const char*, bool)
+3  void        Msg(const char*, bool)
+4  void        MsgColour(const char*, const Color&)
+5  void        LuaError(const CLuaError*)
+6  void        InterfaceCreated(ILuaInterface*)
+```
+
+Consequence for a reimplementation: `CreateObject` must call callback slot 0
+with **only** the callback as `this` — the callback already knows its realm
+because `Init` called slot 6 with the interface. Passing a state or an interface
+into the object layer is wrong.
+
+---
+
+## 6. `ILuaObject` (host-supplied)
+
+The reference never reads object fields; it only calls these vtable slots:
+
+```
++0x008  SetFromStack(int)          bind the object to a stack slot
++0x010  UnReference()              recycle / release
++0x018  GetType() -> int
++0x080  SetMember(const char*, const char*)
++0x108  Push()                     push self on the current stack
++0x110  isNil() -> bool
++0x118  isTable() -> bool
++0x1a8  SetMember(const char*, double)
+```
+
+The public `LuaObject.h` mirror is stale for this layout (it puts `Push` at
+0xC0); the byte offsets above are the contract.
+
+---
+
+## 7. `ILuaThreadedCall` (3 slots)
+
+```
++0x00  Init()
++0x08  query: returns non-zero when the call is ready to run
++0x10  Run(ILuaInterface*)
+```
+
+`Cycle` walks the queue, runs the entries whose query answered non-zero, and
+drops exactly those entries; entries that answered zero stay queued. The public
+header mirror declares only `Init` and `Run` (2 slots), which is one short.
+
+`AddThreadedCall` returns the queue count and refuses when the queue is at its
+0x0aaaaaaaaaaaaaaa marker.
+
+---
+
+## 8. Boot sequence
+
+```
+engine: LoadLibrary("lua_shared.dll"); Sys_GetFactory
+engine: CreateInterface("LUASHARED003")            -> CLuaShared singleton
+engine: CreateInterface("LUACONVARS001")           -> CLuaConVars singleton
+engine: ILuaShared::Init(factory, dedicated, ctx, get)
+engine: GetLuaInterface(MENU)   -> NULL
+engine: GetLuaInterface(CLIENT) -> NULL
+engine: CreateLuaInterface(MENU)  -> allocated, stored; no state yet
+engine: GetLuaInterface(MENU)   -> the new interface
+engine: ILuaInterface::Init(callback, false)
+        ... same for CLIENT then SERVER when the realm is needed
+```
+
+`ILuaInterface::Init` itself does, in order:
+
+1. store the callback at `+0x170`
+2. create the global table object through callback slot 0
+3. clear the return slots, the temporary ring, and the metatable table
+4. `luaL_newstate`; on failure report and return false
+5. `SetState(L)` and write the back pointer at `L+0x78`
+6. install the panic handler, push the error reporter and keep its reference
+7. FPU precision self-check (warn, not fatal)
+8. publish `VERSION` (1234) and `BRANCH` ("unknown") into the globals
+9. `luaL_openlibs`, open the base gamemode environment
+10. build the callback-name table (317 names, index 1 = `AcceptInput`) and keep
+    it as the pooled-string object
+11. strip `debug.setlocal`, `setupvalue`, `upvalueid`, `upvaluejoin`
+12. call callback slot 6 `InterfaceCreated(this)`
+
+Steps 8 and 11 are easy to miss and are implemented here.
+
+---
+
+## 9. Script resolution
+
+`FindAndRunScript(name, run, showErrors, marker, noReturns)`:
+
+1. reject anything that is not a `.lua` name (case-insensitive, `.lua` appended
+   when absent)
+2. ask `CLuaShared` slot 7 `LoadFile(name, pathID, false, isClient)` — **script
+   bytes come through `LoadFile`, not through a private disk walk**
+3. on NULL report "File not found or is empty"
+4. on success write the marker into `LuaFile::source` (`+0x28`)
+5. `PushPath(name)`, run the chunk, `PopPath()`
+
+`LuaFile` layout (0x98):
+
+```
++0x00  int          time (file timestamp)
++0x08  std::string  name
++0x28  std::string  source
++0x48  std::string  contents
++0x68  byte[32]     compressed copy
++0x88  byte[8]      reserved
++0x90  uint         times loaded server-side
++0x94  uint         times loaded client-side
+```
+
+`Require(name)` uses `_MODULES` and an `isNil` test on the looked-up entry:
+a missing entry means "not loaded"; the module file is
+`lua/includes/modules/<name>.lua` and the result is stored under `_MODULES[name]`.
+Modules must therefore execute **once per realm** — double execution registers
+every hook twice.
+
+---
+
+## 10. What the LuaJIT side changes
+
+The interpreter is stock LuaJIT 2.1 (beta 3 line, GC64) with:
+
+- GLua lexer: `continue` (token inserted, all later tokens shifted),
+  `&&`/`||`/`!`/`!=` aliases, `//` and non-nesting `/* */` comments
+- `table.insert` returns the inserted position
+- `luaL_newmetatable` carries `MetaName`/`MetaID`; `luaL_newmetatable_type`
+- `lua_State` grows to 0x80 with the interface back pointer at 0x78
+- a GLua-only error message for `continue` outside a loop
+
+Nothing else in the runtime differs from upstream, so the port keeps LuaJIT
+stock wherever the reference does not add behaviour.
+
+---
+
+## 11. Implementation status
+
+Aligned and verified against the reference:
+
+- singleton factories, realm table at `+0x78`, `Init`/`Cycle`/`GetLuaInterface`
+  contracts, boot steps 1..12
+- `ILuaShared` file slots with a real timestamp-validated `LuaFile` cache fed by
+  the engine file system, with the search-path mounting trio
+- `FindAndRunScript` reading through `LoadFile` (engine file system first)
+- `CallFunctionProtected` running with the interface's error handler
+- `CallInternal*` preparing return objects before the call and binding results
+- ConVar/ConCommand objects built against the engine's layout and registered
+  with its cvar system
+
+Known gaps, in the order they matter:
+
+1. **Threaded calls**: the queue is drained, but `ILuaThreadedCall` is a
+   host-typed object with an unverified third slot; the query/run split is
+   reconstructed from the drain loop and needs a live check.
+2. **C-side libraries**: `file`, `sql`, `net`, `util`, `draw` and friends do not
+   exist in this DLL; the reference implements them in the same module
+   (`gmod_*` registrations), so scripts that need them fail as soon as they run.
+3. **`ILuaObject` usage**: objects are created through the callback and driven
+   through the vtable, but a few paths still keep their own handle type, which
+   is only safe as long as the host's objects and ours are never mixed.
+4. Field offsets past `+0x1b8` (metatable table end) are not yet mapped; the
+   reference's path stack grows, ours is fixed-depth.
