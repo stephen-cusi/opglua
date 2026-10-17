@@ -375,36 +375,101 @@ static void gobj_bind_stack(CLuaInterface *self, GLuaObject *obj, int stackIndex
 extern const glua_vfn glua_object_vtable[93];
 extern const glua_vfn glua_interface_vtable[132];
 
-/* Bring-up log.  Compiled in with OPGLUA_LOG but OFF at runtime unless the
-** OPGLUA_LOG environment variable is set to a non-zero value.  Every slot call
-** writes a line, so leaving it on during normal play turns the render path into
-** a synchronous disk writer and the game stops responding. */
+/* Bring-up log.  Compiled in with OPGLUA_LOG but OFF at runtime unless either
+** the OPGLUA_LOG environment variable is set to a non-zero value or the flag
+** file exists (the environment does not survive when Steam launches the game
+** from an already running process).  Every slot call writes a line, so leaving
+** it on during normal play turns the render path into a disk writer and the
+** game stops responding; lines are therefore batched, and a handful of
+** lifecycle points flush explicitly so a crash keeps the lines leading up to
+** it. */
+#define GLUA_LOG_DIR "D:\\tmp\\glua"
+#define GLUA_LOG_FILE GLUA_LOG_DIR "\\opglua.log"
+#define GLUA_LOG_FLAG GLUA_LOG_DIR "\\opglua_enable"
+#define GLUA_BOOT_FILE GLUA_LOG_DIR "\\opglua_boot.log"
+
 #if defined(OPGLUA_LOG)
 static int glua_log_enabled(void)
 {
   static int state = -1;
   if (state < 0) {
     const char *v = getenv("OPGLUA_LOG");
+    FILE *flag;
     state = (v != NULL && v[0] != '\0' && v[0] != '0') ? 1 : 0;
+    if (!state) {
+      flag = fopen(GLUA_LOG_FLAG, "rb");
+      if (flag != NULL) { fclose(flag); state = 1; }
+    }
   }
   return state;
 }
 
-static void glua_log(const char *fmt, ...)
+static FILE *glua_log_stream(void)
 {
   static FILE *f = NULL;
   static int tried = 0;
+  if (!tried) { tried = 1; f = fopen(GLUA_LOG_FILE, "a"); }
+  return f;
+}
+
+/* Load marker: written on the first factory request, independent of the switch,
+** so "module never attached" and "attached but silent" can be told apart. */
+static void glua_boot_marker(const char *what)
+{
+  static int tried = 0;
+  FILE *f;
+  char self[512];
+  char host[512];
+  DWORD n;
+  if (tried) return;
+  tried = 1;
+  self[0] = '\0';
+  host[0] = '\0';
+  n = GetModuleFileNameA(NULL, host, (DWORD)sizeof(host));
+  if (n == 0 || n >= sizeof(host)) host[0] = '\0';
+  {
+    HMODULE mod = NULL;
+    if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                           GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                           (LPCSTR)(const void *)glua_boot_marker, &mod)) {
+      n = GetModuleFileNameA(mod, self, (DWORD)sizeof(self));
+      if (n == 0 || n >= sizeof(self)) self[0] = '\0';
+    }
+  }
+  f = fopen(GLUA_BOOT_FILE, "a");
+  if (f == NULL) return;
+  fprintf(f, "attach pid=%lu what=%s switch=%s module=%s host=%s\n",
+          (unsigned long)GetCurrentProcessId(), what ? what : "(null)",
+          glua_log_enabled() ? "on" : "off", self, host);
+  fclose(f);
+}
+
+static void glua_log(const char *fmt, ...)
+{
+  static unsigned int lines = 0;
+  FILE *f;
   va_list ap;
   if (!glua_log_enabled()) return;
-  if (!tried) { tried = 1; f = fopen("D:\\tmp\\glua\\opglua.log", "a"); }
+  f = glua_log_stream();
   if (f == NULL) return;
   va_start(ap, fmt);
   vfprintf(f, fmt, ap);
   va_end(ap);
   fputc('\n', f);
+  if ((++lines & 15u) == 0) fflush(f);
+}
+
+static void glua_log_flush(void)
+{
+  FILE *f;
+  if (!glua_log_enabled()) return;
+  f = glua_log_stream();
+  if (f != NULL) fflush(f);
 }
 #else
 #define glua_log(...) ((void)0)
+#define glua_log_flush() ((void)0)
+#define glua_boot_marker(n) ((void)0)
 #endif
 
 /* ILuaObject instances belong to the HOST.  The engine's ILuaGameCallback
@@ -2508,6 +2573,42 @@ static void glua_vmsg(CLuaInterface *self, const char *fmt, va_list ap, int errH
   }
 }
 
+/* Lua error reporter: assemble the message and the traceback the way the
+** reference does and hand the text to the interface that owns the state.  The
+** stack shape is left untouched.  Returns 0, which is what the host reads. */
+int opglua_lua_error_report(lua_State *L)
+{
+  char msg[1024];
+  char trace[3072];
+  CLuaInterface *self;
+  if (L == NULL) return 0;
+
+  msg[0] = '\0';
+  if (lua_gettop(L) > 0 && !lua_isstring(L, -1)) {
+    const char *t = luaL_typename(L, -1);
+    snprintf(msg, sizeof(msg), "(%s)", t ? t : "unknown");
+  } else if (lua_gettop(L) > 0) {
+    snprintf(msg, sizeof(msg), "%s", lua_tostring(L, -1));
+  }
+  if (msg[0] == '\0') snprintf(msg, sizeof(msg), "Unknown Lua error");
+  if (lua_gettop(L) > 0) {
+    strncat(msg, "\n", sizeof(msg) - strlen(msg) - 1);
+    luaL_traceback(L, L, msg, 1);
+    snprintf(trace, sizeof(trace), "%s", lua_tostring(L, -1));
+    lua_pop(L, 1);
+  } else {
+    snprintf(trace, sizeof(trace), "%s", msg);
+  }
+
+  self = (CLuaInterface *)L->luabase;
+  glua_log("AdvancedLuaErrorReporter: %s", trace);
+  glua_log_flush();
+  if (self != NULL && self->state == L) {
+    gc_Msg(&self->callback, trace, true);
+  }
+  return 0;
+}
+
 static void ci_slot_ErrorNoHalt(CLuaInterface *self, const char *fmt, ...)
 { glua_log("SLOT:ci_slot_ErrorNoHalt");
   va_list ap;
@@ -2961,15 +3062,22 @@ static void ci_slot_dtor(CLuaInterface *self)
 ** CreateInterface("LUACONVARS001") for ILuaConVars.  Unknown names return
 ** NULL with the standard return code, like the reference list walk. */
 
+/* Realm slots.  The reference keeps one interface pointer per realm in an
+** array at a fixed place in the shared object, and both the create slot and
+** the get slot address that same array; callers that read the array through
+** the object rather than through the table must find the same answers, so the
+** member order is fixed here. */
 typedef struct CLuaShared {
-  const void *vtable;
-  void *factory;                        /* engine interface factory (Init) */
-  bool dedicated;
-  void *filesystem;                     /* VFileSystem022, or NULL */
-  CLuaInterface *client;
-  CLuaInterface *server;
-  CLuaInterface *menu;
+  const void *vtable;                    /* +0x00 */
+  void *factory;                         /* +0x08 engine interface factory */
+  bool dedicated;                        /* +0x10 */
+  void *filesystem;                      /* +0x18 VFileSystem022, or NULL */
+  unsigned char reserved[0x78 - 0x20];   /* +0x20 fixed array placement */
+  CLuaInterface *ifaces[3];              /* +0x78 client, server, menu */
 } CLuaShared;
+
+typedef char glua_iface_array_offset_check[
+  (offsetof(CLuaShared, ifaces) == 0x78) ? 1 : -1];
 
 static void cs_dtor(CLuaShared *s) { (void)s; }
 
@@ -2981,6 +3089,7 @@ static void cs_dtor(CLuaShared *s) { (void)s; }
 extern void opglua_convars_set_cvar(void *cvar);
 extern void opglua_mem_bind(void);
 extern void opglua_luashared_setfilesystem(void *fs);
+extern void opglua_luashared_setcvar(void *cv);
 
 static void cs_Init(CLuaShared *s, void *f, bool b, void *ctx, void *get)
 { glua_log("ILuaShared::Init(factory=%p ctx=%p)", f, ctx); s->factory = f; s->dedicated = b; (void)ctx; (void)get;
@@ -2994,59 +3103,61 @@ static void cs_Init(CLuaShared *s, void *f, bool b, void *ctx, void *get)
     void *fs = factory("VFileSystem022", NULL);
     glua_log("ILuaShared::Init cvar=%p filesystem=%p", cvar, fs);
     opglua_convars_set_cvar(cvar);
+    opglua_luashared_setcvar(cvar);
     s->filesystem = fs;
     opglua_luashared_setfilesystem(fs);
   } else {
     opglua_luashared_setfilesystem(NULL);
+    opglua_luashared_setcvar(NULL);
   }
+  glua_boot_marker("ILuaShared::Init");
 }
 
 static void cs_Shutdown(CLuaShared *s)
 { glua_log("ILuaShared::Shutdown");
-  if (s->client) { ci_slot_Shutdown(s->client); free(s->client); s->client = NULL; }
-  if (s->server) { ci_slot_Shutdown(s->server); free(s->server); s->server = NULL; }
-  if (s->menu)   { ci_slot_Shutdown(s->menu);   free(s->menu);   s->menu = NULL; }
+  int i;
+  for (i = 0; i < 3; i++) {
+    if (s->ifaces[i]) { ci_slot_Shutdown(s->ifaces[i]); free(s->ifaces[i]); s->ifaces[i] = NULL; }
+  }
   opglua_luashared_setfilesystem(NULL);
   s->filesystem = NULL;
+  glua_log_flush();
 }
 static void cs_DumpStats(CLuaShared *s) { (void)s; glua_log("ILuaShared::DumpStats"); }
 
 static CLuaInterface *cs_CreateLuaInterface(CLuaShared *s, unsigned char realm, bool unknown)
 {
-  CLuaInterface *iface = (CLuaInterface *)calloc(1, sizeof(CLuaInterface));
+  CLuaInterface *iface;
   (void)unknown;
   glua_log("CreateLuaInterface(realm=%d)", (int)realm);
+  iface = (CLuaInterface *)calloc(1, sizeof(CLuaInterface));
   if (iface == NULL) return NULL;
   iface->vtable = (const void *)glua_interface_vtable;
   iface->realm = realm;
   /* Allocate only.  The engine's follow-up Init(gameCallback) creates the
   ** state and is what hands the interface back through the callback. */
-  switch (realm) {
-    case GLUA_REALM_SERVER: s->server = iface; break;
-    case GLUA_REALM_MENU:   s->menu = iface; break;
-    default:                s->client = iface; break;
-  }
+  if (realm < 3) s->ifaces[realm] = iface;
+  glua_boot_marker("CreateLuaInterface");
+  glua_log_flush();
   return iface;
 }
 
 static void cs_CloseLuaInterface(CLuaShared *s, CLuaInterface *iface)
 { glua_log("ILuaShared::CloseLuaInterface(%p)",(void*)iface);
+  int i;
   if (iface == NULL) return;
-  if (s->client == iface) s->client = NULL;
-  if (s->server == iface) s->server = NULL;
-  if (s->menu == iface) s->menu = NULL;
+  for (i = 0; i < 3; i++) if (s->ifaces[i] == iface) s->ifaces[i] = NULL;
   ci_slot_Shutdown(iface);
   free(iface);
 }
 
 static CLuaInterface *cs_GetLuaInterface(CLuaShared *s, unsigned char realm)
 {
+  CLuaInterface *r;
   glua_log("ILuaShared::GetLuaInterface(realm=%d)", (int)realm);
-  switch (realm) {
-    case GLUA_REALM_SERVER: return s->server;
-    case GLUA_REALM_MENU:   return s->menu;
-    default:                return s->client;
-  }
+  r = (realm < 3) ? s->ifaces[realm] : NULL;
+  glua_log("ILuaShared::GetLuaInterface -> %p", (void *)r);
+  return r;
 }
 
 /* ILuaShared tail (slots 7..18).  File reads, the script cache and the
@@ -3198,21 +3309,24 @@ static int ns_equals(const char *a, const char *b) { return glua_stricmp(a, b) =
 
 LUALIB_API void *CreateInterface(const char *name, int *pReturnCode)
 {
+  /* Both interfaces are singletons: the engine caches the first answer it gets
+  ** and hands that pointer to every module, so a second factory call must
+  ** return the same object or the modules would each drive their own
+  ** realm table. */
+  static CLuaShared shared_singleton;
+  static CLuaConVars convars_singleton;
   glua_log("CreateInterface('%s')", name ? name : "(null)");
+  glua_boot_marker("CreateInterface");
   if (name == NULL) { if (pReturnCode) *pReturnCode = 1; return NULL; }
   if (ns_equals(name, "LUASHARED003") || ns_equals(name, "LUASHARED")) {
-    CLuaShared *shared = (CLuaShared *)calloc(1, sizeof(CLuaShared));
-    if (shared == NULL) { if (pReturnCode) *pReturnCode = 2; return NULL; }
-    shared->vtable = (const void *)glua_shared_vtable;
+    shared_singleton.vtable = (const void *)glua_shared_vtable;
     if (pReturnCode) *pReturnCode = 0;
-    return shared;
+    return &shared_singleton;
   }
   if (ns_equals(name, "LUACONVARS001") || ns_equals(name, "LUACONVARS")) {
-    CLuaConVars *cv = (CLuaConVars *)calloc(1, sizeof(CLuaConVars));
-    if (cv == NULL) { if (pReturnCode) *pReturnCode = 2; return NULL; }
-    cv->vtable = (const void *)glua_convars_vtable;
+    convars_singleton.vtable = (const void *)glua_convars_vtable;
     if (pReturnCode) *pReturnCode = 0;
-    return cv;
+    return &convars_singleton;
   }
   /* Unknown interface: the reference walks its list and returns NULL. */
   if (pReturnCode) *pReturnCode = 1;
@@ -3256,3 +3370,18 @@ LUALIB_API int opglua_selftest(const char *modulePath)
   cs_CloseLuaInterface(&shared, iface);
   return 4;
 }
+
+/* ------------------------------------------------------------------------ */
+/* Attach marker.  Written once when the host loads this module, independent of
+** the logging switch, so "the module never attached" and "attached but the
+** switch is off" are distinguishable from the outside. */
+
+#if defined(_WIN32) && defined(OPGLUA_LOG)
+BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID reserved);
+BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID reserved)
+{
+  (void)inst; (void)reserved;
+  if (reason == DLL_PROCESS_ATTACH) glua_boot_marker("process-attach");
+  return TRUE;
+}
+#endif

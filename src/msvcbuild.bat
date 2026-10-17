@@ -95,7 +95,7 @@ rem C++ bridge for the engine ConVar/ConCommand implementation (see lib_convar.c
 %CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
    /I "%SRCENG%\public" /I "%SRCENG%\public\tier1" /I "%SRCENG%\public\tier0" /I "%SRCENG%" ^
    /I "..\..\gmodcommon\include" ^
-   /Fo:lib_luashared.obj lib_luashared.cpp
+   /DLUA_LIB /Fo:lib_luashared.obj lib_luashared.cpp
 @if errorlevel 1 goto :BAD
 %CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
    /Fo:lib_mem.obj lib_mem.cpp
