@@ -408,6 +408,28 @@ static_assert( offsetof(GmodLuaFile, timesloadedclient) == 0x94, "client counter
 
 std::vector<GmodLuaFile *> g_cache;
 
+/* Counter block behind ILuaShared::DumpStats.  The reference keeps the same
+** five figures; they are only useful while debugging the loader, so they are
+** plain globals rather than anything threaded through the API. */
+struct CacheStats {
+  int hits;
+  int failed;
+  int successful;
+  int disk;
+};
+static CacheStats g_stats;
+
+/* ILuaShared::DumpStats reads these. */
+extern "C" void opglua_luashared_cache_stats( int *files, int *hits, int *failed,
+                                              int *successful, int *disk )
+{
+  if ( files != NULL ) *files = (int)g_cache.size();
+  if ( hits != NULL ) *hits = g_stats.hits;
+  if ( failed != NULL ) *failed = g_stats.failed;
+  if ( successful != NULL ) *successful = g_stats.successful;
+  if ( disk != NULL ) *disk = g_stats.disk;
+}
+
 bool same_name( const std::string &a, const std::string &b )
 {
   return a.size() == b.size() && ascii_iequal( a.c_str(), b.c_str() ) != 0;
@@ -634,15 +656,23 @@ extern "C" void *opglua_luashared_loadfile( const void *path, const void *pathId
 
   /* A cached copy that still matches the file needs no read at all. */
   if ( cached != NULL && !cached->contents.empty() ) {
-    if ( g_fs_base == NULL || !g_fs_usable ) return cached;
+    if ( g_fs_base == NULL || !g_fs_usable ) { g_stats.hits++; return cached; }
     const long long t = fs_filetime( norm, pid.empty() ? NULL : pid.c_str() );
-    if ( !g_fs_usable ) return cached;
-    if ( t != 0 && (unsigned int)cached->time == (unsigned int)t ) return cached;
+    if ( !g_fs_usable ) { g_stats.hits++; return cached; }
+    if ( t != 0 && (unsigned int)cached->time == (unsigned int)t ) {
+      g_stats.hits++;
+      return cached;
+    }
   }
 
   unsigned int stamp = 0;
   std::string bytes;
-  if ( !read_script( norm, pid, bytes, &stamp ) || bytes.empty() ) return NULL;
+  if ( !read_script( norm, pid, bytes, &stamp ) || bytes.empty() ) {
+    g_stats.failed++;
+    return NULL;
+  }
+  g_stats.successful++;
+  g_stats.disk++;
   return (void *)cache_store( key, bytes, stamp );
 }
 

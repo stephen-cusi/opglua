@@ -10,6 +10,8 @@
 ** Copyright (C) 2005-2017 Mike Pall. See Copyright Notice in luajit.h
 */
 
+#include <vector>
+
 #include "tier1/convar.h"
 #include "tier1/strtools.h"
 #include "icvar.h"
@@ -23,10 +25,39 @@ extern "C" void opglua_convars_set_cvar( void *cvar )
   g_pCVar = (ICvar *)cvar;
 }
 
+/* ------------------------------------------------------------------------ */
+/* Managed objects.                                                         */
+/*                                                                          */
+/* A ConVar a script creates is owned by the ConVar module: the engine keeps */
+/* it registered, so the module has to be the one that takes it out again    */
+/* when the last realm closes, otherwise a map change leaves stale objects   */
+/* in the engine's list.                                                     */
+
+namespace {
+std::vector<void *> g_managed;
+
+void track( void *obj )
+{
+  if ( obj != NULL ) g_managed.push_back( obj );
+}
+} /* namespace */
+
+extern "C" void glua_convars_destroy_managed( void )
+{
+  for ( size_t i = 0; i < g_managed.size(); i++ ) {
+    delete (ConCommandBase *)g_managed[i];
+  }
+  g_managed.clear();
+}
+
 extern "C" void *glua_convars_create_convar( const char *name, const char *def,
                                              const char *help, int flags )
 {
-  return (void *)new ConVar( name, def, flags, help );
+  {
+    ConVar *cv = new ConVar( name, def, flags, help );
+    track( cv );
+    return (void *)cv;
+  }
 }
 
 extern "C" void *glua_convars_create_concommand( const char *name, const char *help,
@@ -35,7 +66,11 @@ extern "C" void *glua_convars_create_concommand( const char *name, const char *h
 {
   FnCommandCallback_t cb = (FnCommandCallback_t)callback;
   FnCommandCompletionCallback comp = (FnCommandCompletionCallback)completion;
-  return (void *)new ConCommand( name, cb, help, flags, comp );
+  {
+    ConCommand *cc = new ConCommand( name, cb, help, flags, comp );
+    track( cc );
+    return (void *)cc;
+  }
 }
 
 /* Diagnostic variant: report whether the engine cvar system is bound before the
@@ -58,3 +93,4 @@ extern "C" void glua_convars_create_convar_probe( const char *name, const char *
   }
   if ( out != NULL ) *out = cv;
 }
+

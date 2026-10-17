@@ -600,6 +600,20 @@ static void glua_log_heartbeat(void)
   }
 }
 
+/* Implemented in lib_luashared.cpp: std::string-typed ILuaShared tail slots
+** and the LuaFile the engine's gamemode existence check consumes. */
+extern void *opglua_luashared_loadfile(const void *path, const void *pathId,
+                                       bool fromDatatable, bool fromFile);
+extern bool opglua_luashared_scriptexists(const void *file, const void *path, bool unknown);
+extern void opglua_luashared_findscripts(const void *path, const void *pathID, void *outVector);
+extern void *opglua_luashared_getcache(const void *fileName);
+
+extern void opglua_luashared_emptycache(void);
+extern void opglua_luashared_invalidatecache(const void *name);
+extern void opglua_luashared_mount_add(const char *root, const char *pathID);
+extern void opglua_luashared_cache_stats(int *files, int *hits, int *failed,
+                                         int *successful, int *disk);
+
 static void glua_log_flush(void)
 {
   FILE *f;
@@ -3636,6 +3650,12 @@ typedef struct CLuaShared {
   CLuaInterface *ifaces[3];              /* +0x78 client, server, menu */
 } CLuaShared;
 
+/* Forward views: the shared object reaches the ConVar side when it tears the
+** last realm down, and the factory answers are process-wide singletons. */
+typedef struct CLuaConVars CLuaConVars;
+static CLuaShared *glua_shared_for_convars = NULL;
+static CLuaConVars *glua_convars_singleton = NULL;
+
 typedef char glua_iface_array_offset_check[
   (offsetof(CLuaShared, ifaces) == 0x78) ? 1 : -1];
 
@@ -3683,7 +3703,24 @@ static void cs_Shutdown(CLuaShared *s)
   s->filesystem = NULL;
   glua_log_flush();
 }
-static void cs_DumpStats(CLuaShared *s) { (void)s; glua_log("ILuaShared::DumpStats"); }
+/* DumpStats: report the script-cache counters.  The reference prints this
+** block with these labels, so anything reading the console keeps working. */
+static void cs_DumpStats(CLuaShared *s)
+{ CLuaInterface *out;
+  int files = 0, hits = 0, failed = 0, ok = 0, disk = 0;
+  glua_log("ILuaShared::DumpStats");
+  opglua_luashared_cache_stats(&files, &hits, &failed, &ok, &disk);
+  out = s->ifaces[GLUA_REALM_CLIENT];
+  if (out == NULL) out = s->ifaces[GLUA_REALM_SERVER];
+  if (out == NULL) out = s->ifaces[GLUA_REALM_MENU];
+  if (out == NULL) return;   /* no console to print through yet */
+  ci_slot_Msg(out, "Lua File Stats ------\n");
+  ci_slot_Msg(out, "Files In Cache: %i\n", files);
+  ci_slot_Msg(out, "m_iCacheHits: %i\n", hits);
+  ci_slot_Msg(out, "m_iFailedLoads: %i\n", failed);
+  ci_slot_Msg(out, "m_iSuccessfulLoads: %i\n", ok);
+  ci_slot_Msg(out, "m_iDiskLoads: %i\n", disk);
+}
 
 static CLuaInterface *cs_CreateLuaInterface(CLuaShared *s, unsigned char realm, bool unknown)
 {
@@ -3705,10 +3742,23 @@ static CLuaInterface *cs_CreateLuaInterface(CLuaShared *s, unsigned char realm, 
 static void cs_CloseLuaInterface(CLuaShared *s, CLuaInterface *iface)
 { glua_log("ILuaShared::CloseLuaInterface(%p)",(void*)iface);
   int i;
+  int clientLeft, serverLeft;
   if (iface == NULL) return;
   for (i = 0; i < 3; i++) if (s->ifaces[i] == iface) s->ifaces[i] = NULL;
   ci_slot_Shutdown(iface);
   free(iface);
+  /* When neither game realm is left, the reference tears down the managed
+  ** cvars the ConVar module created for scripts.  Leaving them would keep
+  ** stale ConVar objects registered with the engine across a map change. */
+  clientLeft = (s->ifaces[GLUA_REALM_CLIENT] != NULL);
+  serverLeft = (s->ifaces[GLUA_REALM_SERVER] != NULL);
+  if (!clientLeft && !serverLeft && glua_convars_singleton != NULL) {
+    void **vt = *(void ***)glua_convars_singleton;
+    if (vt != NULL && vt[4] != NULL) {
+      glua_log("ILuaShared::CloseLuaInterface -> DestroyManaged");
+      ((void (*)(void *))vt[4])((void *)glua_convars_singleton);
+    }
+  }
 }
 
 static CLuaInterface *cs_GetLuaInterface(CLuaShared *s, unsigned char realm)
@@ -3724,16 +3774,7 @@ static CLuaInterface *cs_GetLuaInterface(CLuaShared *s, unsigned char realm)
 ** script enumeration live in lib_luashared.cpp; the mounting slots below keep
 ** the local root bookkeeping and hand the same roots to the engine's file
 ** system when one is present. */
-/* Implemented in lib_luashared.cpp: std::string-typed ILuaShared tail slots
-** and the LuaFile the engine's gamemode existence check consumes. */
-extern void *opglua_luashared_loadfile(const void *path, const void *pathId,
-                                       bool fromDatatable, bool fromFile);
-extern bool opglua_luashared_scriptexists(const void *file, const void *path, bool unknown);
-extern void opglua_luashared_findscripts(const void *path, const void *pathID, void *outVector);
-extern void *opglua_luashared_getcache(const void *fileName);
-extern void opglua_luashared_emptycache(void);
-extern void opglua_luashared_invalidatecache(const void *name);
-extern void opglua_luashared_mount_add(const char *root, const char *pathID);
+
 extern void opglua_luashared_unmount(const char *pathID);
 
 static void *cs_LoadFile(CLuaShared *s, const void *path, const void *pathId,
@@ -3841,6 +3882,8 @@ typedef struct CLuaConVars {
   const void *vtable;
 } CLuaConVars;
 
+
+
 static void cv_dtor(CLuaConVars *c) { glua_log("CV:cv_dtor"); (void)c; }
 static void cv_Init(CLuaConVars *c) { glua_log("CV:cv_Init"); (void)c; }
 static void *cv_CreateConVar(CLuaConVars *c, const char *name, const char *def,
@@ -3851,10 +3894,80 @@ static void *cv_CreateConCommand(CLuaConVars *c, const char *name, const char *h
                                  int flags, void *cb, void *completion)
 { glua_log("CV:cv_CreateConCommand(%s)", name ? name : "(null)"); (void)c;
   return glua_convars_create_concommand(name, help, flags, cb, completion); }
-static void cv_DestroyManaged(CLuaConVars *c) { glua_log("CV:cv_DestroyManaged"); (void)c; }
-static void cv_Cache(CLuaConVars *c, const char *key, const char *value) { glua_log("CV:cv_Cache"); (void)c; (void)key; (void)value; }
-static void cv_ClearCache(CLuaConVars *c) { glua_log("CV:cv_ClearCache"); (void)c; }
-static void cv_SaveManaged(CLuaConVars *c) { glua_log("CV:cv_SaveManaged"); (void)c; }
+extern void glua_convars_destroy_managed(void);
+
+/* DestroyManaged: take every ConVar/ConCommand this module created back out of
+** the engine's registry.  Called when the last game realm closes. */
+static void cv_DestroyManaged(CLuaConVars *c)
+{ glua_log("CV:cv_DestroyManaged");
+  (void)c;
+  glua_convars_destroy_managed();
+}
+/* The ConVar module keeps a small key/value cache the engine uses to remember
+** the values scripts asked for before a ConVar exists.  SaveManaged writes it
+** back on shutdown, so entries have to survive ClearCache only until then.
+*/
+typedef struct CvCacheEntry {
+  char *key;
+  char *value;
+  struct CvCacheEntry *next;
+} CvCacheEntry;
+
+static CvCacheEntry *g_cv_cache = NULL;
+
+static void cv_cache_free(CvCacheEntry *e)
+{
+  while (e != NULL) {
+    CvCacheEntry *next = e->next;
+    free(e->key);
+    free(e->value);
+    free(e);
+    e = next;
+  }
+}
+
+static void cv_Cache(CLuaConVars *c, const char *key, const char *value)
+{ CvCacheEntry *e;
+  glua_log("CV:cv_Cache(%s=%s)", key ? key : "(null)", value ? value : "(null)");
+  (void)c;
+  if (key == NULL) return;
+  for (e = g_cv_cache; e != NULL; e = e->next) {
+    if (strcmp(e->key, key) == 0) {
+      char *copy = value ? _strdup(value) : _strdup("");
+      if (copy != NULL) { free(e->value); e->value = copy; }
+      return;
+    }
+  }
+  e = (CvCacheEntry *)calloc(1, sizeof(*e));
+  if (e == NULL) return;
+  e->key = _strdup(key);
+  e->value = _strdup(value ? value : "");
+  if (e->key == NULL || e->value == NULL) { cv_cache_free(e); return; }
+  e->next = g_cv_cache;
+  g_cv_cache = e;
+}
+
+static void cv_ClearCache(CLuaConVars *c)
+{ glua_log("CV:cv_ClearCache");
+  (void)c;
+  cv_cache_free(g_cv_cache);
+  g_cv_cache = NULL;
+}
+
+/* SaveManaged: the reference writes the cached values into cfg/client.vdf and
+** cfg/server.vdf.  Writing those files belongs to the host's own config
+** machinery here, so the values are handed back through the log sink instead;
+** the cache itself is dropped afterwards either way. */
+static void cv_SaveManaged(CLuaConVars *c)
+{ CvCacheEntry *e;
+  (void)c;
+  glua_log("CV:cv_SaveManaged");
+  for (e = g_cv_cache; e != NULL; e = e->next) {
+    glua_log("CV:  %s = %s", e->key ? e->key : "(null)", e->value ? e->value : "");
+  }
+  cv_cache_free(g_cv_cache);
+  g_cv_cache = NULL;
+}
 
 static const glua_vfn glua_convars_vtable[8] = {
   (glua_vfn)cv_dtor,
@@ -3875,20 +3988,22 @@ LUALIB_API void *CreateInterface(const char *name, int *pReturnCode)
   ** and hands that pointer to every module, so a second factory call must
   ** return the same object or the modules would each drive their own
   ** realm table. */
-  static CLuaShared shared_singleton;
-  static CLuaConVars convars_singleton;
+  static CLuaShared shared_singleton_holder;
+  static CLuaConVars convars_singleton_holder;
   glua_log("CreateInterface('%s')", name ? name : "(null)");
   glua_boot_marker("CreateInterface");
   if (name == NULL) { if (pReturnCode) *pReturnCode = 1; return NULL; }
   if (ns_equals(name, "LUASHARED003") || ns_equals(name, "LUASHARED")) {
-    shared_singleton.vtable = (const void *)glua_shared_vtable;
+    shared_singleton_holder.vtable = (const void *)glua_shared_vtable;
+    glua_shared_for_convars = &shared_singleton_holder;
     if (pReturnCode) *pReturnCode = 0;
-    return &shared_singleton;
+    return &shared_singleton_holder;
   }
   if (ns_equals(name, "LUACONVARS001") || ns_equals(name, "LUACONVARS")) {
-    convars_singleton.vtable = (const void *)glua_convars_vtable;
+    convars_singleton_holder.vtable = (const void *)glua_convars_vtable;
+    glua_convars_singleton = &convars_singleton_holder;
     if (pReturnCode) *pReturnCode = 0;
-    return &convars_singleton;
+    return &convars_singleton_holder;
   }
   /* Unknown interface: the reference walks its list and returns NULL. */
   if (pReturnCode) *pReturnCode = 1;
