@@ -42,9 +42,9 @@ Working:
 
 In development:
 
-- The GMod-standard C-side libraries (`file`, `sql`, `net`, `util`, ...). The
-  reference implements them in the same module, so this is the largest
-  remaining piece.
+- End-to-end host registration and dispatch of game libraries. Standalone
+  runtime tests do not establish that native game libraries are registered or
+  dispatched correctly in every realm.
 - Unifying every path on host-supplied `ILuaObject` handles, so our own object
   type never mixes with the engine's.
 
@@ -54,14 +54,20 @@ resolution chain, and tracks how far this implementation follows them.
 
 ## Build (Windows x64, MSVC)
 
-Requirements: Visual Studio 2022 Build Tools, Source SDK public headers
-(`public/`, `public/tier1/`, `public/tier0/`) for the convar bridge, and the
-sibling `gmodcommon/include` headers.
+Requirements: Visual Studio 2022 Build Tools, Python with `pefile`, and the
+host's Windows x64 `tier0.dll` and `vstdlib.dll`. Console support sources and
+GarrysMod headers are included in `vendor/`; no external engine checkout is
+read, linked, or switched by the build.
 
 ```
-cd src
-call msvcbuild.bat gc64
+set OPGLUA_HOST_BIN=D:\Program Files (x86)\Steam\steamapps\common\GarrysMod\bin\win64
+build_windows.bat
 ```
+
+The entry point prepares local import libraries from the host DLL exports,
+then builds the runtime and its console support from source. To run the
+actual-DLL contracts against both the replacement and reference, use
+`tools\test_windows.bat`.
 
 The `gc64` flag is **required**: the platform layer is written for 64-bit
 LuaJIT with the GC64 addressing mode, and the interface back pointer lives at
@@ -70,6 +76,26 @@ a different struct offset without it.
 The build produces `src/lua51.dll`. Deploy it as
 `GarrysMod/bin/win64/lua_shared.dll` (and `lua51.dll.pdb` as
 `lua_shared.pdb` if you need symbols).
+
+## Diagnostic logging
+
+Logging is off by default, including startup markers. Normal game launches
+do not create diagnostic files. Lua errors and script `print` output still
+reach the game's normal console.
+
+Use these Steam launch options or executable arguments when diagnosing a
+problem:
+
+- `-opglua-log 1`: lifecycle messages, errors, and periodic memory summaries.
+- `-opglua-log 2`: detailed interface and script-loading traces.
+- `-opglua-log 0`: explicitly disable logging.
+- `-opglua-logfile "D:\logs\opglua.log"`: optionally select a different file;
+  the parent directory must already exist.
+
+The default file is `opglua.log` beside the host executable. Detailed traces
+can be large; remove the logging option after diagnosis and restart the game.
+The old `OPGLUA_LOG` environment variable and `opglua_enable` flag file no
+longer enable logging.
 
 ## Tree layout
 
@@ -82,7 +108,8 @@ src/
                        mounts, FindScripts
   lib_convar.cpp       ConVar / ConCommand bridge (engine-compatible layout)
   lib_mem.cpp          engine-heap allocation helpers
-../gmodcommon/         shared headers used by the platform layer
+vendor/gmodcommon/    shared headers used by the platform layer
+vendor/source-sdk/    local console support sources and headers
 ```
 
 ## Tests

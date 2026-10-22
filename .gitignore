@@ -9,3 +9,10 @@
 *.dmp
 *.swp
 .tags
+*.mdmp
+*.pdb
+*.ilk
+*.map
+*.log
+
+/build/

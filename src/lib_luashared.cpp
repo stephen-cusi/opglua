@@ -44,6 +44,18 @@
 #endif
 
 #include "GarrysMod/Lua/LuaShared.h"
+#include "GarrysMod/Lua/LuaGameCallback.h"
+
+extern "C" int opglua_report_lua_error( void *callback, const char *message, const char *side )
+{
+  if ( callback == NULL || *(void ***)callback == NULL || (*(void ***)callback)[5] == NULL )
+    return 0;
+  GarrysMod::Lua::ILuaGameCallback::CLuaError error;
+  error.message = message ? message : "Unknown Lua error";
+  error.side = side ? side : "client";
+  static_cast<GarrysMod::Lua::ILuaGameCallback *>(callback)->LuaError( &error );
+  return 1;
+}
 
 /* The engine exports its file system pointer under the decorated name of this
 ** declaration, and modules that import it bind here.  Init fills it in from the
@@ -89,24 +101,28 @@ namespace {
 /*   3 Close( handle )               11 IsFileWritable( name, pathID )      */
 /*   4 Seek( handle, pos, where )    12 SetFileWritable( name, writable, ..) */
 /*   5 Tell( handle )                13 GetFileTime( name, pathID )         */
-/*   6 Size( handle )                14 ReadFile( name, pathID, buffer )    */
-/*   7 Size( name, pathID )          15 WriteFile( name, pathID, buffer )   */
+/*   6 Size( name, pathID )          14 ReadFile( name, pathID, buffer )    */
+/*   7 Size( handle )               15 WriteFile( name, pathID, buffer )   */
 /*                                                                          */
 /* Own block entries, each confirmed by where the reference loader and its   */
 /* mounting code call them: AddSearchPath, RemoveSearchPaths,                */
 /* MarkPathIDByRequestOnly, IsDirectory, FindFirst/FindNext/                 */
-/* FindIsDirectory/FindClose.  The find handle is a four byte integer: the   */
-/* entry that inspects it reads a dword and masks one bit out of it.          */
+/* FindIsDirectory/FindClose.  Find handles are opaque pointer-sized values, */
+/* shared unchanged by all four search methods.                             */
 
 void *g_fs = NULL;          /* the interface itself */
 void *g_fs_base = NULL;     /* its base block */
+void *g_mount_context = NULL;
 bool  g_fs_usable = true;   /* cleared once a call misbehaves */
+
+extern "C" void glua_luashared_trace( const char *event, const char *a,
+                                      const char *b, int x, int y );
 
 enum BaseSlot {
   kBaseRead = 0,
   kBaseOpen = 2,
   kBaseClose = 3,
-  kBaseSizeHandle = 6,
+  kBaseSizeHandle = 7,
   kBaseFileExists = 10,
   kBaseGetFileTime = 13
 };
@@ -115,6 +131,7 @@ enum OwnSlot {
   kOwnAddSearchPath = 11,
   kOwnRemoveSearchPaths = 14,
   kOwnMarkPathIDByRequestOnly = 15,
+  kOwnRelativePathToFullPath = 16,
   kOwnIsDirectory = 22,
   kOwnFindNext = 32,
   kOwnFindIsDirectory = 33,
@@ -134,11 +151,14 @@ typedef void (*OwnAddSearchPathFn)( void *fs, const char *path, const char *path
 typedef void (*OwnMarkPathIDFn)( void *fs, const char *pathID, bool requestOnly );
 typedef void (*OwnRemoveSearchPathsFn)( void *fs, const char *pathID );
 typedef bool (*OwnIsDirectoryFn)( void *fs, const char *name, const char *pathID );
+typedef const char * (*OwnResolvePathFn)( void *fs, const char *name, const char *pathID,
+                                          char *out, int size, int filter, void *pathType );
+typedef intptr_t GmodFindHandle;
 typedef const char * (*OwnFindFirstExFn)( void *fs, const char *wildcard, const char *pathID,
-                                          int *handle );
-typedef const char * (*OwnFindNextFn)( void *fs, int handle );
-typedef bool (*OwnFindIsDirectoryFn)( void *fs, int handle );
-typedef void (*OwnFindCloseFn)( void *fs, int handle );
+                                          GmodFindHandle *handle );
+typedef const char * (*OwnFindNextFn)( void *fs, GmodFindHandle handle );
+typedef bool (*OwnFindIsDirectoryFn)( void *fs, GmodFindHandle handle );
+typedef void (*OwnFindCloseFn)( void *fs, GmodFindHandle handle );
 
 inline void **base_table( void ) { return *(void ***)g_fs_base; }
 inline void **own_table( void )  { return *(void ***)g_fs; }
@@ -337,12 +357,14 @@ struct RawFind {
 int fs_walk( const std::string &pattern, const char *pathID, RawFind *out, int cap )
 {
   int count = 0;
+  volatile int stage = 0;
   if ( g_fs == NULL || !g_fs_usable || pattern.empty() ) return -1;
 
 #ifdef _WIN32
   __try {
 #endif
-    int handle = -1;
+    GmodFindHandle handle = -1;
+    stage = 1;
     const char *name = ( (OwnFindFirstExFn)own_table()[kOwnFindFirstEx] )
                          ( g_fs, pattern.c_str(), pathID, &handle );
     while ( name != NULL && count < cap ) {
@@ -353,17 +375,23 @@ int fs_walk( const std::string &pattern, const char *pathID, RawFind *out, int c
         if ( n >= sizeof( out[0].name ) ) n = sizeof( out[0].name ) - 1;
         memcpy( out[count].name, name, n );
         out[count].name[n] = '\0';
+        stage = 2;
         out[count].isFolder =
           ( (OwnFindIsDirectoryFn)own_table()[kOwnFindIsDirectory] )( g_fs, handle ) ? 1 : 0;
         count++;
       }
+      stage = 3;
       name = ( (OwnFindNextFn)own_table()[kOwnFindNext] )( g_fs, handle );
     }
     if ( handle != -1 ) {
+      stage = 4;
       ( (OwnFindCloseFn)own_table()[kOwnFindClose] )( g_fs, handle );
     }
 #ifdef _WIN32
   } __except ( EXCEPTION_EXECUTE_HANDLER ) {
+    const DWORD exceptionCode = GetExceptionCode();
+    glua_luashared_trace("filesystem-walk-exception", pattern.c_str(),
+                         pathID ? pathID : "", stage, (int)exceptionCode);
     g_fs_usable = false;
     count = -1;
   }
@@ -550,6 +578,11 @@ extern "C" void opglua_luashared_setfilesystem( void *fs )
   g_pFullFileSystem = (IFileSystem *)fs;
 #endif
   if ( fs == NULL ) g_cache.clear();
+}
+
+extern "C" void opglua_luashared_setcontext( void *context )
+{
+  g_mount_context = context;
 }
 
 /* Bind (or unbind) the engine cvar system the ConVar module publishes. */
@@ -768,6 +801,9 @@ extern "C" void opglua_luashared_findscripts( const void *path, const void *path
     if ( raw != NULL ) {
       const int count = fs_walk( pattern, pid.empty() ? NULL : pid.c_str(),
                                  raw, kMaxEntries );
+      if ( pattern.compare(0, 7, "autorun") == 0 )
+        glua_luashared_trace("filesystem-walk", pid.c_str(), pattern.c_str(), count,
+                             g_fs_usable ? 1 : 0);
       for ( int i = 0; i < count; i++ ) {
         GarrysMod::Lua::LuaFindResult r;
         r.fileName = raw[i].name;
@@ -793,6 +829,37 @@ extern "C" void opglua_luashared_findscripts( const void *path, const void *path
   }
 
   std::sort( out->begin(), out->end(), find_result_less );
+  if ( pattern.compare(0, 7, "autorun") == 0 )
+    glua_luashared_trace("findscripts-total", pid.c_str(), pattern.c_str(),
+                         (int)out->size(), g_fs_usable ? 1 : 0);
+}
+
+extern "C" int opglua_luashared_findhook( void *hook, const void *path,
+                                           const void *pathID, void *outVector )
+{
+  if ( path == NULL || pathID == NULL || outVector == NULL ) return 0;
+  const std::string &id = *(const std::string *)pathID;
+  if ( id != "lcl" ) return 0;
+  if ( hook == NULL ) return 1;
+  void **vt = *(void ***)hook;
+  if ( vt == NULL || vt[3] == NULL || vt[5] == NULL ) return 1;
+  std::vector<GarrysMod::Lua::LuaFindResult> *out =
+    (std::vector<GarrysMod::Lua::LuaFindResult> *)outVector;
+  const size_t before = out->size();
+  ( (void (*)(void *, const char *,
+              std::vector<GarrysMod::Lua::LuaFindResult> &, bool))vt[3] )
+    ( hook, ((const std::string *)path)->c_str(), *out, false );
+  if ( !out->empty() ) {
+    std::sort( out->begin(), out->end(), find_result_less );
+    glua_luashared_trace("datatable-hook", id.c_str(),
+                         ((const std::string *)path)->c_str(),
+                         (int)(out->size() - before), 2);
+    return 2;
+  }
+  const int fallback = ( (bool (*)(void *))vt[5] )( hook ) ? 1 : 0;
+  glua_luashared_trace("datatable-hook", id.c_str(),
+                       ((const std::string *)path)->c_str(), 0, fallback);
+  return fallback ? 0 : 1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -870,6 +937,42 @@ static void mount_calls( const char *path, const char *pathID, int addType )
 #endif
 }
 
+static bool resolve_mount_path( const char *root, char *out, int size )
+{
+#ifdef _WIN32
+  __try {
+#endif
+    return ( (OwnResolvePathFn)own_table()[kOwnRelativePathToFullPath] )
+             ( g_fs, root, "GAME", out, size, 0, NULL ) != NULL;
+#ifdef _WIN32
+  } __except ( EXCEPTION_EXECUTE_HANDLER ) {
+    g_fs_usable = false;
+    return false;
+  }
+#endif
+}
+
+static const char *mount_context_root( void )
+{
+  if ( g_mount_context == NULL ) return NULL;
+#ifdef _WIN32
+  __try {
+#endif
+    void **vt = *(void ***)g_mount_context;
+    if ( vt == NULL || vt[1] == NULL ) return NULL;
+    const char *(*get_root)(void *) = (const char *(*)(void *))vt[1];
+    const char *root = get_root( g_mount_context );
+    if ( root == NULL || root[0] == '\0' ) return NULL;
+    glua_luashared_trace("mount-context", root, "", 1, 1);
+    return root;
+#ifdef _WIN32
+  } __except ( EXCEPTION_EXECUTE_HANDLER ) {
+    glua_luashared_trace("mount-context", "<exception>", "", 0, 0);
+    return NULL;
+  }
+#endif
+}
+
 /* MountLuaAdd(root, pathID): add one root to the path id's search set and then
 ** mark that id as consulted only on request -- both calls are the ones the
 ** reference makes on this object.  The root is resolved before it is added:
@@ -889,15 +992,26 @@ extern "C" void opglua_luashared_mount_add( const char *root, const char *pathID
   mod_directory( modDir, sizeof(modDir) );
   const std::string rel = normalise_path( root );
   std::string cand;
-  if ( modDir[0] != '\0' ) {
-    const std::string abs = std::string( modDir ) + "/" + rel;
-    if ( fs_isdir( abs, NULL ) ) cand = abs;
-    else if ( fs_isdir( rel, NULL ) ) cand = rel;
-    else cand = abs;
-  } else {
-    cand = rel;
+  char resolved[MAX_PATH];
+  const char *contextRoot = NULL;
+  if ( resolve_mount_path( root, resolved, sizeof(resolved) ) ) {
+    const bool directory = fs_isdir( resolved, NULL );
+    glua_luashared_trace("mount-resolve", root, resolved, directory ? 1 : 0,
+                         g_fs_usable ? 1 : 0);
+    if ( !directory ) return;
+    cand = resolved;
+  } else if ( ( contextRoot = mount_context_root() ) != NULL ) {
+    cand = std::string( contextRoot ) + "/" + rel;
+    glua_luashared_trace("mount-resolve", root, cand.c_str(), 1,
+                         g_fs_usable ? 1 : 0);
+  } else if ( modDir[0] != '\0' ) {
+    glua_luashared_trace("mount-resolve", root, "<resolution-failed>", 0,
+                         g_fs_usable ? 1 : 0);
+    cand = std::string( modDir ) + "/" + rel;
   }
-  if ( cand.empty() ) return;
+  if ( cand.empty() || !g_fs_usable ) return;
+  glua_luashared_trace("mount-add", root, cand.c_str(), addType,
+                       g_fs_usable ? 1 : 0);
   mount_calls( cand.c_str(), pathID, addType );
 }
 

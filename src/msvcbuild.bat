@@ -16,8 +16,10 @@
 @setlocal
 @set LJCOMPILE=cl /nologo /c /O2 /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_STDIO_INLINE=__declspec(dllexport)__inline /DLUAJIT_DISABLE_FFI
 @set CXX=cl
-@if "%SRCENG%"=="" set SRCENG=D:\project\source-engine
-@set LJLINK=link /nologo
+@set SRCSDK=%~dp0..\vendor\source-sdk
+@set GMODSDK=%~dp0..\vendor\gmodcommon\include
+@set HOSTLIB=%~dp0..\build\windows\imports
+@set LJLINK=link /nologo /incremental:no /opt:ref /opt:icf
 @set LJMT=mt /nologo
 @set LJLIB=lib /nologo /nodefaultlib
 @set DASMDIR=..\dynasm
@@ -81,27 +83,21 @@ buildvm -m folddef -o lj_folddef.h lj_opt_fold.c
 @if "%1"=="static" goto :STATIC
 %LJCOMPILE% /Zi /MT /DOPGLUA_LOG /DLUA_BUILD_AS_DLL lj_*.c lib_*.c
 @if errorlevel 1 goto :BAD
-rem C++ bridge for the engine ConVar/ConCommand implementation (see lib_convar.cpp).
-%CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
-   /I "%SRCENG%\public" /I "%SRCENG%\public\tier1" /I "%SRCENG%\public\tier0" /I "%SRCENG%" ^
-   /I "..\..\gmodcommon\include" ^
-   /Fo:lib_convar.obj lib_convar.cpp
+rem Build the console support and host bridges from local sources.
+@set CPPCOMPILE=%CXX% /nologo /c /O2 /Gy /Gw /MT /Zi /TP /EHsc /W3 /DNDEBUG /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_64BITS /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE /DTIER1_STATIC_LIB /D_ALLOW_RUNTIME_LIBRARY_MISMATCH /D_ALLOW_MSC_VER_MISMATCH /D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH /I "%SRCSDK%\public" /I "%SRCSDK%\public\tier1" /I "%SRCSDK%\public\tier0" /I "%SRCSDK%" /I "%GMODSDK%"
+%CPPCOMPILE% /Fo:lib_convar.obj lib_convar.cpp
 @if errorlevel 1 goto :BAD
-%CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
-   /I "%SRCENG%\public" /I "%SRCENG%\public\tier1" /I "%SRCENG%\public\tier0" /I "%SRCENG%" ^
-   /I "..\..\gmodcommon\include" ^
-   /Fo:convar_impl.obj "%SRCENG%\tier1\convar.cpp"
+%CPPCOMPILE% /Fo:convar_impl.obj "%SRCSDK%\tier1\convar.cpp"
 @if errorlevel 1 goto :BAD
-%CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
-   /I "%SRCENG%\public" /I "%SRCENG%\public\tier1" /I "%SRCENG%\public\tier0" /I "%SRCENG%" ^
-   /I "..\..\gmodcommon\include" ^
-   /DLUA_LIB /Fo:lib_luashared.obj lib_luashared.cpp
+%CPPCOMPILE% /DLUA_LIB /Fo:lib_luashared.obj lib_luashared.cpp
 @if errorlevel 1 goto :BAD
-%CXX% /nologo /c /O2 /MT /Zi /TP /EHsc /W3 /D_WIN32 /DCOMPILER_MSVC /DCOMPILER_MSVC64 /DPLATFORM_WINDOWS_PC /D_CRT_SECURE_NO_DEPRECATE ^
-   /Fo:lib_mem.obj lib_mem.cpp
+%CPPCOMPILE% /Fo:lib_mem.obj lib_mem.cpp
 @if errorlevel 1 goto :BAD
-%LJLINK% /DLL /MAP /DEBUG /PDB:%LJDLLNAME%.pdb /out:%LJDLLNAME% lj_*.obj lib_*.obj convar_impl.obj ^
-   "%SRCENG%\build\tier1\tier1.lib" "%SRCENG%\build\tier0\tier0.lib"
+@for %%S in (strtools characterset utlbuffer utlstring strtools_unicode byteswap generichash mempool utlsymbol) do (
+  %CPPCOMPILE% /Fo:support_%%S.obj "%SRCSDK%\tier1\%%S.cpp"
+  if errorlevel 1 goto :BAD
+)
+%LJLINK% /DLL /MAP /DEBUG /PDB:%LJDLLNAME%.pdb /out:%LJDLLNAME% lj_*.obj lib_*.obj convar_impl.obj support_*.obj "%HOSTLIB%\tier0.lib" "%HOSTLIB%\vstdlib.lib" shell32.lib shlwapi.lib user32.lib advapi32.lib
 @if errorlevel 1 goto :BAD
 @goto :MTDLL
 :STATIC
@@ -132,13 +128,15 @@ if exist luajit.exe.manifest^
 @echo.
 @echo === Successfully built LuaJIT for Windows/%LJARCH% ===
 
-@goto :END
+@exit /b 0
 :BAD
 @echo.
 @echo *******************************************************
 @echo *** Build FAILED -- Please check the error messages ***
 @echo *******************************************************
 @goto :END
+@exit /b 1
 :FAIL
 @echo You must open a "Visual Studio .NET Command Prompt" to run this script
 :END
+@exit /b 1

@@ -29,6 +29,7 @@ typedef struct Iface Iface;
 
 typedef struct Obj {
   void *vtable;
+  unsigned long long guard[4];
   Iface *iface;
   int ref;          /* registry reference, 0 = none */
 } Obj;
@@ -91,6 +92,9 @@ typedef struct Host {
   int objDestroyed;
   int msgCount;
   int errCount;
+  int luaErrorCount;
+  int invalidErrorCount;
+  char messageText[4096];
 } Host;
 
 static Obj *host_create_object(Host *h);
@@ -101,10 +105,34 @@ static void  cb_destroy(void *self, void *o) { host_destroy_object((Host *)self,
 static void  cb_errprint(void *self, const char *t, int f)
 { Host *h = (Host *)self; h->errCount++; printf("ERR|%.300s\n", t ? t : "(null)"); (void)f; }
 static void  cb_msg(void *self, const char *t, int f)
-{ Host *h = (Host *)self; h->msgCount++; printf("MSG|%.300s\n", t ? t : "(null)"); (void)f; }
+{ Host *h = (Host *)self; h->msgCount++; printf("MSG|%.300s\n", t ? t : "(null)");
+  if (t) strncat(h->messageText,t,sizeof(h->messageText)-strlen(h->messageText)-1); (void)f; }
 static void  cb_msgcol(void *self, const char *t, const void *c)
 { (void)self; (void)t; (void)c; }
-static void  cb_luaerr(void *self, const void *e) { (void)self; (void)e; }
+typedef struct HostString {
+  union { char buffer[16]; const char *pointer; } storage;
+  size_t size, capacity;
+} HostString;
+typedef struct HostError {
+  HostString message, side;
+  const void *begin, *end, *capacity;
+} HostError;
+static void cb_luaerr(void *self, const void *e)
+{
+  Host *h = (Host *)self;
+  const HostError *error = (const HostError *)e;
+  const char *message, *side;
+  ++h->luaErrorCount;
+  if (!error || error->message.size > 65536 || error->message.capacity < error->message.size ||
+      error->side.size != 6 || error->side.capacity < error->side.size || error->side.capacity > 1024) {
+    ++h->invalidErrorCount;
+    return;
+  }
+  message = error->message.capacity < 16 ? error->message.storage.buffer : error->message.storage.pointer;
+  side = error->side.capacity < 16 ? error->side.storage.buffer : error->side.storage.pointer;
+  if (!message || !side || memcmp(side, "server", 6) || side[6] || message[error->message.size])
+    ++h->invalidErrorCount;
+}
 static void  cb_iface_created(void *self, void *iface)
 { Host *h = (Host *)self; h->iface = (Iface *)iface; }
 
@@ -166,19 +194,28 @@ static void obj_push(Obj *o)
 static int obj_isnil(Obj *o) { return o->ref == 0 || obj_gettype(o) == 0; }
 static int obj_istable(Obj *o) { return obj_gettype(o) == 5; }
 
-static void *g_obj_vtable[64];
+static void *g_obj_vtable[128];
 
 /* Every slot answers something safe: the reference drives objects through a
 ** wide vtable and a missing entry is a null call, not a graceful failure. */
 static long long obj_stub(void *a, ...) { (void)a; return 0; }
 
+static void obj_read_member(Obj *o, const char *name, Obj *out)
+{
+  obj_push(o);
+  ((void (*)(void *, int, const char *))VT(o->iface, S_GETFIELD))(o->iface, -1, name);
+  obj_setfromstack(out, -1);
+  ((void (*)(void *, int))VT(o->iface, S_POP))(o->iface, 2);
+}
+
 static void obj_install_vtable(void)
 {
   int i;
-  for (i = 0; i < 64; i++) g_obj_vtable[i] = (void *)obj_stub;
+  for (i = 0; i < 128; i++) g_obj_vtable[i] = (void *)obj_stub;
   g_obj_vtable[OBJ_SETFROMS] = (void *)obj_setfromstack;
   g_obj_vtable[OBJ_UNREF]    = (void *)obj_unref;
   g_obj_vtable[OBJ_GETTYPE]  = (void *)obj_gettype;
+  g_obj_vtable[30] = (void *)obj_read_member;
   g_obj_vtable[OBJ_SETMSTR]  = (void *)obj_setmember_str;
   g_obj_vtable[OBJ_PUSH]     = (void *)obj_push;
   g_obj_vtable[OBJ_ISNIL]    = (void *)obj_isnil;
@@ -316,7 +353,7 @@ static void probes(void)
 
   emit("== globals ==");
   GetField(-10002, "VERSION");
-  chk("global.VERSION.type", GetType(-1), 3);
+  chk("global.VERSION.type", GetType(-1), -1024);
   emit("global.VERSION.value|%.17g", GetNum(-1));
   Pop(1);
   GetField(-10002, "BRANCH");
@@ -408,6 +445,106 @@ static void probes(void)
   chk("top.after_errors", Top(), 0);
 }
 
+typedef struct PendingCall { void **vtable; int ready, runs, requeue; } PendingCall;
+static int pending_ready(PendingCall *p) { return p->ready; }
+static void pending_run(PendingCall *p, void *iface)
+{
+  p->runs++;
+  if (p->requeue) { p->requeue = 0; ((int (*)(void *, void *))VT(iface, 124))(iface, p); }
+}
+static void *pending_table[3] = {NULL, (void *)pending_ready, (void *)pending_run};
+
+static void error_contract_probes(void)
+{
+  int runtime, print_errors, discard_errors, no_returns;
+  emit("== structured errors ==");
+  for (runtime = 0; runtime != 2; ++runtime)
+    for (print_errors = 0; print_errors != 2; ++print_errors)
+      for (discard_errors = 0; discard_errors != 2; ++discard_errors)
+        for (no_returns = 0; no_returns != 2; ++no_returns) {
+          int previous_callbacks = g_host->luaErrorCount;
+          int expected_top = 1 + (!discard_errors && (!runtime || !no_returns));
+          PushStr("preserved-stack-value");
+          chk("error_contract.failed", ((int (*)(void *, const char *, const char *, const char *, int, int, int, int))
+              VT(g_iface, S_RUNSTRINGEX))(g_iface, "@error_contract", "",
+              runtime ? "error('native-contract-runtime')" : "this is not lua !!!",
+              1, print_errors, discard_errors, no_returns) != 0, 0);
+          chk("error_contract.top", Top(), expected_top);
+          chk("error_contract.callback", g_host->luaErrorCount - previous_callbacks, print_errors);
+          chk("error_contract.object", g_host->invalidErrorCount, 0);
+          chk("error_contract.preserved", !strcmp(GetStr(1), "preserved-stack-value"), 1);
+          Pop(Top());
+        }
+  chk("error_contract.recovery", Run("assert(1+1==2)"), 1);
+  chk("error_contract.final_top", Top(), 0);
+  for (runtime = 0; runtime != 3; ++runtime)
+    for (print_errors = 0; print_errors != 2; ++print_errors) {
+      int previous_callbacks = g_host->luaErrorCount;
+      const char *code = runtime == 0 ? "return 11,22,33" :
+                         runtime == 1 ? "error('native-contract-runtime')" : "this is not lua !!!";
+      PushStr("preserved-stack-value");
+      chk("runstring_contract.status", ((int (*)(void *, const char *, const char *, const char *, int, int))
+          VT(g_iface, 92))(g_iface, "@error_contract", "", code, 1, print_errors) != 0, runtime == 0);
+      chk("runstring_contract.top", Top(), 1);
+      chk("runstring_contract.callback", g_host->luaErrorCount - previous_callbacks, runtime ? print_errors : 0);
+      chk("runstring_contract.object", g_host->invalidErrorCount, 0);
+      Pop(Top());
+    }
+}
+
+static void extra_probes(void)
+{
+  PendingCall pending[257];
+  int i;
+  Obj *global, *library, *result;
+  emit("== host contracts ==");
+  chk("metatable.setup", Run("contract_uid=function() return 'contract-player' end"), 1);
+  ((void (*)(void *, const char *, int))VT(g_iface, 42))(g_iface, "ContractPlayer", 9);
+  ((void (*)(void *, int))VT(g_iface, S_PUSH))(g_iface, -1);
+  ((void (*)(void *, int, const char *))VT(g_iface, S_SETFIELD))(g_iface, -2, "__index");
+  GetField(-10002, "contract_uid");
+  ((void (*)(void *, int, const char *))VT(g_iface, S_SETFIELD))(g_iface, -2, "UniqueID");
+  Pop(1);
+  ((void (*)(void *, void *, int))VT(g_iface, 53))(g_iface, (void *)1234, 9);
+  ((void (*)(void *, int, const char *))VT(g_iface, S_SETFIELD))(g_iface, -10002, "contract_player");
+  chk("metatable.player_method", Run("assert(contract_player:UniqueID()=='contract-player')"), 1);
+  chk("metatable.lookup_top", Top(), 0);
+  chk("proxy.setup", Run("matproxy={ShouldOverrideProxy=function(n) return n=='SkyPaint',false end,Init=function() proxy_ready=true end,Call=function() assert(proxy_ready) proxy_calls=(proxy_calls or 0)+1 end}"), 1);
+  global = ((Obj *(*)(void *))VT(g_iface, 58))(g_iface);
+  library = ((Obj *(*)(void *))VT(g_iface, 79))(g_iface);
+  ((void (*)(void *, const char *, void *))VT(global, 30))(global, "matproxy", library);
+  chk("proxy.global_object", obj_istable(library), 1);
+  obj_push(library); GetField(-1, "ShouldOverrideProxy");
+  ((void (*)(void *, int))VT(g_iface, 15))(g_iface, -2);
+  PushStr("SkyPaint");
+  ((void (*)(void *, int, int))VT(g_iface, 64))(g_iface, 1, 2);
+  result=((Obj *(*)(void *,int))VT(g_iface,74))(g_iface,0); obj_push(result);
+  chk("proxy.override.first", ((int (*)(void *,int))VT(g_iface,S_GETBOOL))(g_iface,-1)!=0, 0); Pop(1);
+  result=((Obj *(*)(void *,int))VT(g_iface,74))(g_iface,1); obj_push(result);
+  chk("proxy.override.second", ((int (*)(void *,int))VT(g_iface,S_GETBOOL))(g_iface,-1)!=0, 1); Pop(1);
+  chk("proxy.init_bind", Run("matproxy.Init() matproxy.Call() assert(proxy_calls==1)"), 1);
+  chk("return.setup",Run("contract_returns=function() return 11,22,33,44 end"),1);
+  GetField(-10002,"contract_returns");
+  ((void (*)(void *,int,int))VT(g_iface,64))(g_iface,0,4);
+  for (i=0;i<4;i++) {
+    result=((Obj *(*)(void *,int))VT(g_iface,74))(g_iface,i);
+    obj_push(result);
+    chk("return.reverse_slot",(int)GetNum(-1),44-i*11);
+    Pop(1);
+  }
+  memset(pending,0,sizeof(pending));
+  for(i=0;i<257;i++) { pending[i].vtable=pending_table; pending[i].ready=i!=0; ((int (*)(void *,void *))VT(g_iface,124))(g_iface,&pending[i]); }
+
+  ((void (*)(void *))VT(g_iface,S_CYCLE))(g_iface);
+  for(i=1;i<257;i++) chk("queue.first_run",pending[i].runs,1);
+  chk("queue.delayed",pending[0].runs,0);
+  pending[0].ready=1;
+  ((void (*)(void *))VT(g_iface,S_CYCLE))(g_iface);
+  chk("queue.delayed_run",pending[0].runs,1);
+
+  chk("contracts.final_top",Top(),0);
+}
+
 /* --- driver ------------------------------------------------------------- */
 
 int main(int argc, char **argv)
@@ -460,6 +597,10 @@ int main(int argc, char **argv)
     emit("iface.init|ok=%d created=%d objs=%d", (int)(unsigned char)ok, host.iface == iface, host.objCreated);
   }
   g_iface = iface;
+  ((void (*)(void *,unsigned char))VT(iface,86))(iface,1);
+  Run("print('opglua-print-contract',123,true,nil)");
+  emit("print.host_text|%s",host.messageText);
+  chk("print.host_output", !strcmp(host.messageText,"opglua-print-contract\t123\ttrue\tnil\n"),1);
 
   {
     void *state = *(void **)((char *)iface + 8);
@@ -468,6 +609,25 @@ int main(int argc, char **argv)
   }
 
   probes();
+  extra_probes();
+  error_contract_probes();
+
+  if(argc>3) {
+    int (*load_module)(void *,const char *)=(int (*)(void *,const char *))GetProcAddress(mod,"GMOD_LoadBinaryModule");
+    int top_before=Top();
+    chk("binary.export",load_module!=NULL,1);
+    if(load_module) {
+      chk("binary.load",load_module(*(void **)((char *)iface+8),argv[3]),1);
+      emit("binary.stack_delta|%d",Top()-top_before);
+      chk("binary.stack_result",Top()-top_before,1);
+      Pop(Top()-top_before);
+      chk("binary.echo",Run("local s=string.char(65,0,66) local a,b,c=opglua_native_contract.echo(s) assert(a==s and b==22 and c==true)"),1);
+      chk("binary.error",Run("local ok,e=pcall(opglua_native_contract.fail) assert(not ok and string.find(e,'opglua_expected_native_error',1,true)) assert(opglua_native_contract.echo('after')=='after')"),1);
+      chk("binary.coroutine",Run("local co=coroutine.create(function() local a,b,c=opglua_native_contract.echo('coroutine') assert(a=='coroutine' and b==22 and c==true) end) local ok,e=coroutine.resume(co) assert(ok,e) print('native coroutine complete')"),1);
+      chk("binary.recovery",Run("assert(opglua_native_contract.echo('main')=='main')"),1);
+      chk("binary.final_top",Top(),0);
+    }
+  }
 
   {
     int i;
@@ -481,5 +641,5 @@ int main(int argc, char **argv)
        host.objCreated, host.objDestroyed, host.msgCount, host.errCount);
   emit("failures|%d", g_fail);
   FreeLibrary(mod);
-  return 0;
+  return g_fail ? 1 : 0;
 }

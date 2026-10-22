@@ -11,10 +11,17 @@
 */
 
 #include <vector>
+#include <set>
+#include <string>
 
 #include "tier1/convar.h"
 #include "tier1/strtools.h"
 #include "icvar.h"
+
+ICvar *g_pCVar = NULL;
+
+static_assert(sizeof(ConCommandBase) == 0x30, "Console base ABI");
+static_assert(sizeof(ConVar) == 0x90, "Console variable ABI");
 
 /* The engine's interface factory pulls VEngineCvar007; the reference stores it
 ** into the convar module's g_pCVar global so every ConVar/ConCommand it builds
@@ -23,6 +30,23 @@
 extern "C" void opglua_convars_set_cvar( void *cvar )
 {
   g_pCVar = (ICvar *)cvar;
+}
+
+/* Publishing the module's ConCommandBase list.
+**
+** A ConCommandBase that is built before the engine cvar system is known only
+** links itself into this module's static list: the base constructor registers
+** with the engine through the accessor, and there is no accessor yet.  The
+** published list is handed over once, when the module comes up, by the same
+** entry point the reference uses: it walks the list, tags every object with
+** this module's identifier and registers it, then sets the accessor so that
+** everything built afterwards registers on construction.
+**
+** Skipping this leaves every script-created ConVar alive but unknown to the
+** engine, so a lookup by name from script finds nothing. */
+extern "C" void opglua_convars_register( void )
+{
+  ConVar_Register( 0, NULL );
 }
 
 /* ------------------------------------------------------------------------ */
@@ -35,6 +59,12 @@ extern "C" void opglua_convars_set_cvar( void *cvar )
 
 namespace {
 std::vector<void *> g_managed;
+std::set<std::string> g_console_strings;
+
+const char *console_string( const char *text )
+{
+  return g_console_strings.insert( text ? text : "" ).first->c_str();
+}
 
 void track( void *obj )
 {
@@ -61,7 +91,12 @@ extern "C" void *glua_convars_create_convar( const char *name, const char *def,
                                              const char *help, int flags )
 {
   {
-    ConVar *cv = new ConVar( name, def, flags, help );
+    if (g_pCVar != NULL) {
+      ConVar *existing = g_pCVar->FindVar(name);
+      if (existing != NULL) return existing;
+    }
+    ConVar *cv = new ConVar( console_string( name ), console_string( def ), flags,
+                            console_string( help ) );
     track( cv );
     return (void *)cv;
   }
@@ -74,7 +109,8 @@ extern "C" void *glua_convars_create_concommand( const char *name, const char *h
   FnCommandCallback_t cb = (FnCommandCallback_t)callback;
   FnCommandCompletionCallback comp = (FnCommandCompletionCallback)completion;
   {
-    ConCommand *cc = new ConCommand( name, cb, help, flags, comp );
+    ConCommand *cc = new ConCommand( console_string( name ), cb,
+                                    console_string( help ), flags, comp );
     track( cc );
     return (void *)cc;
   }
@@ -91,7 +127,8 @@ extern "C" void glua_convars_create_convar_probe( const char *name, const char *
     if ( out != NULL ) *out = NULL;
     return;
   }
-  cv = new ConVar( name ? name : "", def ? def : "", flags, help ? help : "" );
+  cv = new ConVar( console_string( name ), console_string( def ), flags,
+                   console_string( help ) );
   if ( cv != NULL && cv->GetName() == NULL ) {
     /* Registration leaves the base object linked into the engine list; a name
     ** that vanished means the object was not stored. */

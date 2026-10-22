@@ -1,5 +1,28 @@
 # opglua 工作须知（给后续会话/代理）
 
+## 2026-10-22 当前构建与修复
+
+- 用户已实测确认 Workshop 插件加载正常，授权清理临时文件并提交推送。诊断现在默认关闭；启动参数 -opglua-log 1 开生命周期与错误日志，-opglua-log 2 开详细跟踪，-opglua-log 0 关闭，-opglua-logfile 指定路径。默认 opglua.log 在宿主可执行文件旁。旧环境变量 OPGLUA_LOG 和 opglua_enable 不再生效，关闭时不写启动标记。Lua 错误与 print 仍正常送游戏控制台；不要为了静默而吞掉脚本错误。
+- 新日志确认 Workshop Lua 已被枚举（lsv autorun 文件系统 12 条、合并 19 条），但 minecraft.lua 等随后全部 MISS；不要继续把此状态归因于启用配置或挂载失败。第二层缺陷为 IBaseFileSystem::Size 重载顺序：实际 x64 主机 base slot 6=Size(name,pathID)，slot 7=Size(handle)，旧桥把句柄传给 slot 6，打包脚本读取长度失败，loose 文件被本地 fopen 回退掩盖。本次修正到 slot 7，新增读取及真实 FindAndRunScript 执行契约；修复前原版通过、替换版读取断言失败，修复后双方读取与执行均通过。证据 D:/tmp/glua/undo_20261022/packed_read_before.log、packed_execution_contracts.log。游戏内插件仍待用户实测，不宣称全部加载完成。
+- Workshop 文件枚举的查找句柄必须使用 intptr_t。目标文件系统返回对象指针，FindFirstEx 写出指针宽度，FindNext/FindIsDirectory/FindClose 原样接收；旧 int 声明导致栈覆盖和指针截断，SEH 随后禁用文件系统桥，使 GMA Lua 不可见。本次已用同一指针高位非零的夹具复现旧替换版失败、原版通过，修正后两份 DLL 均通过。客户端查找 hook 的第 4 个参数明确传 false，无 hook 时客户端不回退文件系统；排序及允许/拒绝回退均有原版对照。记录见 D:/tmp/glua/undo_20261022/workshop_pointer_hook_contracts.log；尚待用户实测 Workshop 插件。
+- 菜单 common.js 的 DigestUpdate 属于 Angular scope 刷新调度，不能直接视为 Steam API 回调或加密接口缺失。订阅面板等待、网络请求失败和 GMA Lua 枚举须分别取证；不要通过隐藏原版面板或修改订阅配置掩盖问题。
+- 现在从仓库根执行 `build_windows.bat`，SDK 支持代码与 GMod 公共头已包含在 `vendor/`。构建不再引用 D:/project/source-engine、不切换共享引擎分支、不链接其静态库。`OPGLUA_HOST_BIN` 指向目标游戏的 win64 目录，仅用于生成 tier0/vstdlib 导入库。下文旧外部依赖说明仅为历史记录。
+- 本地 ConVar 主表和 IConVar 次表已对齐，sizeof/实际方法调用由 `tests/gmod_abi/console_contract.cpp` 验证；不要将这些本地 ABI 改动写回共享引擎头。
+- CallInternal 的返回对象按弹栈顺序保存，GetReturn(0) 对应最后一个 Lua 返回值。此契约已用同一 host 对照原版确认；不要按 Lua 源码返回顺序填入对象池。
+- 宿主延迟调用队列已改为动态链表，保留尚未就绪项。RunStringEx 的 dontPushErrors 编译错误路径已修正；PushMetaTable 只按 type id 查表。
+- `tools/test_windows.bat` 验证实际 DLL、宿主对象、元表方法、材质代理式双返回、四返回值、257 个延迟调用和报错后栈状态。两份 runtime 都需 failures=0；mock 服务不等于真实游戏通过。
+- 用户已确认上一轮天空正常，并在命令标志修复部署后确认 Z 撤销恢复正常。CreateConCommand/CreateConVar 已补 realm 标志，服务端命令补齐 GAMEDLL、Lua 服务端与命令执行权限标志，客户端和菜单端按各自规则处理。命令标志、回调和参数对象身份也已对照原版实际 DLL 验证，未用修改 undo.lua 隐藏错误。
+- 未自行启动游戏；上述天空与 Z 撤销结论来自用户实测。多人、换图、外部二进制模块与更广泛功能尚未全部验证。证据与部署记录在 D:/tmp/glua/undo_20261022。
+- 控制台测试代码禁止直接粘贴含未引用分号的长 lua_run；Source 会把它拆成多条控制台命令。现提供 tests/gmod_abi/live_probe.lua，部署为游戏 lua/opglua_probe.lua，手动 lua_openscript / lua_openscript_cl 运行，不自动启动游戏。
+- 语法报错回调必须传 ILuaGameCallback::CLuaError，不能将 const char* 当作对象。现由 C++ 构造 message/side/stack，再调用宿主 LuaError；RunString 必须转发 dontPushErrors=true/noReturns=true，RunStringEx 运行失败时 noReturns 也会清栈。原版与替换 DLL 已通过全部报错开关组合及保留栈值测试，不能把离线测试当成真实闪退已复测。细节见 D:/tmp/glua/undo_20261022/CRASH_FIX.md。
+- Console 桥必须持有名称、帮助、默认值字符串，ConCommand/ConVar 构造函数不会复制全部输入。现用稳定字符串池持有，生命周期与注册对象一致。可变调用方缓冲区复用测试已覆盖。测试批处理须判断非零退出码，不能只用 if errorlevel 1，原生异常退出码可能是负数。
+- print 已改为送到当前宿主 Msg 回调，原来写 stdout 导致探针执行成功却没有控制台输出。Workshop 根挂载使用文件系统 RelativePathToFullPath 解析结果，禁止将已能查询的相对虚拟路径直接当作完整路径注册。两项均有原版 DLL 对照证据。
+- GMOD_LoadBinaryModule 已移除多余的临时 holder 栈值；Require 二进制路径复用同一加载器，Lua 模块经挂载路径查找，找不到模块会抛 Lua 错误供 pcall 捕获。自编二进制夹具覆盖入口、二进制字符串、引用、多返回值、原生错误恢复和协程；它不代表 MySQLOO 等第三方模块已实测。
+- 用户新一轮明确报告 server/client 探针的 timer 回调均未执行。GMod 的 LuaClientDatatableHook 是 FindScripts 数据源；ILuaShared::FindScripts 必须对 lcl 调其 hook 的 FindScripts(path,out)，只有结果为空且 ShouldFallback=true 才继续文件系统。opglua 存了 SetLuaFindHook 却从未调用，这是 workshop client Lua autorun 缺失的根因。现已接通 hook；Filesystem contract 只验证 mounted search path，不仿造 hook 内部调用，避免假 hook ABI/CRT 污染。timer.Simple 排队而无回调目前是已知待定位现象，不把缺少的延迟输出误判为 player/协程用例失败。
+- 本轮构建部署后，内置自编 opglua_contract 模块至 lua/bin 的 server/client 命名，测试脚本为 lua/opglua_binary_probe.lua，验证 module load、binary strings、Reference、multiple returns、native error、coroutine。不要把该测试模块当作 MySQLOO，也不要纳入仓库或提交；部署清单 D:/tmp/glua/undo_20261022/workshop_and_binary_deployment.json。
+- 用户确认 Workshop 恢复后移除游戏目录中的临时 Lua 探针、自编测试模块及旧日志旗标；保留 tests/gmod_abi 的永久契约源代码。只推送 origin，不改共享引擎仓或插件启用配置，禁止自行启动游戏。
+
+
 重写 GMod 的 `lua_shared.dll`：LuaJIT 2.1（GC64）+ 平台层，实现 ILuaShared / ILuaInterface /
 ILuaConVars 与游戏、二进制模块消费的 C 导出。构建产物 `src\lua51.dll` 部署为
 `GarrysMod\bin\win64\lua_shared.dll`（`lua51.dll.pdb` 改名 `lua_shared.pdb` 同拷）。
@@ -30,9 +53,10 @@ ILuaConVars 与游戏、二进制模块消费的 C 导出。构建产物 `src\lu
   引擎行为验证过：Init/MountLua/CreateLuaInterface 按此命中（实现见 `lib_gmod.c`
   `glua_shared_vtable`）。
 - **IFileSystem（VFileSystem022）**：双子对象，base 块 = 对象指针 + 1 个槽位处，
-  `FileExists=10 / GetFileTime=13 / Open=2 / Read=0 / Close=3 / Size(handle)=6`；
+  `FileExists=10 / GetFileTime=13 / Open=2 / Read=0 / Close=3 / Size(name,pathID)=6 / Size(handle)=7`；
   own 块 = 对象头，`AddSearchPath=11 / RemoveSearchPaths=14 / MarkPathIDByRequestOnly=15 /
   IsDirectory=22 / FindNext=32 / FindIsDirectory=33 / FindClose=34 / FindFirstEx=35`。
+  查找句柄是 intptr_t，不是 Source SDK 旧头中的 int；不得按查找对象首字段的 32 位属性读取推断句柄宽度。
   AddSearchPath 的 addType：普通 5、workshop 根 0x105（head 模式）。
   所有调用包 SEH 守卫，任一异常即置不可用、回退本地磁盘遍历。
   **`__try` 不能与需要展开的 C++ 对象同帧（C2712）**——守卫调用隔离进只收指针的帧。
@@ -71,10 +95,11 @@ ILuaConVars 与游戏、二进制模块消费的 C 导出。构建产物 `src\lu
 - **池化字符串表**按原版槽位数量建（323），不要缩容，越界 NULL 会崩引擎。
 - **元表栈协议**：`CreateMetaTable / CreateMetaTableType / RegisterMetaTable` 契约是
   把表留在栈上（-1）；RegisterMetaTable 恒注册传入的表（保留既有 MetaID）。
-- **日志**：`OPGLUA_LOG` 环境变量非零开启；**禁止逐行 fflush**（1.4GB 日志 + 游戏无响应）。
-  已知缺陷：经 Steam `-applaunch` 拉起会丢环境变量，文件旗标开关待实现。
+- **日志**：默认关闭，以启动参数 -opglua-log 1/2 开启；旧环境变量和旗标不再控制日志。禁止逐行 fflush，详细跟踪只用于短时诊断。
 
-## 当前未解决（下一步从这里开始）
+## 历史问题快照（状态以上方记录为准）
+
+以下为早期接手记录。ConVar ABI、延迟队列、报错桥与 Workshop 脚本读取已经修正，不能据此重复回退已验证代码。
 
 0. **ConVar 的 IConVar 子对象虚表槽数不足（最高优先级，先修这个）**。该子对象在原版
    有 8 个槽位，当前头文件只声明了 5 个，多出来的调用落在空槽上。引擎在脚本跑完后
@@ -92,9 +117,7 @@ ILuaConVars 与游戏、二进制模块消费的 C 导出。构建产物 `src\lu
    `cl_init.lua` 而 realm=0 加载了 12 个，这个不对称要查清楚。
 2. **workshop 地图启动卡死**：`Couldn't write cache/map_pack.bsp` 后无响应；普通地图可
    完整跑完退出。排查引擎文件系统优先读路径在 BSP 挂载期的重入。
-3. **日志量**：`glua_log` 已分两级——lifecycle（旗标文件/`OPGLUA_LOG` 任意值）只记
-   生命周期事件与内存心跳，verbose（`OPGLUA_LOG=verbose` 或旗标文件写 verbose）才记
-   每次槽调用。**不要把 verbose 留在游戏运行中**：一次地图加载 120 万行，游戏会卡死。
+3. **日志量**：现为默认关闭，-opglua-log 1 开诊断，-opglua-log 2 开详细跟踪。历史环境变量及旗标机制已经移除，详细跟踪不应常驻开启。
 
 ## 交接
 
