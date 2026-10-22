@@ -136,7 +136,8 @@ enum OwnSlot {
   kOwnFindNext = 32,
   kOwnFindIsDirectory = 33,
   kOwnFindClose = 34,
-  kOwnFindFirstEx = 35
+  kOwnFindFirstEx = 35,
+  kOwnFullPathToRelativePathEx = 93
 };
 
 typedef bool         (*BaseFileExistsFn)( void *base, const char *name, const char *pathID );
@@ -153,6 +154,8 @@ typedef void (*OwnRemoveSearchPathsFn)( void *fs, const char *pathID );
 typedef bool (*OwnIsDirectoryFn)( void *fs, const char *name, const char *pathID );
 typedef const char * (*OwnResolvePathFn)( void *fs, const char *name, const char *pathID,
                                           char *out, int size, int filter, void *pathType );
+typedef bool (*OwnRelativePathFn)( void *fs, const char *fullPath, const char *pathID,
+                                    char *out, int size );
 typedef intptr_t GmodFindHandle;
 typedef const char * (*OwnFindFirstExFn)( void *fs, const char *wildcard, const char *pathID,
                                           GmodFindHandle *handle );
@@ -397,6 +400,32 @@ int fs_walk( const std::string &pattern, const char *pathID, RawFind *out, int c
   }
 #endif
   return count;
+}
+
+/* Cache names use the MOD-relative identity shared with the client file
+** table, even when the caller found the file through a narrower Lua root. */
+bool fs_script_identity( const std::string &name, const char *pathID,
+                          char *out, int size )
+{
+  char full[MAX_PATH];
+  if ( g_fs == NULL || !g_fs_usable || name.empty() ) return false;
+#ifdef _WIN32
+  __try {
+#endif
+    if ( own_table()[kOwnRelativePathToFullPath] == NULL ||
+         own_table()[kOwnFullPathToRelativePathEx] == NULL ) return false;
+    if ( ( (OwnResolvePathFn)own_table()[kOwnRelativePathToFullPath] )
+           ( g_fs, name.c_str(), pathID, full, sizeof(full), 0, NULL ) == NULL )
+      return false;
+    return ( (OwnRelativePathFn)own_table()[kOwnFullPathToRelativePathEx] )
+             ( g_fs, full, "MOD", out, size );
+#ifdef _WIN32
+  } __except ( EXCEPTION_EXECUTE_HANDLER ) {
+    glua_luashared_trace("script-identity-exception", name.c_str(),
+                         pathID ? pathID : "", 0, (int)GetExceptionCode());
+    return false;
+  }
+#endif
 }
 
 } /* namespace */
@@ -664,8 +693,8 @@ extern "C" int opglua_luashared_isdirectory( const char *name, const char *pathI
 ** is returned untouched, otherwise the bytes are re-read and stored on the same
 ** object.
 **
-** Field fill follows the reference: `name` is the script name lower-cased with
-** a leading workshop prefix removed (the same key the cache lookup uses),
+** Field fill follows the reference: `name` is the canonical MOD-relative
+** identity with a leading workshop prefix removed (the cache lookup key),
 ** `contents` holds the bytes, `source` is empty for a file read, the compressed
 ** copy is empty, both load counters start at zero, and `time` carries the file
 ** timestamp so a reload can tell whether the bytes changed.
@@ -676,14 +705,18 @@ extern "C" void *opglua_luashared_loadfile( const void *path, const void *pathId
   (void)fromDatatable; (void)fromFile;
   if ( path == NULL ) return NULL;
 
-  /* The file questions run against the name as given (normalized); the cache
-  ** identity and the stored name are the stripped, lower-cased spelling. */
+  /* File queries keep the requested Lua-root path; cache identity keeps the
+  ** canonical MOD-relative path used by the host's client file table. */
   const std::string norm = normalise_path( ( (const std::string *)path )->c_str() );
-  const std::string key = lower_ascii( cache_key( ( (const std::string *)path )->c_str() ) );
+  std::string key = lower_ascii( cache_key( ( (const std::string *)path )->c_str() ) );
   if ( norm.empty() || key.empty() ) return NULL;
   const std::string pid = ( pathId != NULL )
                             ? normalise_path( ( (const std::string *)pathId )->c_str() )
                             : std::string();
+  char canonical[MAX_PATH];
+  if ( fs_script_identity( norm, pid.empty() ? NULL : pid.c_str(),
+                           canonical, sizeof(canonical) ) )
+    key = lower_ascii( cache_key( canonical ) );
 
   GmodLuaFile *cached = cache_lookup( key );
 
@@ -943,7 +976,7 @@ static bool resolve_mount_path( const char *root, char *out, int size )
   __try {
 #endif
     return ( (OwnResolvePathFn)own_table()[kOwnRelativePathToFullPath] )
-             ( g_fs, root, "GAME", out, size, 0, NULL ) != NULL;
+             ( g_fs, root, "MOD", out, size, 0, NULL ) != NULL;
 #ifdef _WIN32
   } __except ( EXCEPTION_EXECUTE_HANDLER ) {
     g_fs_usable = false;

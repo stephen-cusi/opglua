@@ -15,6 +15,7 @@
 static void *own_slots[100], *base_slots[32];
 static struct { void **own; void **base; } filesystem = {own_slots, base_slots};
 static std::string mounted_path, mounted_id;
+static std::string mount_resolve_scope, canonical_scope;
 static int mounted_mode, marked, cursor, closed, walks;
 static int failures, handle_mismatches;
 typedef intptr_t FindHandle;
@@ -51,8 +52,8 @@ static int read_file(void *,void *out,int size,void *handle)
 static void close_file(void *,void *handle){if(handle==&file_state)++file_closes;}
 static int file_time(void *,const char *name,const char *){return packed_name(name)?777:0;}
 static bool file_exists(void *,const char *name,const char *){return packed_name(name);}
-static bool relative_name(void *,const char *,const char *,char *out,int size)
-{std::snprintf(out,size,"workshop/opglua_contract_dir/packed.lua");return true;}
+static bool relative_name(void *,const char *,const char *scope,char *out,int size)
+{canonical_scope=scope?scope:"";std::snprintf(out,size,"workshop/lua/opglua_contract_dir/packed.lua");return true;}
 static void copy_path(void *,const char *path,char *out,int size)
 {std::snprintf(out,size,"%s",path);}
 static int read_file_ex(void *,const char *name,const char *,void **out,bool,bool,int,int,void *)
@@ -66,10 +67,16 @@ static void **table(void *p) { return *(void ***)p; }
 static void add_path(void *, const char *path, const char *id, int mode)
 { mounted_path=path; mounted_id=id; mounted_mode=mode; }
 static void mark_path(void *, const char *, bool enabled) { marked=enabled; }
-static const char *resolve_path(void *, const char *path, const char *, char *out, int size, int, void *)
-{ std::snprintf(out,size,"Z:/mounted/%s",path); return out; }
+static const char *resolve_path(void *, const char *path, const char *scope, char *out, int size, int, void *)
+{
+    if(!std::strcmp(path,"workshop/lua"))mount_resolve_scope=scope?scope:"";
+    if(!std::strcmp(path,"lua") && scope && !std::strcmp(scope,"GAME")) {
+        std::snprintf(out,size,"Z:/addon/nvg/lua");return out;
+    }
+    std::snprintf(out,size,"Z:/mounted/%s",path); return out;
+}
 static bool is_directory(void *, const char *path, const char *)
-{ return !std::strncmp(path,"Z:/mounted/",11) || !std::strcmp(path,"workshop/lua"); }
+{ return !std::strncmp(path,"Z:/mounted/",11) || !std::strncmp(path,"Z:/addon/",9) || !std::strcmp(path,"workshop/lua"); }
 static const char *find_first(void *, const char *, const char *, FindHandle *handle)
 { ++walks; cursor=0; *handle=reinterpret_cast<FindHandle>(&find_state); return entries[0]; }
 static bool valid_handle(FindHandle handle)
@@ -144,7 +151,11 @@ int main(int argc, char **argv)
     ((void (*)(void *,const char *,const char *))table(shared)[10])(shared,"workshop/lua","lsv");
     std::printf("mounted|%s|%s|%x\n",mounted_path.c_str(),mounted_id.c_str(),mounted_mode);
     check(mounted_path=="Z:/mounted/workshop/lua","mount uses filesystem-resolved path");
+    check(mount_resolve_scope=="MOD","mount resolution uses MOD without selecting an addon GAME root");
     check(mounted_id=="lsv" && mounted_mode==0x105 && marked,"workshop mount flags and request-only id");
+    ((void (*)(void *,const char *,const char *))table(shared)[10])(shared,"lua","lsv");
+    check(mounted_path=="Z:/mounted/lua" && mounted_mode==5,
+          "stock Lua root stays mounted when an addon also supplies a lua directory");
     // Keep the result allocated: the reference module owns its allocation rules.
     auto *results=new std::vector<GarrysMod::Lua::LuaFindResult>;
     std::string pattern="opglua_contract_dir/*", id="lsv";
@@ -161,6 +172,14 @@ int main(int argc, char **argv)
     const std::string *contents=loaded?reinterpret_cast<const std::string *>(static_cast<char *>(loaded)+0x48):NULL;
     check(contents && *contents==packed_script && packed_reads>0 && wrong_size_calls==0,
           "enumerated packed script loads its real bytes without using filename Size for a handle");
+    const std::string *stored_name=loaded?reinterpret_cast<const std::string *>(static_cast<char *>(loaded)+8):NULL;
+    std::string canonical_name="lua/opglua_contract_dir/packed.lua";
+    check(stored_name && *stored_name==canonical_name,
+          "stored script identity keeps the canonical MOD-relative lua prefix");
+    check(canonical_scope=="MOD","script canonical identity uses the MOD path domain");
+    void *cached=((void *(*)(void *,const void *))table(shared)[8])(shared,&canonical_name);
+    check(cached==loaded && cached!=NULL,
+          "canonical client file-table name resolves the same shared cache entry");
     id="lcl";
     int walks_before=walks;
     auto *no_hook=new std::vector<GarrysMod::Lua::LuaFindResult>;
