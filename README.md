@@ -1,19 +1,34 @@
 # opglua
 
-An open-source, from-scratch implementation of Garry's Mod's `lua_shared.dll` —
-the shared library that hosts the game's Lua state (GLua), loads gamemodes,
-addons and scripts, and exposes the binary-module API to `gm_*` modules.
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-It links LuaJIT 2.1 (GC64) with a platform layer that implements the
-`ILuaShared` / `ILuaInterface` / `ILuaConVars` interfaces and the C exports the
-engine and binary modules bind to, with the goal of being a drop-in,
-source-buildable replacement: no patches to game content, no patches to the
-engine.
+opglua is a source-buildable replacement for Garry's Mod's `lua_shared.dll`.
+It combines LuaJIT 2.1 in GC64 mode with a GLua language layer and the native
+interfaces used by the game and binary Lua modules.
 
-## GLua language layer
+The goal is to restore the reference runtime's behavior while keeping the
+implementation available as source. The current Windows x64 build runs inside
+Garry's Mod without modifying its engine or Lua content. Development and release
+work use a single branch: `main`.
 
-The `glua` branch carries the language and library layer on top of the
-upstream 2.1 line (based on the 2.1.0-beta3 release commit):
+## Highlights
+
+- **GLua syntax on LuaJIT:** `continue`, C-style logical operators and comments,
+  plus compatible standard-library behavior.
+- **Native host interfaces:** `ILuaShared`, `ILuaInterface`, `ILuaConVars`, and
+  the C exports consumed by the game and binary modules.
+- **Workshop Lua loading:** mounted archive discovery, script byte reads,
+  autorun loading, and the file cache used by includes and `AddCSLuaFile`.
+- **Native userdata and coroutines:** host metatables and callbacks remain
+  usable across coroutine yields and protected Lua errors.
+- **Self-contained build inputs:** required console support sources and headers
+  live in `vendor/`; building does not switch or modify an engine checkout.
+- **Quiet by default:** optional launch-argument diagnostics, with ordinary Lua
+  errors and `print` output preserved in the game console.
+
+## GLua language support
+
+The language and library layer extends the LuaJIT 2.1.0-beta3 base:
 
 - `continue` statement: reserved word, works in numeric for / generic for /
   while / repeat, resolves to each loop's continuation point, propagates
@@ -30,23 +45,28 @@ upstream 2.1 line (based on the 2.1.0-beta3 release commit):
   type name (e.g. "Entity") instead of "userdata".
 - `lua_resume_real` is exported as the plain coroutine resume path.
 
-## Status
+## Current validation
 
-Working:
+| Area | Verified behavior |
+| --- | --- |
+| Game startup | Menu, client and server realms initialize; map entry and sky rendering have been confirmed in game. |
+| Workshop addons | Enabled Workshop Lua addons load in the tested local game session; confirmed by the tester after the archive enumeration and read fixes. |
+| Undo and console commands | Z undo has been confirmed in game; realm flags, callbacks and console object layout have native contract coverage. |
+| Native objects | Player methods, coroutine calls and recovery after protected errors have been confirmed with in-game probes. |
+| Binary modules | A purpose-built module passes loading, binary-string, reference, multiple-return, error and coroutine tests; in-game probe results were also confirmed. |
+| File loading | Both the reference DLL and replacement pass mounted-script enumeration, byte-read and actual `FindAndRunScript` execution contracts. |
+| Diagnostics | Default-off, explicit-off, invalid-option, lifecycle and verbose modes pass separate process tests. |
 
-- Boot into the game and the Lua main menu realm; gamemode discovery, script
-  enumeration and loading through the engine file system (mounted archives
-  included) with a local disk fallback.
-- ConVar bridge sharing the engine's cvar registry; module allocations routed
-  through the engine heap; a LuaFile cache with timestamp revalidation.
+### Scope and remaining work
 
-In development:
-
-- End-to-end host registration and dispatch of game libraries. Standalone
-  runtime tests do not establish that native game libraries are registered or
-  dispatched correctly in every realm.
-- Unifying every path on host-supplied `ILuaObject` handles, so our own object
-  type never mixes with the engine's.
+- The delivered and tested target is **Windows x64**. Linux and Android are not
+  currently validated replacement builds.
+- This is not yet a claim of complete compatibility with every addon, binary
+  module or multiplayer scenario. Third-party modules must be installed
+  separately; the test module is not MySQLOO or another third-party dependency.
+- The current Windows build disables LuaJIT FFI.
+- Garry's Mod still supplies the game libraries, rendering, entities and Steam
+  integration. opglua replaces the Lua runtime; it is not a standalone game.
 
 `docs/lua_shared_structure.md` maps the reference object model, all five
 virtual tables, the interface memory layout, the boot sequence and the script
@@ -114,6 +134,19 @@ vendor/source-sdk/    local console support sources and headers
 
 ## Tests
 
+Run the native interface, packed-script, binary-module and logging contracts:
+
+```bat
+tools\test_windows.bat
+```
+
+The reference DLL tests use a copy named `lua_shared,.dll` in the configured
+host directory. This is a fixture name, not the filename loaded by the game.
+Native contracts validate interface behavior; they do not replace in-game
+testing of complete addons and multiplayer scenarios.
+
+Language and standard-library tests:
+
     cd src
     luajit.exe ..\tests\glua_syntax_test.lua
     luajit.exe ..\tests\glua_lib_test.lua
@@ -123,7 +156,8 @@ Each script prints PASS/FAIL lines and exits non-zero on failure.
 
 ## License
 
-Upstream LuaJIT code stays MIT (see the file headers and the upstream history
-this branch is based on). The platform layer is provided for interoperability
-as a clean-room implementation. Not affiliated with or endorsed by Facepunch
-Studios. Garry's Mod is a trademark of Facepunch Studios.
+Upstream LuaJIT code stays MIT (see the file headers and upstream history).
+Dependencies in `vendor/` retain their own copyright and license notices.
+The platform layer targets interoperability with the host. This project is not
+affiliated with or endorsed by Facepunch Studios. Garry's Mod is a trademark
+of Facepunch Studios.
