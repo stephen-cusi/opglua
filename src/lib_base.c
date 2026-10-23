@@ -656,6 +656,31 @@ static void newproxy_weaktable(lua_State *L)
   t->nomm = (uint8_t)(~(1u<<MM_mode));
 }
 
+/* Native callbacks select their coroutine on the shared interface. GMod
+** restores the main state after resume, including yields and errors. */
+static int glua_coroutine_call(lua_State *L)
+{
+  int status, count = lua_gettop(L);
+  lua_pushvalue(L, lua_upvalueindex(1));
+  lua_insert(L, 1);
+  status = lua_pcall(L, count, LUA_MULTRET, 0);
+  if (L->luabase != NULL) {
+    void **vtable = *(void ***)L->luabase;
+    ((void (*)(void *, lua_State *))vtable[50])(L->luabase, mainthread(G(L)));
+  }
+  if (status != 0) return lua_error(L);
+  return lua_gettop(L);
+}
+
+static int glua_coroutine_wrap(lua_State *L)
+{
+  lua_pushvalue(L, lua_upvalueindex(1));
+  lua_insert(L, 1);
+  lua_call(L, lua_gettop(L)-1, 1);
+  lua_pushcclosure(L, glua_coroutine_call, 1);
+  return 1;
+}
+
 LUALIB_API int luaopen_base(lua_State *L)
 {
   /* NOBARRIER: Table and value are the same. */
@@ -665,6 +690,12 @@ LUALIB_API int luaopen_base(lua_State *L)
   newproxy_weaktable(L);  /* top-2. */
   LJ_LIB_REG(L, "_G", base);
   LJ_LIB_REG(L, LUA_COLIBNAME, coroutine);
+  lua_getfield(L, -1, "resume");
+  lua_pushcclosure(L, glua_coroutine_call, 1);
+  lua_setfield(L, -2, "resume");
+  lua_getfield(L, -1, "wrap");
+  lua_pushcclosure(L, glua_coroutine_wrap, 1);
+  lua_setfield(L, -2, "wrap");
   return 2;
 }
 

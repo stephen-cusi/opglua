@@ -613,6 +613,7 @@ int main(int argc, char **argv)
   error_contract_probes();
 
   if(argc>3) {
+    void *main_state = *(void **)((char *)iface+8);
     int (*load_module)(void *,const char *)=(int (*)(void *,const char *))GetProcAddress(mod,"GMOD_LoadBinaryModule");
     int top_before=Top();
     chk("binary.export",load_module!=NULL,1);
@@ -624,6 +625,17 @@ int main(int argc, char **argv)
       chk("binary.echo",Run("local s=string.char(65,0,66) local a,b,c=opglua_native_contract.echo(s) assert(a==s and b==22 and c==true)"),1);
       chk("binary.error",Run("local ok,e=pcall(opglua_native_contract.fail) assert(not ok and string.find(e,'opglua_expected_native_error',1,true)) assert(opglua_native_contract.echo('after')=='after')"),1);
       chk("binary.coroutine",Run("local co=coroutine.create(function() local a,b,c=opglua_native_contract.echo('coroutine') assert(a=='coroutine' and b==22 and c==true) end) local ok,e=coroutine.resume(co) assert(ok,e) print('native coroutine complete')"),1);
+      chk("binary.coroutine_state_restored", *(void **)((char *)iface+8)==main_state,1);
+      chk("binary.coroutine_yields",Run("local co=coroutine.create(function() for i=1,3 do assert(opglua_native_contract.echo('yield')=='yield') coroutine.yield(i) end end) for i=1,3 do local ok,v=coroutine.resume(co) assert(ok and v==i) end assert(coroutine.resume(co))"),1);
+      chk("binary.yield_state_restored", *(void **)((char *)iface+8)==main_state,1);
+      chk("binary.coroutine_nested",Run("local outer=coroutine.create(function() local inner=coroutine.create(function() opglua_native_contract.echo('inner') coroutine.yield() error('nested failure') end) assert(coroutine.resume(inner)) assert(not opglua_native_contract.current_state()) assert(opglua_native_contract.echo('outer')=='outer') local ok,e=coroutine.resume(inner) assert(not ok and string.find(e,'nested failure',1,true)) coroutine.yield() end) assert(coroutine.resume(outer)) assert(coroutine.resume(outer))"),1);
+      chk("binary.nested_state_restored", *(void **)((char *)iface+8)==main_state,1);
+      chk("binary.coroutine_wrap",Run("local f=coroutine.wrap(function() opglua_native_contract.echo('wrapped') coroutine.yield(7) opglua_native_contract.echo('wrapped again') error('wrapped failure') end) assert(f()==7) local ok,e=pcall(f) assert(not ok and string.find(e,'wrapped failure',1,true))"),1);
+      chk("binary.wrap_state_restored", *(void **)((char *)iface+8)==main_state,1);
+      chk("binary.behaviour_setup",Run("contract_behaviour=coroutine.create(function() for i=1,3 do opglua_native_contract.echo('behaviour') coroutine.yield(i) end end)"),1);
+      chk("binary.behaviour_first_tick",Run("local ok,n=coroutine.resume(contract_behaviour) assert(ok and n==1)"),1);
+      chk("binary.behaviour_next_tick",Run("local ok,n=coroutine.resume(contract_behaviour) assert(ok and n==2)"),1);
+      chk("binary.behaviour_last_tick",Run("local ok,n=coroutine.resume(contract_behaviour) assert(ok and n==3) contract_behaviour=nil"),1);
       chk("binary.recovery",Run("assert(opglua_native_contract.echo('main')=='main')"),1);
       chk("binary.final_top",Top(),0);
     }
